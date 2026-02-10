@@ -1,0 +1,46 @@
+current directory: C:/Users/tiv17/Desktop/whoknows_ripmarkus/ruby-app/vendor/ruby/4.0.0/gems/puma-7.2.0/ext/puma_http11
+C:/Ruby40-x64/bin/ruby.exe extconf.rb
+checking for whether -fstack-protector-strong -D_FORTIFY_SOURCE=2 is accepted as CFLAGS... yes
+checking for whether -fstack-protector-strong -l:libssp.a is accepted as LDFLAGS... yes
+checking for -lssp... yes
+checking for pkg-config for openssl... ["-IC:/Ruby40-x64/msys64/ucrt64/bin/../include ", "-LC:/Ruby40-x64/msys64/ucrt64/bin/../lib", "-lssl -lcrypto"]
+checking for BIO_read() in -llibcrypto... yes
+checking for SSL_CTX_new() in -llibssl... yes
+checking for openssl/bio.h... yes
+
+──── Below are yes for 1.0.2 & later ────
+checking for DTLS_method() in openssl/ssl.h... yes
+checking for SSL_CTX_set_session_cache_mode(NULL, 0) in openssl/ssl.h... yes
+
+──── Below are yes for 1.1.0 & later ────
+checking for TLS_server_method() in openssl/ssl.h... yes
+checking for SSL_CTX_set_min_proto_version(NULL, 0) in openssl/ssl.h... yes
+
+──── Below is yes for 1.1.0 and later, but isn't documented until 3.0.0 ────
+checking for SSL_CTX_set_dh_auto(NULL, 0) in openssl/ssl.h... yes
+
+──── Below is yes for 1.1.1 & later ────
+checking for SSL_CTX_set_ciphersuites(NULL, "") in openssl/ssl.h... yes
+
+──── Below is yes for 3.0.0 & later ────
+checking for SSL_get1_peer_certificate() in openssl/ssl.h... yes
+
+creating Makefile
+
+current directory: C:/Users/tiv17/Desktop/whoknows_ripmarkus/ruby-app/vendor/ruby/4.0.0/gems/puma-7.2.0/ext/puma_http11
+make -j21 DESTDIR\= sitearchdir\=./.gem.20260209-9276-5334in sitelibdir\=./.gem.20260209-9276-5334in clean
+
+current directory: C:/Users/tiv17/Desktop/whoknows_ripmarkus/ruby-app/vendor/ruby/4.0.0/gems/puma-7.2.0/ext/puma_http11
+make -j21 DESTDIR\= sitearchdir\=./.gem.20260209-9276-5334in sitelibdir\=./.gem.20260209-9276-5334in
+generating puma_http11-x64-mingw-ucrt.def
+compiling http11_parser.c
+compiling mini_ssl.c
+compiling puma_http11.c
+linking shared-object puma/puma_http11.so
+
+current directory: C:/Users/tiv17/Desktop/whoknows_ripmarkus/ruby-app/vendor/ruby/4.0.0/gems/puma-7.2.0/ext/puma_http11
+make -j21 DESTDIR\= sitearchdir\=./.gem.20260209-9276-5334in sitelibdir\=./.gem.20260209-9276-5334in install
+/usr/bin/install -c -m 0755 puma_http11.so ./.gem.20260209-9276-5334in/puma
+
+current directory: C:/Users/tiv17/Desktop/whoknows_ripmarkus/ruby-app/vendor/ruby/4.0.0/gems/puma-7.2.0/ext/puma_http11
+make DESTDIR\= sitearchdir\=./.gem.20260209-9276-5334in sitelibdir\=./.gem.20260209-9276-5334in clean

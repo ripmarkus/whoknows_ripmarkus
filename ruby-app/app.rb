@@ -19,10 +19,22 @@ get '/register' do
     erb :register
 end
 
+def check_db_exists
+  unless File.exist?('whoknows.db')
+    puts "Database not found"
+    exit(1)
+  end
+  true
+end
+
 # DATABASE
 def get_db
     SQLite3::Database.new 'whoknows.db'
 end
+
+
+
+
 
 # ENDPOINTS   
 get '/api/users' do

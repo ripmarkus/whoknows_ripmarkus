@@ -1,0 +1,26 @@
+current directory: C:/Users/tiv17/Desktop/whoknows_ripmarkus/ruby-app/vendor/ruby/4.0.0/gems/json-2.18.1/ext/json/ext/parser
+C:/Ruby40-x64/bin/ruby.exe extconf.rb
+checking for rb_enc_interned_str() in ruby/encoding.h... yes
+checking for rb_str_to_interned_str() in ruby.h... yes
+checking for rb_hash_new_capa() in ruby.h... yes
+checking for rb_hash_bulk_insert() in ruby.h... yes
+checking for whether -std=c99 is accepted as CFLAGS... yes
+checking for x86intrin.h... yes
+checking for cpuid.h... yes
+creating Makefile
+
+current directory: C:/Users/tiv17/Desktop/whoknows_ripmarkus/ruby-app/vendor/ruby/4.0.0/gems/json-2.18.1/ext/json/ext/parser
+make -j21 DESTDIR\= sitearchdir\=./.gem.20260209-9276-4xkjnh sitelibdir\=./.gem.20260209-9276-4xkjnh clean
+
+current directory: C:/Users/tiv17/Desktop/whoknows_ripmarkus/ruby-app/vendor/ruby/4.0.0/gems/json-2.18.1/ext/json/ext/parser
+make -j21 DESTDIR\= sitearchdir\=./.gem.20260209-9276-4xkjnh sitelibdir\=./.gem.20260209-9276-4xkjnh
+generating parser-x64-mingw-ucrt.def
+compiling parser.c
+linking shared-object json/ext/parser.so
+
+current directory: C:/Users/tiv17/Desktop/whoknows_ripmarkus/ruby-app/vendor/ruby/4.0.0/gems/json-2.18.1/ext/json/ext/parser
+make -j21 DESTDIR\= sitearchdir\=./.gem.20260209-9276-4xkjnh sitelibdir\=./.gem.20260209-9276-4xkjnh install
+/usr/bin/install -c -m 0755 parser.so ./.gem.20260209-9276-4xkjnh/json/ext
+
+current directory: C:/Users/tiv17/Desktop/whoknows_ripmarkus/ruby-app/vendor/ruby/4.0.0/gems/json-2.18.1/ext/json/ext/parser
+make DESTDIR\= sitearchdir\=./.gem.20260209-9276-4xkjnh sitelibdir\=./.gem.20260209-9276-4xkjnh clean
