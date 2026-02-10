@@ -1,6 +1,8 @@
 require 'sinatra'
 require 'sqlite3'
 require 'json'
+require_relative 'queries'
+
 
 get '/' do
   'Hello world!!!!!!'

@@ -11,6 +11,7 @@ begin
     db.last_insert_row_id
   end
 
+
   def get_user_id_query(db)
     query = "SELECT id FROM users WHERE username = 'johndoe'"
     row = db.get_first_row(query)
