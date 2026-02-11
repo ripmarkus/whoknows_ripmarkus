@@ -8,5 +8,5 @@
 
 **Checklist**
 
-Application compiles [ ]
-Documentation added [ ]
+- [ ] Application compiles
+- [ ] Documentation added
