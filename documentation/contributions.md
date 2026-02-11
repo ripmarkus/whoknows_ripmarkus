@@ -71,6 +71,8 @@ The following is extremely important, so follow the numbered list with numbers o
 
 ![alt text](/documentation/imgs/2026-02-05_20-06.png)
 
+**Please use the PR template when submitting pull requests. This helps maintain consistency and keeps PRs clear and concise. Thank you!**
+
 When the PR has been created, a fellow teammate will review it and merge it, if possible.
 
 Like stated earlier, we like commits! Commit often while working on your branch. However, only open a pull request when your work is complete - we'd rather you add one more commit to your branch than have to reject an incomplete PR.
