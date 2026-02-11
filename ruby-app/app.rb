@@ -54,3 +54,35 @@ get '/api/users' do
   db.close
   users.to_json
 end
+
+get '/api/search' do
+    content_type :json
+
+    {
+      message: "Search endpoint hit"
+    }.to_json
+end
+
+post '/api/login' do
+    content_type :json
+
+    {
+      message: "Login endpoint hit"
+    }.to_json
+end
+
+post '/api/register' do
+    content_type :json
+
+    {
+      message: "Register endpoint hit"
+    }.to_json
+end
+
+get "/api/logout" do
+    content_type :json
+
+    {
+      message: "Logout endpoint hit"
+    }.to_json
+end
