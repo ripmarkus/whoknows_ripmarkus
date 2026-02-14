@@ -8,3 +8,7 @@
 
 
 ## API Routes
+
+## Password Safety
+
+The python app used MD5 hashing, which is not that secure for passwords, since it is cryptographically broken and easy to crack with an online tool like https://crackstation.net. It should be using bcrypt, which we will implement in the ruby code.

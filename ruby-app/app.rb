@@ -1,6 +1,7 @@
 require 'sinatra'
 require 'sqlite3'
 require 'json'
+require 'bcrypt'
 
 #Shows the search page
 get '/' do
@@ -85,4 +86,18 @@ get "/api/logout" do
     {
       message: "Logout endpoint hit"
     }.to_json
+end
+
+###############
+# SECURITY
+###############
+
+# TODO: Use in the register api route
+def hash_password(password)
+  BCrypt::Password.create(password)
+end
+
+# TODO: Use in the login api route
+def password_matches?(password_hash, plaintext_password)
+  BCrypt::Password.new(password_hash) == plaintext_password
 end
