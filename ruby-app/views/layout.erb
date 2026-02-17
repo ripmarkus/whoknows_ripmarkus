@@ -1,0 +1,33 @@
+<!doctype html>
+<title>¿Who Knows?</title>
+<link rel="stylesheet" type="text/css" href="/style.css">
+<div class="page">
+  <div class="navigation">
+    <nav>
+      <h1><a id="nav-logo" href="/search">¿Who Knows?</a></h1>
+      <% if session[:user] %>
+        <a id="nav-logout" href="/logout">Log out [<%= session[:user][:username] %>]</a>
+      <% else %>
+        <a id="nav-login" href="/login">Log in</a>
+        <a id="nav-register" href="/register">Register</a>
+      <% end %>
+    </nav>
+  </div>
+
+  <% if session[:flash] %>
+    <ul class="flashes">
+      <% Array(session.delete(:flash)).each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  <% end %>
+
+  <div class="body">
+    <%= yield %>
+  </div>
+
+  <div class="footer">
+    <span>¿Who Knows? &copy; 2009</span>
+    <a href="/about">About</a>
+  </div>
+</div>
