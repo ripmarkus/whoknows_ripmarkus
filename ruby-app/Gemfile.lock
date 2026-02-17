@@ -2,7 +2,9 @@ GEM
   remote: https://rubygems.org/
   specs:
     base64 (0.3.0)
+    bcrypt (3.1.21)
     ffi (1.17.3-x86_64-linux-gnu)
+    json (2.18.1)
     listen (3.10.0)
       logger
       rb-fsevent (~> 0.10, >= 0.10.3)
@@ -43,6 +45,8 @@ PLATFORMS
   x86_64-linux-gnu
 
 DEPENDENCIES
+  bcrypt
+  json
   puma
   rackup
   rerun
