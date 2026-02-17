@@ -5,24 +5,12 @@ require 'bcrypt'
 
 #Shows the search page
 get '/' do
-
-  # retrieves the query parameter from the url
-  query = params[:q]
-
-  # retrieves the languge parameter (defaults to english)
+  query    = params[:query]
   language = params[:language] || 'en'
-
-  # if no query, return no 
-  unless query
-    search_results = []
-  else
-    # retrieve from database
-    search_results = search_pages_query(db, language, query)  
-  end 
-
-  # always renders the search template, with or without a populated result array
+  search_results = query ? search_pages_query(db, language, query) : []
   erb :search, locals: { search_results: search_results, query: query }
 end
+
 
 # VIEWS
 get '/about' do
@@ -57,11 +45,11 @@ get '/api/users' do
 end
 
 get '/api/search' do
-    content_type :json
-
-    {
-      message: "Search endpoint hit"
-    }.to_json
+  content_type :json
+  query    = params[:query]
+  language = params[:language] || 'en'
+  search_results = query ? search_pages_query(db, language, query) : []
+  { message: "Search endpoint hit", results: search_results }.to_json
 end
 
 post '/api/login' do
