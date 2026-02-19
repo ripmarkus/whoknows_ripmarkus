@@ -12,8 +12,8 @@ begin
   end
 
   def get_user_id_query(db, username)
-    db.execute('SELECT id FROM users WHERE username = ?', username)
-    row ? row[0] : nil
+  row = db.execute('SELECT id FROM users WHERE username = ?', username).first
+  row ? row[0] : nil
   end
 
   def get_user_by_id_query(db)

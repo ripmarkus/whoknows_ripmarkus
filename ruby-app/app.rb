@@ -3,6 +3,8 @@ require 'sqlite3'
 require 'json'
 require 'bcrypt'
 
+enable :sessions
+
 #Shows the search page
 get '/' do
   query    = params[:query]
@@ -29,6 +31,11 @@ end
 def get_db
     SQLite3::Database.new 'whoknows.db'
 end
+
+def get_user_id_query(db, username)
+  row = db.execute('SELECT id FROM users WHERE username = ?', username).first
+  row ? row[0] : nil
+  end
 
 # ENDPOINTS   
 get '/api/users' do
@@ -61,28 +68,31 @@ post '/api/login' do
 end
 
 post '/api/register' do
-    content_type :json
-    redirect '/search' if session[:user_id]
+  content_type :json
+  redirect '/search' if session[:user_id]
+  error = nil
 
-    error = nil
-    if params[:username].nil? || params[:username].empty?
-      error = "You have to enter a username"
-    elsif params[:email].nil? || !params[:email].include?('@')
-      error = "Valid email address needed"
-    elsif params[:password].nil?
-      error = "You have to enter a password"
-    elsif params[:password] != params[:password2]
-      error = "The two passwords do not match"
-    elsif get_user_id_query(get_db, params[:username])
-      error = "The username already exists"
-    if error
-  { message: error }.to_json
-else
-  db = get_db
-  hashed_pw = hash_password(params[:password])
-  db.execute("INSERT INTO users (username, email, password) VALUES (?, ?, ?)", 
-             params[:username], params[:email], hashed_pw)
-  { message: "You were successfully registered and can login now" }.to_json
+  if params[:username].nil? || params[:username].empty?
+    error = "You have to enter a username"
+  elsif params[:email].nil? || !params[:email].include?('@')
+    error = "Valid email address needed"
+  elsif params[:password].nil?
+    error = "You have to enter a password"
+  elsif params[:password] != params[:password2]
+    error = "The two passwords do not match"
+  elsif get_user_id_query(get_db, params[:username])
+    error = "The username already exists"
+  end
+
+  if error
+    { message: error }.to_json
+  else
+    db = get_db
+    hashed_pw = hash_password(params[:password])
+    db.execute("INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
+               params[:username], params[:email], hashed_pw)
+    { message: "You were successfully registered and can login now" }.to_json
+  end
 end
 
 
