@@ -53,11 +53,21 @@ get '/api/search' do
 end
 
 post '/api/login' do
-    content_type :json
+  db = get_db
+  error = nil
+  user = db.execute("SELECT * FROM users WHERE username = ?", [params[:username]]).first
 
-    {
-      message: "Login endpoint hit"
-    }.to_json
+  if user.nil?
+    error = 'Invalid username'
+  elsif !password_matches?(user[2], params[:password])
+    error = 'Invalid password'
+  else
+    session[:user_id] = user[0]
+    redirect '/'
+  end
+
+  db.close
+  erb :login, locals: { error: error } if error
 end
 
 post '/api/register' do
