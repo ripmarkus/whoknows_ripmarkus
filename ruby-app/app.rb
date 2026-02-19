@@ -90,7 +90,7 @@ post '/api/register' do
     db = get_db
     hashed_pw = hash_password(params[:password])
     db.execute("INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
-               params[:username], params[:email], hashed_pw)
+               [params[:username], params[:email], hashed_pw])
     { message: "You were successfully registered and can login now" }.to_json
   end
 end
