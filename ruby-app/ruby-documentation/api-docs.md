@@ -57,6 +57,13 @@ end
 
 ### /api/register
 
+Several things that could be better here:
+
+1. Too much nested code.
+2. We should move the db.execute into a separate method, also for readability and maintainability.
+3. No password security check (minimum length, special characters)
+4. Email validation is weak
+
 ```ruby
 post '/api/register' do
   content_type :json
