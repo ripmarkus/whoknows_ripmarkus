@@ -62,11 +62,30 @@ end
 
 post '/api/register' do
     content_type :json
+    redirect '/search' if session[:user_id]
+    
+    error = nil
 
-    {
-      message: "Register endpoint hit"
-    }.to_json
+    if params[:username].nil? || params[:username].empty?
+      error = "You have to enter a username"
+    elsif params[:email].nil? || !params[:email].include?('@')
+      error = "Valid email address needed"
+    elsif params[:password].nil?
+      error = "You have to enter a password"
+    elsif params[:password] != params[:password2]
+      error = "The two passwords do not match"
+    elsif get_user_id_query(get_db, params[:username])
+      error = "The username already exists"
+    if error
+  { message: error }.to_json
+else
+  db = get_db
+  hashed_pw = hash_password(params[:password])
+  db.execute("INSERT INTO users (username, email, password) VALUES (?, ?, ?)", 
+             params[:username], params[:email], hashed_pw)
+  { message: "You were successfully registered and can login now" }.to_json
 end
+
 
 get "/api/logout" do
     content_type :json
