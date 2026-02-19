@@ -48,7 +48,7 @@ get '/api/search' do
   content_type :json
   query    = params[:query]
   language = params[:language] || 'en'
-  search_results = query ? search_pages_query(db, language, query) : []
+  search_results = query ? search_pages_query(get_db, language, query) : []
   { message: "Search endpoint hit", results: search_results }.to_json
 end
 

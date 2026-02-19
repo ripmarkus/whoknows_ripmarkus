@@ -3,6 +3,7 @@ GEM
   specs:
     base64 (0.3.0)
     bcrypt (3.1.21)
+    ffi (1.17.3-arm64-darwin)
     ffi (1.17.3-x86_64-linux-gnu)
     json (2.18.1)
     listen (3.10.0)
@@ -38,10 +39,12 @@ GEM
       rack-protection (= 4.2.1)
       rack-session (>= 2.0.0, < 3)
       tilt (~> 2.0)
+    sqlite3 (2.9.0-arm64-darwin)
     sqlite3 (2.9.0-x86_64-linux-gnu)
     tilt (2.7.0)
 
 PLATFORMS
+  arm64-darwin-23
   x86_64-linux-gnu
 
 DEPENDENCIES
