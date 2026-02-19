@@ -59,7 +59,7 @@ post '/api/login' do
 
   if user.nil?
     error = 'Invalid username'
-  elsif !password_matches?(user[2], params[:password])
+  elsif !password_matches?(user[3], params[:password])
     error = 'Invalid password'
   else
     session[:user_id] = user[0]
