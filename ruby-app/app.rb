@@ -63,9 +63,8 @@ end
 post '/api/register' do
     content_type :json
     redirect '/search' if session[:user_id]
-    
-    error = nil
 
+    error = nil
     if params[:username].nil? || params[:username].empty?
       error = "You have to enter a username"
     elsif params[:email].nil? || !params[:email].include?('@')
