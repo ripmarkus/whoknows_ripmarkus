@@ -5,7 +5,7 @@
   <div class="navigation">
     <nav>
       <h1><a id="nav-logo" href="/search">¿Who Knows?</a></h1>
-      <% if session[:user] %>
+      <% if session[:user_id] %>
         <a id="nav-logout" href="/logout">Log out [<%= session[:user][:username] %>]</a>
       <% else %>
         <a id="nav-login" href="/login">Log in</a>

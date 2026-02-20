@@ -107,7 +107,7 @@ end
 
 
 get "/api/logout" do
-  flash[:notice] = "You were logged out"
+  session[:flash] = "You were logged out"
   session.delete(:user_id)
   redirect '/'
 end
