@@ -106,7 +106,7 @@ post '/api/register' do
 end
 
 
-get "/api/logout" do
+post "/api/logout" do
   session[:flash] = "You were logged out"
   session.delete(:user_id)
   redirect '/'
