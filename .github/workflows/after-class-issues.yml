@@ -25,7 +25,7 @@ jobs:
           from datetime import datetime
 
           REPO_BASE = "https://github.com/who-knows-inc/EK_DAT_DevOps_2026_Spring/blob/main"
-          week = ((datetime.utcnow() - datetime(2025, 1, 29)).days // 7) + 1
+          week = ((datetime.utcnow() - datetime(2026, 1, 29)).days // 7) + 1
 
           content = open("course_material/README.adoc").read()
           match = re.search(rf'\|\s*{week}\s*\n.*?(?=\n\|\s*\d+|\Z)', content, re.DOTALL)
