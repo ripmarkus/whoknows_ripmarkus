@@ -106,12 +106,10 @@ post '/api/register' do
 end
 
 
-get "/api/logout" do
-    content_type :json
-
-    {
-      message: "Logout endpoint hit"
-    }.to_json
+post "/api/logout" do
+  session[:flash] = "You were logged out"
+  session.delete(:user_id)
+  redirect '/'
 end
 
 ###############
