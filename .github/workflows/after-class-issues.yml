@@ -34,5 +34,5 @@ jobs:
           for path, title in re.findall(r'link:(.*?)\[(.*?)\]', after_class):
               subprocess.run(["gh", "issue", "create",
                   "--title", f"[Week {week}] {title}",
-                  "--body", f"**Week {week} - After Class**\n\n🔗 [Assignment link]({REPO_BASE}/{path.strip()})",
+                  "--body", f"**Week {week} - After Class**\n\n🔗 [Assignment link]({REPO_BASE}/{path.strip()})"])
           EOF
