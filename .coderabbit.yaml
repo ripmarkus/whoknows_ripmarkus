@@ -16,7 +16,6 @@ reviews:
     Focus on code smells, overly complex methods, bad patterns, logic errors, and edge cases tests might miss.
     Flag any security concerns such as SQL injection, exposed secrets, or unsafe inputs — explain what makes them suspicious.
     Check that documentation and comments accurately reflect the code, flag anything outdated or missing.
-    Check the PR description actually matches what the code does.
     Explain why something is a problem, not just that it is — this is a learning opportunity.
     Avoid commenting on minor issues such as linting, formatting, and style.
     Always use GitHub suggestion format when providing code suggestions.
