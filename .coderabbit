@@ -1,0 +1,27 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+reviews:
+  request_changes_workflow: true
+  sequence_diagrams: false
+  related_prs: false
+  suggested_labels: false
+  path_filters:
+    - ruby-app/**
+    - documentation/**
+    - readme.md
+    - .github/**
+  high_level_summary_instructions: >-
+    This project is part of a DevOps elective on a CS education, help us develop an understanding of DevOps, and help us write clean code.
+    Focus on the principles of DevOps: Culture, Automation, Lean, Measurement, and Sharing.
+    If files changed (x) > commits (y) + 1, comment asking for more commits.
+    Focus on code smells, overly complex methods, bad patterns, logic errors, and edge cases tests might miss.
+    Flag any security concerns such as SQL injection, exposed secrets, or unsafe inputs — explain what makes them suspicious.
+    Check that documentation and comments accurately reflect the code, flag anything outdated or missing.
+    Check the PR description actually matches what the code does.
+    Explain why something is a problem, not just that it is — this is a learning opportunity.
+    Avoid commenting on minor issues such as linting, formatting, and style.
+    Always use GitHub suggestion format when providing code suggestions.
+  pre_merge_checks:
+    custom_checks:
+      - name: RuboCop
+        mode: error
+        instructions: Fail if RuboCop reports any offenses.
