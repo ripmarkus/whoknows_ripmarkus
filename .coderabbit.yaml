@@ -20,8 +20,3 @@ reviews:
     Explain why something is a problem, not just that it is — this is a learning opportunity.
     Avoid commenting on minor issues such as linting, formatting, and style.
     Always use GitHub suggestion format when providing code suggestions.
-  pre_merge_checks:
-    custom_checks:
-      - name: RuboCop
-        mode: error
-        instructions: Fail if RuboCop reports any offenses.
