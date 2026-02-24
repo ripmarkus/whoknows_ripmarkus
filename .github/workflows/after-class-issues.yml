@@ -1,0 +1,39 @@
+name: Create Weekly After Class Issues
+
+on:
+  schedule:
+    - cron: '0 6 * * 4'  # Every Thursday at 06:00 UTC
+  workflow_dispatch:
+
+jobs:
+  create-issues:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+
+    steps:
+      - name: Clone course material repo
+        run: git clone https://github.com/who-knows-inc/EK_DAT_DevOps_2026_Spring.git course_material
+
+      - name: Create issues
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          python3 << 'EOF'
+          import re, subprocess
+          from datetime import datetime
+
+          REPO_BASE = "https://github.com/who-knows-inc/EK_DAT_DevOps_2026_Spring/blob/main"
+          week = ((datetime.utcnow() - datetime(2025, 1, 29)).days // 7) + 1
+
+          content = open("course_material/README.adoc").read()
+          match = re.search(rf'\|\s*{week}\s*\n.*?(?=\n\|\s*\d+|\Z)', content, re.DOTALL)
+          after_class = match.group(0).split("a|")[3] if match else ""
+
+          for path, title in re.findall(r'link:(.*?)\[(.*?)\]', after_class):
+              subprocess.run(["gh", "issue", "create",
+                  "--title", f"[Week {week}] {title}",
+                  "--body", f"**Week {week} - After Class**\n\n🔗 [Assignment link]({REPO_BASE}/{path.strip()})",
+                  "--label", f"after-class,week-{week}"])
+          EOF
