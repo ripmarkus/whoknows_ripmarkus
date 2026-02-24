@@ -2,7 +2,7 @@ name: Create Weekly After Class Issues
 
 on:
   schedule:
-    - cron: '0 6 * * 4'  # Every Thursday at 06:00 UTC
+    - cron: '45 15 * * 4' 
   workflow_dispatch:
 
 jobs:
