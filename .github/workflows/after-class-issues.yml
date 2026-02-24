@@ -35,5 +35,4 @@ jobs:
               subprocess.run(["gh", "issue", "create",
                   "--title", f"[Week {week}] {title}",
                   "--body", f"**Week {week} - After Class**\n\n🔗 [Assignment link]({REPO_BASE}/{path.strip()})",
-                  "--label", f"after-class,week-{week}"])
           EOF
