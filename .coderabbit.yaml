@@ -20,4 +20,4 @@ reviews:
     Avoid commenting on minor issues such as linting, formatting, and style.
     Always use GitHub suggestion format when providing code suggestions.
 
-    Be concise. Prefer short, direct feedback.
+    Be concise. Prefer short, direct feedback - especially on the PR comment and description.
