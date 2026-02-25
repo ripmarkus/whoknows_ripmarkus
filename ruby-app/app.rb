@@ -72,9 +72,7 @@ get '/api/docs' do
   erb :openapi, locals: { spec_url: spec_url }, layout: false
 end
 
-
-
-get '/api-docs/openapi.yaml' do
+get '/api/docs/openapi.yaml' do
   content_type 'text/yaml'
   send_file File.join(settings.root, 'OpenAPI', 'OpenAPI.yaml')
 end
