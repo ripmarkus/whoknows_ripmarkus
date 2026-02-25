@@ -1,0 +1,24 @@
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 3.2
+
+Style/StringLiterals:
+  EnforcedStyle: single_quotes
+
+Metrics/MethodLength:
+  Max: 20
+
+Layout/LineLength:
+  Max: 120
+
+Metrics/AbcSize:
+  Max: 20
+
+Style/GuardClause:
+  Enabled: true
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Naming/MethodParameterName:
+  MinNameLength: 3
