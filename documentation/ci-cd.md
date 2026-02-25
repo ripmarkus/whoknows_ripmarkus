@@ -4,7 +4,9 @@
 
 At the time of writing, our CI checks focus on compiling the app and linting the code using RuboCop. 
 
-Upon completion, the pipeline generates a comment in Markdown format summarizing the results, and will both fail the PR and leave a comment if any of the checks do not pass.
+Once linting is complete, the results are automatically posted as a comment on the Pull Request. If a report already exists from a previous run, it is overwritten rather than duplicated. 
+
+This ensures every PR has an up-to-date summary of code quality issues, and any RuboCop violations will cause the pipeline to fail, blocking the merge until they are resolved.
 
 By enforcing these steps, we ensure that every Pull Request meets our baseline standards for code quality and maintainability, allowing us to run a tight ship throughout the development lifecycle.
 
