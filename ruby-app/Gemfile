@@ -3,13 +3,16 @@
 source 'https://rubygems.org'
 
 gem 'bcrypt'
+gem 'dotenv'
 gem 'json'
 gem 'puma'
 gem 'rackup'
 gem 'rubocop', require: false
 gem 'sinatra'
 gem 'sqlite3'
+gem 'rswag-ui'
 
 group :development do
   gem 'rerun'
 end
+
