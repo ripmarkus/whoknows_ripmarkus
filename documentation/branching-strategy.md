@@ -31,7 +31,7 @@ This ensures:
 - A strong code review culture
 - Shared ownership of the codebase
 - Higher code quality
-- Fast and continous delivery of features
+- Fast and continuous delivery of features
 - Reduced risk of unstable or unwanted code reaching `main`
 
 By preventing self-review, all code changes are validated by another team member. This increases accountability and collaboration among the team.
@@ -56,7 +56,7 @@ We did not choose Git Flow because:
 - It adds unnecessary process overhead for our team size
 - It is better suited for larger teams with structured release planning
 
-For our project, Git Flow would have introduced more complexity without any clear added value. Also 
+For our project, Git Flow would have introduced more complexity without any clear added value. 
 
 ### Why We Did Not Choose Trunk-Based Development
 
@@ -86,4 +86,4 @@ As a student team, we preferred a more controlled approach where PRs and code-re
 
 - PRs can slow development if reviewers are unavailable/not looking for new PRs to merge
 - Requires discipline to keep branches small and focused
-- Workflow really depends on the teams responsiveness and activeness
+- Workflow heavily depends on the team's responsiveness and level of activeness
