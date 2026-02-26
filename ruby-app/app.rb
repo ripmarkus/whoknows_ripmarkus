@@ -2,8 +2,48 @@ require 'sinatra'
 require 'sqlite3'
 require 'json'
 require 'bcrypt'
+require 'net/http'
+require 'uri'
+require 'dotenv/load'
+
 
 enable :sessions
+
+#XSS (Cross-site scripting) sanitizes html output to prevent malicious scripts from being executed in the browser
+helpers do
+  include Rack::Utils
+  alias_method :h, :escape_html
+end
+
+# JSON helper - sets default content type to json and parses response body as json, with error handling
+def http_get_json(uri)
+  res = Net::HTTP.get_response(uri)
+  body = res.body.to_s
+
+  begin
+    parsed = JSON.parse(body)
+  rescue JSON::ParserError
+    parsed = { "raw" => body }
+  end
+
+  [res.code.to_i, parsed]
+end
+
+  # changed this to accept parameters, so it can be used other places
+  def search_pages_query(db, language, query)
+    # Build the SQL query with dynamic values
+    sql = format("SELECT * FROM pages
+         WHERE language = '%s'
+         AND content LIKE '%%%s%%'", language, query)
+    pages = []
+
+    db.execute(sql) do |row|
+      id, title, lang, content = row
+      pages << Page.new(id, title, lang, content)
+    end
+
+    pages
+  end
 
 #Shows the search page
 get '/' do
@@ -26,6 +66,20 @@ end
 get '/register' do
     erb :register
 end
+
+get '/api/docs' do
+  spec_url = "/api-docs/openapi.yaml"
+  erb :openapi, locals: { spec_url: spec_url }, layout: false
+end
+
+get '/api/docs/openapi.yaml' do
+  content_type 'text/yaml'
+  send_file File.join(settings.root, 'OpenAPI', 'OpenAPI.yaml')
+end
+
+
+
+
 
 # DATABASE
 def get_db
@@ -50,6 +104,8 @@ get '/api/users' do
   db.close
   users.to_json
 end
+
+
 
 get '/api/search' do
   content_type :json
@@ -124,4 +180,58 @@ end
 # TODO: Use in the login api route
 def password_matches?(password_hash, plaintext_password)
   BCrypt::Password.new(password_hash) == plaintext_password
+end
+
+
+# Weather function - gets lat/lon for city/country and then gets weather for that location
+def get_weather_for(city:, country:, api_key:)
+  location_query = country.strip.empty? ? city : "#{city},#{country}"
+  
+  geocoding_uri = URI("https://api.openweathermap.org/geo/1.0/direct?q=#{URI.encode_www_form_component(location_query)}&limit=1&appid=#{api_key}")
+  geocoding_status, geocoding_result = http_get_json(geocoding_uri)
+  return [geocoding_status, { "error" => "geocoding failed", "details" => geocoding_result }] unless geocoding_status == 200
+  return [404, { "error" => "no location found", "query" => location_query }] unless geocoding_result.is_a?(Array) && geocoding_result.any?
+
+  location = geocoding_result.first
+  latitude, longitude = location["lat"], location["lon"]
+  return [502, { "error" => "no lat/lon", "location" => location }] if latitude.nil? || longitude.nil?
+
+  weather_uri = URI("https://api.openweathermap.org/data/2.5/weather?lat=#{latitude}&lon=#{longitude}&units=metric&lang=da&appid=#{api_key}")
+  weather_status, weather_data = http_get_json(weather_uri)
+  return [weather_status, { "error" => "weather fetch failed", "details" => weather_data }] unless weather_status == 200
+
+  [200, { "location" => location, "weather" => weather_data }]
+end
+
+# Shows the weather page for a given city and country, using the OpenWeather API, with error handling
+# Example: /weather?city=København&country=DK
+get "/weather" do
+  api_key = ENV["OPENWEATHER_API_KEY"].to_s.strip
+  halt 500, "Missing OPENWEATHER_API_KEY" if api_key.empty?
+
+  city    = params.fetch(:city, "København").to_s.strip
+  country = params.fetch(:country, "").to_s.strip
+
+  status, payload = get_weather_for(city: city, country: country, api_key: api_key)
+  halt status, payload.to_json unless status == 200
+
+  @loc = payload["location"]
+  @w   = payload["weather"]
+  erb :weather
+end
+
+# Example: /api/weather?city=København&country=DK
+# Gets weather data for a given city withing a country, using the OpenWeather API, with error handling and JSON response
+get "/api/weather" do
+  content_type :json
+  api_key = ENV["OPENWEATHER_API_KEY"].to_s.strip
+  halt 500, { error: "Missing OPENWEATHER_API_KEY" }.to_json if api_key.empty?
+
+  city    = params.fetch(:city, "København").to_s.strip
+  country = params.fetch(:country, "").to_s.strip
+
+  status, payload = get_weather_for(city: city, country: country, api_key: api_key)
+  halt status, payload.to_json unless status == 200
+
+  payload.to_json
 end
