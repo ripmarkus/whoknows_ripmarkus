@@ -22,3 +22,6 @@ Style/FrozenStringLiteralComment:
 
 Naming/MethodParameterName:
   MinNameLength: 3
+
+AllCops
+  NewCops: enable  
