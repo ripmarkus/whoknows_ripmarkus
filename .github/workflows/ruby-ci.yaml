@@ -15,9 +15,8 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.2
-
-          #caches the bundler
           bundler-cache: true
+          working-directory: ruby-app
 
       # runs the linter for Ruby
       # output is markdown format 
@@ -33,7 +32,7 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const report = fs.readFileSync('rubocop.md', 'utf8');
+            const report = fs.readFileSync('ruby-app/rubocop.md', 'utf8');
             const marker = '<!-- rubocop-report -->';
             const body = `${marker}\n${report}`;
 
