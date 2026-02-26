@@ -9,7 +9,7 @@ GitHub Flow is a lightweight, feature-branch-based workflow centered around a st
 ### Repository Structure
 
 - `main` → Always stable and production-ready
-- `feat/*`, `fix/*`, `documentation/*`, `chore/*` → Short-lived branches created from `main`, and used for features, fixes documentation or chores
+- `feat/*`, `fix/*`, `documentation/*`, `chore/*` → Short-lived branches created from `main`, and used for features, fixes, documentation or chores
 - Pull Requests (PRs) → Required before merging into `main`
 
 All new features, bug fixes, and documentation updates are developed in separate feature branches and merged back into `main` via PRs.
