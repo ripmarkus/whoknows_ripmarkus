@@ -37,7 +37,9 @@ end
 get '/' do
   query    = params[:query]
   language = params[:language] || 'en'
-  search_results = query ? search_pages_query(get_db, language, query) : []
+  db = connect_db
+  search_results = query ? search_pages_query(db, language, query) : []
+  db.close
   erb :search, locals: { search_results: search_results, query: query }
 end
 
@@ -106,7 +108,7 @@ end
 # ENDPOINTS   
 get '/api/users' do
     content_type :json
-    db = get_db
+    db = connect_db
     users = []
   
   db.execute("SELECT id, username, email FROM users") do |row|
@@ -119,32 +121,29 @@ end
 
   # changed this to accept parameters, so it can be used other places
 def search_pages_query(db, language, query)
-    # Build the SQL query with dynamic values
-    sql = format("SELECT * FROM pages
-         WHERE language = '%s'
-         AND content LIKE '%%%s%%'", language, query)
-    pages = []
+  sql = "SELECT * FROM pages WHERE language = ? AND content LIKE ?"
+  pages = []
 
-    db.execute(sql) do |row|
-      id, title, lang, content = row
-      pages << Page.new(id, title, lang, content)
-    end
+  db.execute(sql, [language, "%#{query}%"]) do |row|
+    id, title, lang, content = row
+    pages << { id: id, title: title, language: lang, content: content }
+  end
 
-    pages
+  pages
 end
 
 get '/api/search' do
   content_type :json
   query    = params[:query]
   language = params[:language] || 'en'
-  db = get_db
-  search_results = query ? search_pages_query(get_db, language, query) : []
+  db = connect_db
+  search_results = query ? search_pages_query(db, language, query) : []
   db.close
   { message: "Search endpoint hit", results: search_results }.to_json
 end
 
 post '/api/login' do
-  db = get_db
+  db = connect_db
   error = nil
   user = db.execute("SELECT * FROM users WHERE username = ?", [params[:username]]).first
 
@@ -165,7 +164,7 @@ post '/api/register' do
   content_type :json
   redirect '/search' if session[:user_id]
   error = nil
-
+  db = connect_db
   if params[:username].nil? || params[:username].empty?
     error = "You have to enter a username"
   elsif params[:email].nil? || !params[:email].include?('@')
@@ -174,14 +173,13 @@ post '/api/register' do
     error = "You have to enter a password"
   elsif params[:password] != params[:password2]
     error = "The two passwords do not match"
-  elsif get_user_id_query(get_db, params[:username])
+  elsif get_user_id(db, params[:username])
     error = "The username already exists"
   end
 
   if error
     { message: error }.to_json
   else
-    db = get_db
     hashed_pw = hash_password(params[:password])
     db.execute("INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
                [params[:username], params[:email], hashed_pw])
