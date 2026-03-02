@@ -9,6 +9,8 @@ require 'dotenv/load'
 
 enable :sessions
 
+DATABASE_PATH = File.join(__dir__, 'whoknows.db')
+
 #XSS (Cross-site scripting) sanitizes html output to prevent malicious scripts from being executed in the browser
 helpers do
   include Rack::Utils
@@ -29,21 +31,7 @@ def http_get_json(uri)
   [res.code.to_i, parsed]
 end
 
-  # changed this to accept parameters, so it can be used other places
-  def search_pages_query(db, language, query)
-    # Build the SQL query with dynamic values
-    sql = format("SELECT * FROM pages
-         WHERE language = '%s'
-         AND content LIKE '%%%s%%'", language, query)
-    pages = []
 
-    db.execute(sql) do |row|
-      id, title, lang, content = row
-      pages << Page.new(id, title, lang, content)
-    end
-
-    pages
-  end
 
 #Shows the search page
 get '/' do
@@ -82,8 +70,37 @@ end
 
 
 # DATABASE
-def get_db
-    SQLite3::Database.new 'whoknows.db'
+def connect_db(init_mode: false)
+  check_db_exists unless init_mode
+  SQLite3::Database.new(DATABASE_PATH)
+end
+
+def check_db_exists
+  unless File.exist?(DATABASE_PATH)
+    puts "Database not found"
+    exit(1)
+  end
+end
+
+def init_db
+  db = connect_db(init_mode: true)
+  schema = File.read('../schema.sql')
+  db.execute_batch(schema)
+  db.close
+  puts "Initialized the database: #{DATABASE_PATH}"
+end
+
+def query_db(db, query, args = [], one: false)
+  results = []
+  db.execute(query, args) do |row, fields|
+    results << fields.map { |col| [col[0], row[fields.index(col)]] }.to_h
+  end
+  one ? (results.first || nil) : results
+end
+
+def get_user_id(db, username)
+  row = db.execute("SELECT id FROM users WHERE username = ?", username).first
+  row ? row[0] : nil
 end
 
 def get_user_id_query(db, username)
@@ -105,7 +122,21 @@ get '/api/users' do
   users.to_json
 end
 
+  # changed this to accept parameters, so it can be used other places
+def search_pages_query(db, language, query)
+    # Build the SQL query with dynamic values
+    sql = format("SELECT * FROM pages
+         WHERE language = '%s'
+         AND content LIKE '%%%s%%'", language, query)
+    pages = []
 
+    db.execute(sql) do |row|
+      id, title, lang, content = row
+      pages << Page.new(id, title, lang, content)
+    end
+
+    pages
+end
 
 get '/api/search' do
   content_type :json
