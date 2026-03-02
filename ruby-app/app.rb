@@ -99,14 +99,9 @@ def query_db(db, query, args = [], one: false)
 end
 
 def get_user_id(db, username)
-  row = db.execute("SELECT id FROM users WHERE username = ?", username).first
-  row ? row[0] : nil
-end
-
-def get_user_id_query(db, username)
   row = db.execute('SELECT id FROM users WHERE username = ?', username).first
   row ? row[0] : nil
-  end
+end
 
 # ENDPOINTS   
 get '/api/users' do
@@ -142,7 +137,9 @@ get '/api/search' do
   content_type :json
   query    = params[:query]
   language = params[:language] || 'en'
+  db = get_db
   search_results = query ? search_pages_query(get_db, language, query) : []
+  db.close
   { message: "Search endpoint hit", results: search_results }.to_json
 end
 
@@ -190,6 +187,7 @@ post '/api/register' do
                [params[:username], params[:email], hashed_pw])
     { message: "You were successfully registered and can login now" }.to_json
   end
+  db.close
 end
 
 
