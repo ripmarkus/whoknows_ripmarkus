@@ -31,11 +31,6 @@ def http_get_json(uri)
   [res.code.to_i, parsed]
 end
 
-
-
-  pages
-end
-
 ###############
 # VIEWS
 ###############
@@ -92,6 +87,7 @@ def init_db
   db.close
   puts "Initialized the database: #{DATABASE_PATH}"
 ###############
+end
 
 def get_db
   SQLite3::Database.new 'whoknows.db'
