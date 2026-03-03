@@ -9,6 +9,10 @@ require 'dotenv/load'
 
 enable :sessions
 
+###############
+# HELPERS
+###############
+
 #XSS (Cross-site scripting) sanitizes html output to prevent malicious scripts from being executed in the browser
 helpers do
   include Rack::Utils
@@ -29,23 +33,26 @@ def http_get_json(uri)
   [res.code.to_i, parsed]
 end
 
-  # changed this to accept parameters, so it can be used other places
-  def search_pages_query(db, language, query)
-    # Build the SQL query with dynamic values
-    sql = format("SELECT * FROM pages
-         WHERE language = '%s'
-         AND content LIKE '%%%s%%'", language, query)
-    pages = []
+# changed this to accept parameters, so it can be used other places
+def search_pages_query(db, language, query)
+  # Build the SQL query with dynamic values
+  sql = format("SELECT * FROM pages
+       WHERE language = '%s'
+       AND content LIKE '%%%s%%'", language, query)
+  pages = []
 
-    db.execute(sql) do |row|
-      id, title, lang, content = row
-      pages << Page.new(id, title, lang, content)
-    end
-
-    pages
+  db.execute(sql) do |row|
+    id, title, lang, content = row
+    pages << Page.new(id, title, lang, content)
   end
 
-#Shows the search page
+  pages
+end
+
+###############
+# VIEWS
+###############
+
 get '/' do
   query    = params[:query]
   language = params[:language] || 'en'
@@ -53,18 +60,16 @@ get '/' do
   erb :search, locals: { search_results: search_results, query: query }
 end
 
-
-# VIEWS
 get '/about' do
-    erb :about
+  erb :about
 end
 
 get '/login' do
-    erb :login
+  erb :login
 end
 
 get '/register' do
-    erb :register
+  erb :register
 end
 
 get '/api/docs' do
@@ -77,35 +82,35 @@ get '/api/docs/openapi.yaml' do
   send_file File.join(settings.root, 'OpenAPI', 'OpenAPI.yaml')
 end
 
-
-
-
-
+###############
 # DATABASE
+###############
+
 def get_db
-    SQLite3::Database.new 'whoknows.db'
+  SQLite3::Database.new 'whoknows.db'
 end
 
 def get_user_id_query(db, username)
   row = db.execute('SELECT id FROM users WHERE username = ?', username).first
   row ? row[0] : nil
-  end
+end
 
-# ENDPOINTS   
+###############
+# API ENDPOINTS
+###############
+
 get '/api/users' do
-    content_type :json
-    db = get_db
-    users = []
-  
+  content_type :json
+  db = get_db
+  users = []
+
   db.execute("SELECT id, username, email FROM users") do |row|
     users << { id: row[0], username: row[1], email: row[2] }
   end
-  
+
   db.close
   users.to_json
 end
-
-
 
 get '/api/search' do
   content_type :json
@@ -161,7 +166,6 @@ post '/api/register' do
   end
 end
 
-
 post "/api/logout" do
   session[:flash] = "You were logged out"
   session.delete(:user_id)
@@ -182,11 +186,14 @@ def password_matches?(password_hash, plaintext_password)
   BCrypt::Password.new(password_hash) == plaintext_password
 end
 
+###############
+# WEATHER
+###############
 
 # Weather function - gets lat/lon for city/country and then gets weather for that location
 def get_weather_for(city:, country:, api_key:)
   location_query = country.strip.empty? ? city : "#{city},#{country}"
-  
+
   geocoding_uri = URI("https://api.openweathermap.org/geo/1.0/direct?q=#{URI.encode_www_form_component(location_query)}&limit=1&appid=#{api_key}")
   geocoding_status, geocoding_result = http_get_json(geocoding_uri)
   return [geocoding_status, { "error" => "geocoding failed", "details" => geocoding_result }] unless geocoding_status == 200
@@ -221,7 +228,7 @@ get "/weather" do
 end
 
 # Example: /api/weather?city=København&country=DK
-# Gets weather data for a given city withing a country, using the OpenWeather API, with error handling and JSON response
+# Gets weather data for a given city within a country, using the OpenWeather API, with error handling and JSON response
 get "/api/weather" do
   content_type :json
   api_key = ENV["OPENWEATHER_API_KEY"].to_s.strip
