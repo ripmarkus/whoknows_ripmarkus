@@ -9,9 +9,7 @@ require 'dotenv/load'
 
 enable :sessions
 
-###############
-# HELPERS
-###############
+DATABASE_PATH = File.join(__dir__, 'whoknows.db')
 
 #XSS (Cross-site scripting) sanitizes html output to prevent malicious scripts from being executed in the browser
 helpers do
@@ -33,18 +31,7 @@ def http_get_json(uri)
   [res.code.to_i, parsed]
 end
 
-# changed this to accept parameters, so it can be used other places
-def search_pages_query(db, language, query)
-  # Build the SQL query with dynamic values
-  sql = format("SELECT * FROM pages
-       WHERE language = '%s'
-       AND content LIKE '%%%s%%'", language, query)
-  pages = []
 
-  db.execute(sql) do |row|
-    id, title, lang, content = row
-    pages << Page.new(id, title, lang, content)
-  end
 
   pages
 end
@@ -56,7 +43,9 @@ end
 get '/' do
   query    = params[:query]
   language = params[:language] || 'en'
-  search_results = query ? search_pages_query(get_db, language, query) : []
+  db = connect_db
+  search_results = query ? search_pages_query(db, language, query) : []
+  db.close
   erb :search, locals: { search_results: search_results, query: query }
 end
 
@@ -84,13 +73,39 @@ end
 
 ###############
 # DATABASE
+def connect_db(init_mode: false)
+  check_db_exists unless init_mode
+  SQLite3::Database.new(DATABASE_PATH)
+end
+
+def check_db_exists
+  unless File.exist?(DATABASE_PATH)
+    puts "Database not found"
+    exit(1)
+  end
+end
+
+def init_db
+  db = connect_db(init_mode: true)
+  schema = File.read('../schema.sql')
+  db.execute_batch(schema)
+  db.close
+  puts "Initialized the database: #{DATABASE_PATH}"
 ###############
 
 def get_db
   SQLite3::Database.new 'whoknows.db'
 end
 
-def get_user_id_query(db, username)
+def query_db(db, query, args = [], one: false)
+  results = []
+  db.execute(query, args) do |row, fields|
+    results << fields.map { |col| [col[0], row[fields.index(col)]] }.to_h
+  end
+  one ? (results.first || nil) : results
+end
+
+def get_user_id(db, username)
   row = db.execute('SELECT id FROM users WHERE username = ?', username).first
   row ? row[0] : nil
 end
@@ -100,10 +115,10 @@ end
 ###############
 
 get '/api/users' do
-  content_type :json
-  db = get_db
-  users = []
-
+    content_type :json
+    db = connect_db
+    users = []
+  
   db.execute("SELECT id, username, email FROM users") do |row|
     users << { id: row[0], username: row[1], email: row[2] }
   end
@@ -112,16 +127,31 @@ get '/api/users' do
   users.to_json
 end
 
+  # changed this to accept parameters, so it can be used other places
+def search_pages_query(db, language, query)
+  sql = "SELECT * FROM pages WHERE language = ? AND content LIKE ?"
+  pages = []
+
+  db.execute(sql, [language, "%#{query}%"]) do |row|
+    id, title, lang, content = row
+    pages << { id: id, title: title, language: lang, content: content }
+  end
+
+  pages
+end
+
 get '/api/search' do
   content_type :json
   query    = params[:query]
   language = params[:language] || 'en'
-  search_results = query ? search_pages_query(get_db, language, query) : []
+  db = connect_db
+  search_results = query ? search_pages_query(db, language, query) : []
+  db.close
   { message: "Search endpoint hit", results: search_results }.to_json
 end
 
 post '/api/login' do
-  db = get_db
+  db = connect_db
   error = nil
   user = db.execute("SELECT * FROM users WHERE username = ?", [params[:username]]).first
 
@@ -142,7 +172,7 @@ post '/api/register' do
   content_type :json
   redirect '/search' if session[:user_id]
   error = nil
-
+  db = connect_db
   if params[:username].nil? || params[:username].empty?
     error = "You have to enter a username"
   elsif params[:email].nil? || !params[:email].include?('@')
@@ -151,19 +181,19 @@ post '/api/register' do
     error = "You have to enter a password"
   elsif params[:password] != params[:password2]
     error = "The two passwords do not match"
-  elsif get_user_id_query(get_db, params[:username])
+  elsif get_user_id(db, params[:username])
     error = "The username already exists"
   end
 
   if error
     { message: error }.to_json
   else
-    db = get_db
     hashed_pw = hash_password(params[:password])
     db.execute("INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
                [params[:username], params[:email], hashed_pw])
     { message: "You were successfully registered and can login now" }.to_json
   end
+  db.close
 end
 
 post "/api/logout" do
