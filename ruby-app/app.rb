@@ -157,6 +157,7 @@ post '/api/login' do
     error = 'Invalid password'
   else
     session[:user_id] = user[0]
+    session[:username] = user[1] 
     redirect '/'
   end
 
@@ -165,10 +166,10 @@ post '/api/login' do
 end
 
 post '/api/register' do
-  content_type :json
-  redirect '/search' if session[:user_id]
+  redirect '/' if session[:user_id]
   error = nil
   db = connect_db
+
   if params[:username].nil? || params[:username].empty?
     error = "You have to enter a username"
   elsif params[:email].nil? || !params[:email].include?('@')
@@ -182,14 +183,17 @@ post '/api/register' do
   end
 
   if error
-    { message: error }.to_json
+    db.close
+    erb :register, locals: { error: error }  # re-render form with error
   else
     hashed_pw = hash_password(params[:password])
     db.execute("INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
                [params[:username], params[:email], hashed_pw])
-    { message: "You were successfully registered and can login now" }.to_json
+    session[:user_id] = get_user_id(db, params[:username])  # log them in
+    session[:username] = params[:username]
+    db.close
+    redirect '/'
   end
-  db.close
 end
 
 post "/api/logout" do
