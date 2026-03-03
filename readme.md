@@ -1,6 +1,11 @@
+![Contributors](https://img.shields.io/github/contributors/ripmarkus/whoknows_ripmarkus)
+
+![Commit activity](https://img.shields.io/github/commit-activity/m/ripmarkus/whoknows_ripmarkus)
+
 # Introduction
 
 This is a school project for the elective 'DevOps' at Erhvervsakademi København, where we will refactor an old Python2 codebase into Ruby and Sinatra and utilize CI/CD and DevOps practices.
+
 
 # How to Contribute
 
