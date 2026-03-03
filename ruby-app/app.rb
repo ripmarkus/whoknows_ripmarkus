@@ -33,7 +33,13 @@ end
 
 
 
-#Shows the search page
+  pages
+end
+
+###############
+# VIEWS
+###############
+
 get '/' do
   query    = params[:query]
   language = params[:language] || 'en'
@@ -43,18 +49,16 @@ get '/' do
   erb :search, locals: { search_results: search_results, query: query }
 end
 
-
-# VIEWS
 get '/about' do
-    erb :about
+  erb :about
 end
 
 get '/login' do
-    erb :login
+  erb :login
 end
 
 get '/register' do
-    erb :register
+  erb :register
 end
 
 get '/api/docs' do
@@ -67,10 +71,7 @@ get '/api/docs/openapi.yaml' do
   send_file File.join(settings.root, 'OpenAPI', 'OpenAPI.yaml')
 end
 
-
-
-
-
+###############
 # DATABASE
 def connect_db(init_mode: false)
   check_db_exists unless init_mode
@@ -90,6 +91,10 @@ def init_db
   db.execute_batch(schema)
   db.close
   puts "Initialized the database: #{DATABASE_PATH}"
+###############
+
+def get_db
+  SQLite3::Database.new 'whoknows.db'
 end
 
 def query_db(db, query, args = [], one: false)
@@ -105,7 +110,10 @@ def get_user_id(db, username)
   row ? row[0] : nil
 end
 
-# ENDPOINTS   
+###############
+# API ENDPOINTS
+###############
+
 get '/api/users' do
     content_type :json
     db = connect_db
@@ -114,7 +122,7 @@ get '/api/users' do
   db.execute("SELECT id, username, email FROM users") do |row|
     users << { id: row[0], username: row[1], email: row[2] }
   end
-  
+
   db.close
   users.to_json
 end
@@ -188,7 +196,6 @@ post '/api/register' do
   db.close
 end
 
-
 post "/api/logout" do
   session[:flash] = "You were logged out"
   session.delete(:user_id)
@@ -209,11 +216,14 @@ def password_matches?(password_hash, plaintext_password)
   BCrypt::Password.new(password_hash) == plaintext_password
 end
 
+###############
+# WEATHER
+###############
 
 # Weather function - gets lat/lon for city/country and then gets weather for that location
 def get_weather_for(city:, country:, api_key:)
   location_query = country.strip.empty? ? city : "#{city},#{country}"
-  
+
   geocoding_uri = URI("https://api.openweathermap.org/geo/1.0/direct?q=#{URI.encode_www_form_component(location_query)}&limit=1&appid=#{api_key}")
   geocoding_status, geocoding_result = http_get_json(geocoding_uri)
   return [geocoding_status, { "error" => "geocoding failed", "details" => geocoding_result }] unless geocoding_status == 200
@@ -248,7 +258,7 @@ get "/weather" do
 end
 
 # Example: /api/weather?city=København&country=DK
-# Gets weather data for a given city withing a country, using the OpenWeather API, with error handling and JSON response
+# Gets weather data for a given city within a country, using the OpenWeather API, with error handling and JSON response
 get "/api/weather" do
   content_type :json
   api_key = ENV["OPENWEATHER_API_KEY"].to_s.strip
