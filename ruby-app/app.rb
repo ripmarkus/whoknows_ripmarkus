@@ -157,6 +157,7 @@ post '/api/login' do
     error = 'Invalid password'
   else
     session[:user_id] = user[0]
+    session[:username] = user[1] 
     redirect '/'
   end
 
