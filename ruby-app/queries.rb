@@ -47,8 +47,8 @@ begin
     pages = []
 
     db.execute(sql) do |row|
-      id, title, lang, content = row
-      pages << Page.new(id, title, lang, content)
+      title, url, language, last_updated, content = row
+      pages << Page.new(title, url, language, last_updated, content)
     end
 
     pages

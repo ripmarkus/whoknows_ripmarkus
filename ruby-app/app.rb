@@ -129,8 +129,8 @@ def search_pages_query(db, language, query)
   pages = []
 
   db.execute(sql, [language, "%#{query}%"]) do |row|
-    id, title, lang, content = row
-    pages << { id: id, title: title, language: lang, content: content }
+    title, url, language, last_updated, content = row
+    pages << { title: title, url: url, language: language, last_updated: last_updated, content: content }
   end
 
   pages
