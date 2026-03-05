@@ -52,6 +52,7 @@ test/version_tmp/
 # Bundler
 .bundle/
 vendor/bundle/
+**/vendor/bundle/
 vendor/cache/
 lib/bundler/man/
 
