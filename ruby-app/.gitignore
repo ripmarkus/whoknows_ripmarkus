@@ -47,6 +47,7 @@ rdoc/
 
 ## Environment normalization:
 .bundle/
+**/vendor/
 vendor/bundle
 lib/bundler/man/
 
@@ -464,3 +465,4 @@ lib/bundler/man/
 # Additional files built by Visual Studio
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudio,ruby
+
