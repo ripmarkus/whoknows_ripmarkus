@@ -1,0 +1,66 @@
+name: Ruby CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: whoknows_ripmarkus
+
+jobs:
+  docker_build:
+    name: Docker Build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -f ruby-app/Dockerfile -t whoknows_ripmarkus:test ruby-app
+
+      - name: Run Docker container for health check
+        run: |
+          docker run -d --name test-container -p 8080:4567 ${{ env.IMAGE_NAME }}:test
+          sleep 5
+          docker exec test-container ruby ruby-app/init_db.rb
+          curl -f http://localhost:8080/
+          docker stop test-container
+          docker rm test-container
+
+  docker_push:
+    name: Docker Push
+    needs: docker_build
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/whoknows_ripmarkus
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
