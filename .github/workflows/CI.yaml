@@ -22,11 +22,11 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build Docker image
-        run: docker build . --tag whoknows_ripmarkus:test
+        run: docker build . --tag ${{ env.IMAGE_NAME }}:test
 
       - name: Run Docker container for health check
         run: |
-          docker run -d --name test-container -p 8080:4567 whoknows_ripmarkus:test
+          docker run -d --name test-container -p 8080:4567 ${{ env.IMAGE_NAME }}:test
           sleep 15
           curl -f http://localhost:8080/healthz
           docker stop test-container
@@ -51,16 +51,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
-        images: ghcr.io/${{ github.repository_owner }}/whoknows_ripmarkus
+          images: ghcr.io/${{ github.repository_owner }}/whoknows_ripmarkus
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-        context: .
-        push: true
-        tags: ${{ steps.meta.outputs.tags }}
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
