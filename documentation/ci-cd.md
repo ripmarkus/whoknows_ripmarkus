@@ -10,6 +10,10 @@ This ensures every PR has an up-to-date summary of code quality issues directly 
 
 By enforcing these steps, we ensure that every Pull Request meets our baseline standards for code quality and maintainability, allowing us to run a tight ship throughout the development lifecycle.
 
+**Why not locally?**
+
+Running Ruboco locally is definitely a possibility, however running it in our CI flow, allows all developers to see what can be done better with our code quality, before they can submit the code - This nudges our team to fix issues instead of only fixing issues when they become a bigger problem.
+
 ## CD
 
 To be added.

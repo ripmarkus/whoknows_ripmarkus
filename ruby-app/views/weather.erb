@@ -9,15 +9,15 @@
 
 <hr>
 
-<h2><%= h(@w["name"]) %> (<%= h(@loc["country"]) %>)</h2>
+<h2><%= h(@w['name']) %> (<%= h(@loc['country']) %>)</h2>
 <p>
-  <strong>Temperatur:</strong> <%= @w["main"]["temp"] %> °C<br>
-  <strong>Føles som:</strong>  <%= @w["main"]["feels_like"] %> °C<br>
-  <strong>Beskrivelse:</strong> <%= h(@w["weather"][0]["description"]) %><br>
-  <strong>Vind:</strong> <%= @w["wind"]["speed"] %> m/s
-  <% if @w["wind"]["deg"] %>(<%= @w["wind"]["deg"] %>°)<% end %><br>
-  <strong>Luftfugtighed:</strong> <%= @w["main"]["humidity"] %>%<br>
-  <strong>Tryk:</strong> <%= @w["main"]["pressure"] %> hPa
+  <strong>Temperatur:</strong> <%= @w['main']['temp'] %> °C<br>
+  <strong>Føles som:</strong>  <%= @w['main']['feels_like'] %> °C<br>
+  <strong>Beskrivelse:</strong> <%= h(@w['weather'][0]['description']) %><br>
+  <strong>Vind:</strong> <%= @w['wind']['speed'] %> m/s
+  <% if @w['wind']['deg'] %>(<%= @w['wind']['deg'] %>°)<% end %><br>
+  <strong>Luftfugtighed:</strong> <%= @w['main']['humidity'] %>%<br>
+  <strong>Tryk:</strong> <%= @w['main']['pressure'] %> hPa
 </p>
 
-<img src="https://openweathermap.org/img/wn/<%= @w["weather"][0]["icon"] %>@2x.png" alt="vejr ikon">
+<img src="https://openweathermap.org/img/wn/<%= @w['weather'][0]['icon'] %>@2x.png" alt="vejr ikon">
