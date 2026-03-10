@@ -69,6 +69,7 @@ end
 
 ###############
 # DATABASE
+###############
 def connect_db(init_mode: false)
   check_db_exists unless init_mode
   SQLite3::Database.new(DATABASE_PATH)
