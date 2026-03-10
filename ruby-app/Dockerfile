@@ -21,6 +21,4 @@ COPY --from=build /app .
 RUN chown -R appuser:appuser /app
 USER appuser
 
-EXPOSE 8080
-
 CMD ["ruby", "app.rb", "-o", "0.0.0.0", "-p", "8080"]
