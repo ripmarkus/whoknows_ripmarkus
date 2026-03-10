@@ -27,7 +27,9 @@ jobs:
       - name: Run Docker container for health check
         run: |
           docker run -d --name test-container -p 8080:4567 ${{ env.IMAGE_NAME }}:test
-          sleep 5
+          sleep 10
+          docker ps -a
+          docker logs test-container
           docker exec test-container ruby init_db.rb
           curl -f http://localhost:8080/
           docker stop test-container
