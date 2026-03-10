@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'sinatra'
 require 'sqlite3'
 require 'json'
@@ -6,12 +8,11 @@ require 'net/http'
 require 'uri'
 require 'dotenv/load'
 
-
 enable :sessions
 
 DATABASE_PATH = File.join(__dir__, 'whoknows.db')
 
-#XSS (Cross-site scripting) sanitizes html output to prevent malicious scripts from being executed in the browser
+# XSS (Cross-site scripting) sanitizes html output to prevent malicious scripts from being executed in the browser
 helpers do
   include Rack::Utils
   alias_method :h, :escape_html
@@ -25,7 +26,7 @@ def http_get_json(uri)
   begin
     parsed = JSON.parse(body)
   rescue JSON::ParserError
-    parsed = { "raw" => body }
+    parsed = { 'raw' => body }
   end
 
   [res.code.to_i, parsed]
@@ -57,7 +58,7 @@ get '/register' do
 end
 
 get '/api/docs' do
-  spec_url = "/api-docs/openapi.yaml"
+  spec_url = '/api-docs/openapi.yaml'
   erb :openapi, locals: { spec_url: spec_url }, layout: false
 end
 
@@ -74,10 +75,10 @@ def connect_db(init_mode: false)
 end
 
 def check_db_exists
-  unless File.exist?(DATABASE_PATH)
-    puts "Database not found"
-    exit(1)
-  end
+  return if File.exist?(DATABASE_PATH)
+
+  puts 'Database not found'
+  exit(1)
 end
 
 def init_db
@@ -86,11 +87,6 @@ def init_db
   db.execute_batch(schema)
   db.close
   puts "Initialized the database: #{DATABASE_PATH}"
-###############
-end
-
-def get_db
-  SQLite3::Database.new 'whoknows.db'
 end
 
 def query_db(db, query, args = [], one: false)
@@ -111,11 +107,11 @@ end
 ###############
 
 get '/api/users' do
-    content_type :json
-    db = connect_db
+  content_type :json
+  db = connect_db
     users = []
   
-  db.execute("SELECT id, username, email FROM users") do |row|
+  db.execute('SELECT id, username, email FROM users') do |row|
     users << { id: row[0], username: row[1], email: row[2] }
   end
 
@@ -123,14 +119,14 @@ get '/api/users' do
   users.to_json
 end
 
-  # changed this to accept parameters, so it can be used other places
+# changed this to accept parameters, so it can be used other places
 def search_pages_query(db, language, query)
-  sql = "SELECT * FROM pages WHERE language = ? AND content LIKE ?"
+  sql = 'SELECT * FROM pages WHERE language = ? AND content LIKE ?'
   pages = []
 
   db.execute(sql, [language, "%#{query}%"]) do |row|
-    id, title, lang, content = row
-    pages << { id: id, title: title, language: lang, content: content }
+    title, url, language, last_updated, content = row
+    pages << { title: title, url: url, language: language, last_updated: last_updated, content: content }
   end
 
   pages
@@ -143,13 +139,13 @@ get '/api/search' do
   db = connect_db
   search_results = query ? search_pages_query(db, language, query) : []
   db.close
-  { message: "Search endpoint hit", results: search_results }.to_json
+  { message: 'Search endpoint hit', results: search_results }.to_json
 end
 
 post '/api/login' do
   db = connect_db
   error = nil
-  user = db.execute("SELECT * FROM users WHERE username = ?", [params[:username]]).first
+  user = db.execute('SELECT * FROM users WHERE username = ?', [params[:username]]).first
 
   if user.nil?
     error = 'Invalid username'
@@ -171,15 +167,15 @@ post '/api/register' do
   db = connect_db
 
   if params[:username].nil? || params[:username].empty?
-    error = "You have to enter a username"
+    error = 'You have to enter a username'
   elsif params[:email].nil? || !params[:email].include?('@')
-    error = "Valid email address needed"
+    error = 'Valid email address needed'
   elsif params[:password].nil?
-    error = "You have to enter a password"
+    error = 'You have to enter a password'
   elsif params[:password] != params[:password2]
-    error = "The two passwords do not match"
+    error = 'The two passwords do not match'
   elsif get_user_id(db, params[:username])
-    error = "The username already exists"
+    error = 'The username already exists'
   end
 
   if error
@@ -187,7 +183,7 @@ post '/api/register' do
     erb :register, locals: { error: error }  # re-render form with error
   else
     hashed_pw = hash_password(params[:password])
-    db.execute("INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
+    db.execute('INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
                [params[:username], params[:email], hashed_pw])
     session[:user_id] = get_user_id(db, params[:username])  # log them in
     session[:username] = params[:username]
@@ -196,8 +192,8 @@ post '/api/register' do
   end
 end
 
-post "/api/logout" do
-  session[:flash] = "You were logged out"
+post '/api/logout' do
+  session[:flash] = 'You were logged out'
   session.delete(:user_id)
   redirect '/'
 end
@@ -226,46 +222,46 @@ def get_weather_for(city:, country:, api_key:)
 
   geocoding_uri = URI("https://api.openweathermap.org/geo/1.0/direct?q=#{URI.encode_www_form_component(location_query)}&limit=1&appid=#{api_key}")
   geocoding_status, geocoding_result = http_get_json(geocoding_uri)
-  return [geocoding_status, { "error" => "geocoding failed", "details" => geocoding_result }] unless geocoding_status == 200
-  return [404, { "error" => "no location found", "query" => location_query }] unless geocoding_result.is_a?(Array) && geocoding_result.any?
+  return [geocoding_status, { 'error' => 'geocoding failed', 'details' => geocoding_result }] unless geocoding_status == 200
+  return [404, { 'error' => 'no location found', 'query' => location_query }] unless geocoding_result.is_a?(Array) && geocoding_result.any?
 
   location = geocoding_result.first
-  latitude, longitude = location["lat"], location["lon"]
-  return [502, { "error" => "no lat/lon", "location" => location }] if latitude.nil? || longitude.nil?
+  latitude, longitude = location['lat'], location['lon']
+  return [502, { 'error' => 'no lat/lon', 'location' => location }] if latitude.nil? || longitude.nil?
 
   weather_uri = URI("https://api.openweathermap.org/data/2.5/weather?lat=#{latitude}&lon=#{longitude}&units=metric&lang=da&appid=#{api_key}")
   weather_status, weather_data = http_get_json(weather_uri)
-  return [weather_status, { "error" => "weather fetch failed", "details" => weather_data }] unless weather_status == 200
+  return [weather_status, { 'error' => 'weather fetch failed', 'details' => weather_data }] unless weather_status == 200
 
-  [200, { "location" => location, "weather" => weather_data }]
+  [200, { 'location' => location, 'weather' => weather_data }]
 end
 
 # Shows the weather page for a given city and country, using the OpenWeather API, with error handling
 # Example: /weather?city=København&country=DK
-get "/weather" do
-  api_key = ENV["OPENWEATHER_API_KEY"].to_s.strip
-  halt 500, "Missing OPENWEATHER_API_KEY" if api_key.empty?
+get '/weather' do
+  api_key = ENV['OPENWEATHER_API_KEY'].to_s.strip
+  halt 500, 'Missing OPENWEATHER_API_KEY' if api_key.empty?
 
-  city    = params.fetch(:city, "København").to_s.strip
-  country = params.fetch(:country, "").to_s.strip
+  city    = params.fetch(:city, 'København').to_s.strip
+  country = params.fetch(:country, '').to_s.strip
 
   status, payload = get_weather_for(city: city, country: country, api_key: api_key)
   halt status, payload.to_json unless status == 200
 
-  @loc = payload["location"]
-  @w   = payload["weather"]
+  @loc = payload['location']
+  @w   = payload['weather']
   erb :weather
 end
 
 # Example: /api/weather?city=København&country=DK
 # Gets weather data for a given city within a country, using the OpenWeather API, with error handling and JSON response
-get "/api/weather" do
+get '/api/weather' do
   content_type :json
-  api_key = ENV["OPENWEATHER_API_KEY"].to_s.strip
-  halt 500, { error: "Missing OPENWEATHER_API_KEY" }.to_json if api_key.empty?
+  api_key = ENV['OPENWEATHER_API_KEY'].to_s.strip
+  halt 500, { error: 'Missing OPENWEATHER_API_KEY' }.to_json if api_key.empty?
 
-  city    = params.fetch(:city, "København").to_s.strip
-  country = params.fetch(:country, "").to_s.strip
+  city    = params.fetch(:city, 'København').to_s.strip
+  country = params.fetch(:country, '').to_s.strip
 
   status, payload = get_weather_for(city: city, country: country, api_key: api_key)
   halt status, payload.to_json unless status == 200
