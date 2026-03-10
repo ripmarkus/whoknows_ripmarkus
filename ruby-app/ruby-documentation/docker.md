@@ -7,7 +7,6 @@ Our Dockerfile takes a lot of inspiration from this [article](https://dev.to/cod
 - Multistage build, meaning that we separate the build environment and the runtime environment, so that the compilers
 and build tools don't ship to production.
 - Non root user, this reduces the blast radius of any container escape, enhancing the security.
-- Healthcheck, Docker detects and restart a broken container on the auto
 - `.dockerignore`, keeps non-app files and test files out of the build context
 
 *First draft, before:*
