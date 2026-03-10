@@ -22,7 +22,6 @@ RUN chown -R appuser:appuser /app
 USER appuser
 
 EXPOSE 8080
-ENV RACK_ENV=production
 
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
     CMD curl -f http://localhost:8080 || exit 1
