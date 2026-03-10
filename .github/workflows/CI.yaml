@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build Docker image
-        run: docker build ruby-app\Dockerfile --tag ${{ env.IMAGE_NAME }}:test
+        run: docker build ruby-app/Dockerfile --tag ${{ env.IMAGE_NAME }}:test
 
       - name: Run Docker container for health check
         run: |
