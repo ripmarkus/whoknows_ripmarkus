@@ -76,6 +76,7 @@ end
 
 def check_db_exists
   return if File.exist?(DATABASE_PATH)
+
   puts 'Database not found'
   exit(1)
 end
