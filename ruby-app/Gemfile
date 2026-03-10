@@ -9,10 +9,10 @@ gem 'puma'
 gem 'rackup'
 gem 'rubocop', require: false
 gem 'sinatra'
-gem 'sqlite3'
 gem 'rswag-ui'
+gem 'sqlite3'
+
 
 group :development do
   gem 'rerun'
 end
-
