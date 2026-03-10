@@ -1,0 +1,8 @@
+.git/
+.gitignore
+README.md
+spec/
+test/
+.env.example
+vendor/bundle
+coverage/

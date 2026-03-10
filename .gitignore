@@ -1,0 +1,162 @@
+# WhoKnows Application - Multi-language Repository
+# Ruby + Python applications with shared patterns
+
+# === Common Patterns ===
+# Environment and secrets
+.env
+.env.*
+*.log
+tmp/
+
+# Database files
+*.db
+*.sqlite3
+*.sqlite3-journal
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor and IDE files
+# VS Code - ignore personal settings but keep shared project config
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# Other editors
+.idea/
+*.swp
+*.swo
+*~
+
+# === Ruby-specific ===
+# Gem packages
+*.gem
+*.rbc
+
+# Ruby coverage and test results
+coverage/
+spec/reports/
+spec/examples.txt
+test/tmp/
+test/version_tmp/
+
+# Bundler
+.bundle/
+vendor/bundle/
+**/vendor/bundle/
+vendor/cache/
+lib/bundler/man/
+
+# RubyGems build artifacts
+pkg/
+InstalledFiles
+
+# Ruby documentation
+.yardoc/
+_yardoc/
+doc/
+rdoc/
+
+# Ruby debugging
+.byebug_history
+.pry_history
+
+# RVM/rbenv
+.rvmrc
+.ruby-version
+.ruby-gemset
+
+# === Python-specific ===
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+.env/
+
+# Testing and coverage
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# Pipenv
+Pipfile.lock
+
+# Poetry
+poetry.lock
+
+# PEP 582
+__pypackages__/
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# Environments
+.spyderproject
+.spyproject
+.ropeproject
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
