@@ -162,20 +162,18 @@ post '/api/login' do
   erb :login, locals: { error: error } if error
 end
 
-def validate_registration(db, params)
-  if params[:username].nil? || params[:username].empty?
-    'You have to enter a username'
-  elsif params[:email].nil? || !params[:email].include?('@')
-    'Valid email address needed'
-  elsif params[:password].nil?
-    'You have to enter a password'
-  elsif params[:password] != params[:password2]
-    'The two passwords do not match'
-  elsif get_user_id(db, params[:username])
-    'The username already exists'
-  end
+def validate_registration_fields(params)
+  return 'You have to enter a username' if params[:username].nil? || params[:username].empty?
+  return 'Valid email address needed' if params[:email].nil? || !params[:email].include?('@')
+  return 'You have to enter a password' if params[:password].nil?
+  return 'The two passwords do not match' if params[:password] != params[:password2]
 end
 
+def validate_registration(db, params)
+  error = validate_registration_fields(params)
+  return error if error
+  return 'The username already exists' if get_user_id(db, params[:username])
+end
 post '/api/register' do
   redirect '/' if session[:user_id]
 
@@ -230,28 +228,28 @@ def fetch_weather(latitude, longitude, api_key)
   http_get_json(uri)
 end
 
+def resolve_location(location_query, api_key)
+  status, result = fetch_geocoding(location_query, api_key)
+  return [status, { 'error' => 'geocoding failed', 'details' => result }] unless status == 200
+  return [404, { 'error' => 'no location found', 'query' => location_query }] unless result.is_a?(Array) && result.any?
+
+  location = result.first
+  lat = location['lat']
+  lon = location['lon']
+  return [502, { 'error' => 'no lat/lon', 'location' => location }] if lat.nil? || lon.nil?
+
+  [200, location]
+end
+
 # Weather function - gets lat/lon for city/country and then gets weather for that location
 def get_weather_for(city:, country:, api_key:)
   location_query = country.strip.empty? ? city : "#{city},#{country}"
 
-  geocoding_status, geocoding_result = fetch_geocoding(location_query, api_key)
-  unless geocoding_status == 200
-    return [geocoding_status, { 'error' => 'geocoding failed', 'details' => geocoding_result }]
-  end
+  status, location = resolve_location(location_query, api_key)
+  return [status, location] unless status == 200
 
-  unless geocoding_result.is_a?(Array) && geocoding_result.any?
-    return [404, { 'error' => 'no location found', 'query' => location_query }]
-  end
-
-  location = geocoding_result.first
-  latitude = location['lat']
-  longitude = location['lon']
-  return [502, { 'error' => 'no lat/lon', 'location' => location }] if latitude.nil? || longitude.nil?
-
-  weather_status, weather_data = fetch_weather(latitude, longitude, api_key)
-  unless weather_status == 200
-    return [weather_status, { 'error' => 'weather fetch failed', 'details' => weather_data }]
-  end
+  weather_status, weather_data = fetch_weather(location['lat'], location['lon'], api_key)
+  return [weather_status, { 'error' => 'weather fetch failed', 'details' => weather_data }] unless weather_status == 200
 
   [200, { 'location' => location, 'weather' => weather_data }]
 end
