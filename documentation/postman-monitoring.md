@@ -34,11 +34,11 @@ The monitor currently checks the following endpoints:
 
 | Endpoint | Method | Purpose |
 |--------|--------|--------|
-| `/` | GET | Checks that the frontpage loads |
-| `/about` | GET | Checks that the about page loads |
-| `/login` | GET | Checks that the login page loads |
-| `/register` | GET | Checks that the register page loads |
-| `/weather` | GET | Checks that the weather page works |
+| `/` | GET | Checks that the frontpage returns successfully. |
+| `/about` | GET | Checks that the about page returns successfully. |
+| `/login` | GET | Checks that the login page returns successfully. |
+| `/register` | GET | Checks that the register page returns successfully. |
+| `/weather` | GET | Checks that the weather page returns successfully. |
 | `/api/users` | GET | Tests the users API |
 | `/api/search` | GET | Tests the search API |
 | `/api/weather` | GET | Tests the weather API |
