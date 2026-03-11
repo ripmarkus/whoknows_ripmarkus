@@ -166,12 +166,14 @@ def validate_registration_fields(params)
   return 'You have to enter a username' if params[:username].nil? || params[:username].empty?
   return 'Valid email address needed' if params[:email].nil? || !params[:email].include?('@')
   return 'You have to enter a password' if params[:password].nil?
+  
   'The two passwords do not match' if params[:password] != params[:password2]
 end
 
 def validate_registration(db, params)
   error = validate_registration_fields(params)
   return error if error
+  
   'The username already exists' if get_user_id(db, params[:username])
 end
 post '/api/register' do
