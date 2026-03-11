@@ -1,18 +1,14 @@
 # frozen_string_literal: true
-
 source 'https://rubygems.org'
-
 gem 'bcrypt'
 gem 'dotenv'
 gem 'json'
 gem 'puma'
 gem 'rackup'
 gem 'rubocop', require: false
-gem 'sinatra'
 gem 'rswag-ui'
+gem 'sinatra'
 gem 'sqlite3'
-
-
 group :development do
   gem 'rerun'
 end
