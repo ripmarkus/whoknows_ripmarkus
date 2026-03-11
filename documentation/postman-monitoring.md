@@ -17,7 +17,7 @@ The monitor helps verify:
 
 ## Monitoring Schedule
 
-The Postman monitor is configured to run **every 12 hours**.
+The Postman monitor is configured to run **every 3 hours**.
 
 Each run executes the full request collection and records:
 
