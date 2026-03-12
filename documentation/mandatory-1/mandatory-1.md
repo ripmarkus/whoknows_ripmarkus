@@ -22,71 +22,22 @@ Use the links below to navigate to the relevant section.
 
 ```mermaid
 graph TD
-    subgraph External Libraries
-        flask[Flask]
-        sqlite3[sqlite3]
-        hashlib[hashlib]
-        pathlib[pathlib]
-        os_sys[os / sys]
-    end
+    flask[Flask] --> app[app.py]
+    sqlite3[sqlite3] --> connect_db
+    hashlib[hashlib] --> hash_password
+    pathlib[pathlib] --> DATABASE_PATH
 
-    subgraph Configuration
-        config["DATABASE_PATH, SECRET_KEY, DEBUG"]
-    end
-
-    subgraph Database
-        connect_db[connect_db]
-        check_db_exists[check_db_exists]
-        init_db[init_db]
-        query_db[query_db]
-        get_user_id[get_user_id]
-    end
-
-    subgraph Request Handlers
-        before_request[before_request]
-        after_request[after_request]
-    end
-
-    subgraph Security
-        hash_password[hash_password]
-        verify_password[verify_password]
-    end
-
-    subgraph Page Routes
-        route_root[GET /]
-        route_about[GET /about]
-        route_login[GET /login]
-        route_register[GET /register]
-    end
-
-    subgraph API Routes
-        api_search[GET /api/search]
-        api_login[POST /api/login]
-        api_register[POST /api/register]
-        api_logout[GET /api/logout]
-    end
-
-    pathlib --> config
-    config --> connect_db
-    sqlite3 --> connect_db
-    os_sys --> check_db_exists
-    connect_db --> check_db_exists
-    init_db --> connect_db
-
-    hashlib --> hash_password
+    DATABASE_PATH --> connect_db
+    connect_db --> query_db
+    connect_db --> before_request
+    query_db --> before_request
+    query_db --> api_login
+    query_db --> api_register
+    query_db --> api_search
     hash_password --> verify_password
-
-    before_request --> connect_db
-    before_request --> query_db
-
-    route_root --> query_db
-    api_search --> query_db
-    api_login --> query_db
-    api_login --> verify_password
-    api_register --> query_db
-    api_register --> get_user_id
-    api_register --> hash_password
-    get_user_id --> query_db
+    verify_password --> api_login
+    hash_password --> api_register
+    get_user_id --> api_register
 ```
 
 # Problems With Legacy Codebase
