@@ -20,6 +20,7 @@ Use the links below to navigate to the relevant section.
 
 # Dependency Graph
 
+```mermaid
 graph TD
     subgraph External Libraries
         flask[Flask]
@@ -86,6 +87,7 @@ graph TD
     api_register --> get_user_id
     api_register --> hash_password
     get_user_id --> query_db
+```
 
 # Problems With Legacy Codebase
 
