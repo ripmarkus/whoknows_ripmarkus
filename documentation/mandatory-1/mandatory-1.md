@@ -133,8 +133,12 @@ We want all developers to have a clear overview of our API and page endpoints, s
 
 The route /api/docs is a on premise Swagger/OpenAPI UI. The purpose it serves is to interact with the API directly from our browsers, and to test all of our endpoints.
 
-![OpenAPI](../imgs/OpenAPIpage.png)
 
+![OpenAPI](../imgs/OpenAPIpage.png)
+## Generation
+The OpenAPI specification was generated using Postman. All of our routes were added to a Postman collection. Examples were also added for almost every possible endpoint. The OpenAPI specification was generated shortly after this, using the `Generate Specification` feature.
+
+Postman can generate specifications in two different outputs, one being YAML and the other being JSON. YAML is easier for humans to read, which lead us to the conclusion of using YAML.
 
 ## HTML Routes
 The specification also documents routes used for rendering pages in the browser:
