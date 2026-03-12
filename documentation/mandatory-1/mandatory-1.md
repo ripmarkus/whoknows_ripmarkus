@@ -131,7 +131,7 @@ app.run(host="0.0.0.0", port=8080, debug=DEBUG)
 ## Purpose
 We want all developers to have a clear overview of our API and page endpoints, so we have an overview on the site itself.
 
-The route /api/docs is a on premise Swagger/OpenAPI UI. The purpose it serves is to interact with the API directly from our browsers, and to test all of our endpoints.
+The route /api/docs is an on premise Swagger/OpenAPI UI. The purpose it serves is to interact with the API directly from our browsers, and to test all of our endpoints.
 
 ![OpenAPI](../imgs/OpenAPIpage.png)
 
@@ -158,12 +158,6 @@ User authentication is handled through the following endpoints:
 - `POST /api/register` – Registers a new user.
 - `POST /api/login` – Authenticates a user.
 - `POST /api/logout` – Ends the user session.
-
-## Interactive Documentation
-The specification is visualized using **OpenAPI**.
-The documentation is available locally at:
-
-`http://91.100.1.101/api/docs`
 
 ---
 
