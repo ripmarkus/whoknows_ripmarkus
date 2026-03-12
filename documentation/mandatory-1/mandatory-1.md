@@ -26,7 +26,7 @@ As part of the elective, we were asked to generate a dependency graph to map out
 
 Working with a dependency graph has not proved very useful for our group. We don't disagree with the concept, quite the contrary, it can be great for complex systems, where onboarding proves to be difficult, partly because of how massive some systems can be.
 
-## CALMS
+## !Lean
 
 _However_, with a legacy codebase this simple, it feels like a frictional, even bureaucratic type of task — something that feels like it belongs in heavier development frameworks and doesn't feel in line with **Lean** in CALMS, at the current state of development.
 
