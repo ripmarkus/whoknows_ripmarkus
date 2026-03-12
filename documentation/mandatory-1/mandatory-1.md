@@ -211,8 +211,6 @@ As a student team, we preferred a more controlled approach where PRs and code-re
 
 ## 3. Advantages and Disadvantages
 
-*(Feel free to add to 'Advantages' or 'Disadvantages' if new insight is gained or you feel like something is missing)*
-
 ### Advantages
 
 - Mandatory code review improves quality
