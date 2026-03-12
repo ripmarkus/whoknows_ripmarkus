@@ -20,6 +20,8 @@ Use the links below to navigate to the relevant section.
 
 # Dependency Graph
 
+As part of the elective, we were asked to generate a dependency graph to map out the legacy codebase and the dependencies it relies on.
+
 ## Value
 
 Working with a dependency graph has not proved very useful for our group. We don't disagree with the concept, quite the contrary, it can be great for complex systems, where onboarding proves to be difficult, partly because of how massive some systems can be.
@@ -34,25 +36,7 @@ On top of this, it introduces technical debt by forcing us to learn a toolchain 
 
 It adds unnecessary overhead and doesn't provide us with clear functional value, time we'd rather spend on properly converting from Python2 to Ruby and making sure our new codebase is at its best.
 
-```mermaid
-graph TD
-    flask[Flask] --> app[app.py]
-    sqlite3[sqlite3] --> connect_db
-    hashlib[hashlib] --> hash_password
-    pathlib[pathlib] --> DATABASE_PATH
-
-    DATABASE_PATH --> connect_db
-    connect_db --> query_db
-    connect_db --> before_request
-    query_db --> before_request
-    query_db --> api_login
-    query_db --> api_register
-    query_db --> api_search
-    hash_password --> verify_password
-    verify_password --> api_login
-    hash_password --> api_register
-    get_user_id --> api_register
-```
+![dependencygraph](../imgs/dependency-graph.png)
 
 # Problems With Legacy Codebase
 
