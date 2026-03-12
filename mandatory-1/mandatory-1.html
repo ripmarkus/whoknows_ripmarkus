@@ -23,44 +23,137 @@
     .toc-list ol {
     padding-inline-start: 2ch;
     }
+
+    @media print {
+    .page, .page-break { break-after: page; }
+    }
     </style>
 </head>
-<body class="">
-    <h1>Mandatory 1 - ripmarkus</h1>
-    <h2>Kristian, Valdemar, Niko & Mathias</h2>
-    <ol class="toc-list" role="list">
-    <li>
-        <a href="#link_to_heading">
-        <span class="title">Dependency Graph</span>
-        </a>
-    <ol role="list">
-      <!-- subsection items -->
+<body class="bg-gray-900 text-gray-100 min-h-screen px-8 py-12 max-w-3xl mx-auto">
+    <div class="mb-10">
+        <h1 class="text-5xl mb-2">Mandatory 1 - ripmarkus</h1>
+        <h2 class="text-2xl text-gray-400">Kristian, Valdemar, Niko & Mathias</h2>
+    </div>
+
+    <hr class="border-gray-700 mb-8">
+
+    <div class="mb-8">
+        <p class="mb-2 text-gray-300">This is a mandatory hand-in for the Computer Science elective DevOps on EK.</p>
+        <p class="text-gray-300">Use the links below to navigate to the relevant section.</p>
+    </div>
+
+    <hr class="border-gray-700 mb-6">
+
+    <ol class="toc-list space-y-3" role="list">
+        <li class="border-l-2 border-gray-600 pl-4 hover:border-white transition-colors">
+            <a href="#dependency-graph" class="hover:underline text-gray-300 hover:text-white">
+                <span class="title">Dependency Graph</span>
+            </a>
+        </li>
+        <li class="border-l-2 border-gray-600 pl-4 hover:border-white transition-colors">
+            <a href="#problems-with-codebase" class="hover:underline text-gray-300 hover:text-white">
+                <span class="title">Problems With Legacy Codebase</span>
+            </a>
+        </li>
+        <li class="border-l-2 border-gray-600 pl-4 hover:border-white transition-colors">
+            <a href="#open-api" class="hover:underline text-gray-300 hover:text-white">
+                <span class="title">Our OpenAPI</span>
+            </a>
+        </li>
+        <li class="border-l-2 border-gray-600 pl-4 hover:border-white transition-colors">
+            <a href="#branching-strategy" class="hover:underline text-gray-300 hover:text-white">
+                <span class="title">Branching Strategy</span>
+            </a>
+        </li>
     </ol>
-  </li>
-  <li>
-        <a href="#link_to_heading">
-        <span class="title">Problems With Legacy Codebase</span>
-        </a>
-    <ol role="list">
-      <!-- subsection items -->
-    </ol>
-  </li>
-  <li>
-        <a href="#link_to_heading">
-        <span class="title">Our OpenAPI</span>
-        </a>
-    <ol role="list">
-      <!-- subsection items -->
-    </ol>
-  </li>
-  <li>
-        <a href="#link_to_heading">
-        <span class="title">Branching Strategy</span>
-        </a>
-    <ol role="list">
-      <!-- subsection items -->
-    </ol>
-  </li>
-</ol>
+
+    <!-- BRANCHING STRATEGY SECTION -->
+    <section id="branching-strategy" class="mt-16">
+        <h1 class="text-4xl font-bold mb-10">Branching Strategy</h1>
+
+        <h2 class="text-2xl font-semibold mb-4">1. Chosen Version Control Strategy</h2>
+        <p class="text-gray-300 mb-4">We chose to use <strong>GitHub Flow</strong> as our branching strategy.</p>
+        <p class="text-gray-300 mb-6">GitHub Flow is a lightweight, feature-branch-based workflow centered around a stable <code class="bg-gray-800 px-1 rounded">main</code> branch.</p>
+
+        <h3 class="text-xl font-semibold mb-3">Repository Structure</h3>
+        <ul class="list-disc list-inside text-gray-300 space-y-2 mb-6">
+            <li><code class="bg-gray-800 px-1 rounded">main</code> → Always stable and production-ready</li>
+            <li><code class="bg-gray-800 px-1 rounded">feat/*</code>, <code class="bg-gray-800 px-1 rounded">fix/*</code>, <code class="bg-gray-800 px-1 rounded">documentation/*</code>, <code class="bg-gray-800 px-1 rounded">chore/*</code> → Short-lived branches created from <code class="bg-gray-800 px-1 rounded">main</code>, used for features, fixes, documentation or chores</li>
+            <li>Pull Requests (PRs) → Required before merging into <code class="bg-gray-800 px-1 rounded">main</code></li>
+        </ul>
+        <p class="text-gray-300 mb-8">All new features, bug fixes, and documentation updates are developed in separate feature branches and merged back into <code class="bg-gray-800 px-1 rounded">main</code> via PRs.</p>
+
+        <hr class="border-gray-700 mb-8">
+
+        <h2 class="text-2xl font-semibold mb-4">Enforcement of the Strategy</h2>
+        <p class="text-gray-300 mb-3">We enforce our branching strategy through the following rules:</p>
+        <ul class="list-disc list-inside text-gray-300 space-y-2 mb-6">
+            <li>Direct pushes to <code class="bg-gray-800 px-1 rounded">main</code> are NOT allowed</li>
+            <li>Developers CANNOT review or approve their own PR</li>
+            <li>At least one team member must review and approve a PR</li>
+            <li>Only after approval can the PR be merged</li>
+            <li>Feature branches are deleted after merge</li>
+        </ul>
+        <p class="text-gray-300 mb-3">This ensures:</p>
+        <ul class="list-disc list-inside text-gray-300 space-y-2 mb-6">
+            <li>A strong code review culture</li>
+            <li>Shared ownership of the codebase</li>
+            <li>Higher code quality</li>
+            <li>Fast and continuous delivery of features</li>
+            <li>Reduced risk of unstable or unwanted code reaching <code class="bg-gray-800 px-1 rounded">main</code></li>
+        </ul>
+        <p class="text-gray-300 mb-8">By preventing self-review, all code changes are validated by another team member. This increases accountability and collaboration among the team.</p>
+
+        <hr class="border-gray-700 mb-8">
+
+        <h2 class="text-2xl font-semibold mb-4">2. Why We Chose GitHub Flow</h2>
+        <p class="text-gray-300 mb-3">We chose GitHub Flow because:</p>
+        <ul class="list-disc list-inside text-gray-300 space-y-2 mb-6">
+            <li>We are a small team</li>
+            <li>Our project does not require complex release cycles</li>
+            <li>We wanted a simple and efficient workflow</li>
+        </ul>
+        <p class="text-gray-300 mb-8">GitHub Flow supports continuous integration principles and keeps the workflow very easy to understand and maintain.</p>
+
+        <h3 class="text-xl font-semibold mb-3">Why We Did Not Choose Git Flow</h3>
+        <p class="text-gray-300 mb-3">We did not choose Git Flow because:</p>
+        <ul class="list-disc list-inside text-gray-300 space-y-2 mb-6">
+            <li>It introduces additional branches such as <code class="bg-gray-800 px-1 rounded">develop</code>, <code class="bg-gray-800 px-1 rounded">release</code>, and <code class="bg-gray-800 px-1 rounded">hotfix</code></li>
+            <li>It adds unnecessary process overhead for our team size</li>
+            <li>It is better suited for larger teams with structured release planning</li>
+        </ul>
+        <p class="text-gray-300 mb-8">For our project, Git Flow would have introduced more complexity without any clear added value.</p>
+
+        <h3 class="text-xl font-semibold mb-3">Why We Did Not Choose Trunk-Based Development</h3>
+        <p class="text-gray-300 mb-3">We did not choose Trunk-Based Development because:</p>
+        <ul class="list-disc list-inside text-gray-300 space-y-2 mb-6">
+            <li>It requires very mature CI/CD pipelines</li>
+            <li>It relies heavily on automated testing</li>
+            <li>It demands small frequent code changes directly into <code class="bg-gray-800 px-1 rounded">main</code></li>
+        </ul>
+        <p class="text-gray-300 mb-8">As a student team, we preferred a more controlled approach where PRs and code-reviews act as a safety mechanism before changes reach <code class="bg-gray-800 px-1 rounded">main</code>.</p>
+
+        <hr class="border-gray-700 mb-8">
+
+        <h2 class="text-2xl font-semibold mb-4">3. Advantages and Disadvantages</h2>
+        <p class="text-gray-400 italic mb-6">(Feel free to add to 'Advantages' or 'Disadvantages' if new insight is gained or you feel like something is missing)</p>
+
+        <h3 class="text-xl font-semibold mb-3">Advantages</h3>
+        <ul class="list-disc list-inside text-gray-300 space-y-2 mb-8">
+            <li>Mandatory code review improves quality</li>
+            <li>Simple workflow</li>
+            <li>Increased knowledge sharing across the team</li>
+            <li>Structured and readable Git history</li>
+            <li>Reduced risk of breaking <code class="bg-gray-800 px-1 rounded">main</code></li>
+        </ul>
+
+        <h3 class="text-xl font-semibold mb-3">Disadvantages</h3>
+        <ul class="list-disc list-inside text-gray-300 space-y-2">
+            <li>PRs can slow development if reviewers are unavailable or not looking for new PRs to merge</li>
+            <li>Requires discipline to keep branches small and focused</li>
+            <li>Workflow heavily depends on the team's responsiveness and level of activeness</li>
+        </ul>
+    </section>
+
 </body>
 </html>
