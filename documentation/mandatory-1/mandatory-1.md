@@ -1,5 +1,7 @@
 # Mandatory 1 - ripmarkus
 
+
+
 ### Kristian, Valdemar, Niko & Mathias
 
 ---
@@ -16,11 +18,35 @@ Use the links below to navigate to the relevant section.
 - [Our OpenAPI](#our-openapi)
 - [Branching Strategy](#branching-strategy)
 
----
+***
 
 # Dependency Graph
 
 As part of the elective, we were asked to generate a dependency graph to map out the legacy codebase and the dependencies it relies on.
+
+## How we did it
+
+We used [Mermaid](https://mermaid.js.org/) to generate a diagram, we used the code below:
+
+```
+graph TD
+    flask[Flask] --> app[app.py]
+    sqlite3[sqlite3] --> connect_db
+    hashlib[hashlib] --> hash_password
+    pathlib[pathlib] --> DATABASE_PATH
+
+    DATABASE_PATH --> connect_db
+    connect_db --> query_db
+    connect_db --> before_request
+    query_db --> before_request
+    query_db --> api_login
+    query_db --> api_register
+    query_db --> api_search
+    hash_password --> verify_password
+    verify_password --> api_login
+    hash_password --> api_register
+    get_user_id --> api_register
+```
 
 ## Value
 
@@ -139,17 +165,17 @@ The documentation is available locally at:
 
 # Branching Strategy
 
-## 1. Chosen Version Control Strategy
+## Github Flow
 
-We chose to use **GitHub Flow** as our branching strategy.
+We chose this, because of how fast and lightweight it is, seeing that we want to be able to deploy fast and often.
 
-GitHub Flow is a lightweight, feature-branch-based workflow centered around a stable `main` branch.
+Looking forward, we can change strategy to something more structured as our codebase scales. It wouldn't be a good fit if we were working in more/larger teams, or needed to maintain multiple released versions of the product at the same time. 
 
 ### Repository Structure
 
-- `main` → Always stable and production-ready
-- `feat/*`, `fix/*`, `documentation/*`, `chore/*` → Short-lived branches created from `main`, used for features, fixes, documentation or chores
-- Pull Requests (PRs) → Required before merging into `main`
+- `main`: Always stable and production-ready
+- `feat/*`, `fix/*`, `documentation/*`, `chore/*`: Short-lived branches created from `main`, used for features, fixes, documentation or chores
+- Pull Requests (PRs): Always required before being able to merge into `main`
 
 All new features, bug fixes, and documentation updates are developed in separate feature branches and merged back into `main` via PRs.
 
@@ -157,70 +183,36 @@ All new features, bug fixes, and documentation updates are developed in separate
 
 ## Enforcement of the Strategy
 
-We enforce our branching strategy through the following rules:
+We enforce our branching strategy by not allowing direct pushes to `main` and developers cannot review or approve their own PR.
 
-- Direct pushes to `main` are NOT allowed
-- Developers CANNOT review or approve their own PR
-- At least one team member must review and approve a PR
-- Only after approval can the PR be merged
-- Feature branches are deleted after merge
+So the only way we can approve a merge is by having another team member approve the PR. Feature branches have to be deleted after the fact.
 
-This ensures:
-
-- A strong code review culture
-- Shared ownership of the codebase
-- Higher code quality
-- Fast and continuous delivery of features
-- Reduced risk of unstable or unwanted code reaching `main`
-
-By preventing self-review, all code changes are validated by another team member. This increases accountability and collaboration among the team.
+By preventing self-review, all code changes are validated by another team member. It increases accountability and collaboration among the team, ensuring a better understanding all together of the code, which is in alignment with C and S in CALMS.
 
 ---
 
-## 2. Why We Chose GitHub Flow
+## Why We Chose GitHub Flow
 
-We chose GitHub Flow because:
+We chose GitHub Flow mainly because it is an easy start and doesn't require much setup or rules from the get-go. 
 
-- We are a small team
-- Our project does not require complex release cycles
-- We wanted a simple and efficient workflow
+Seeing as we are a small team, and will continue to be so, it has been a great fit from the beginning. 
 
-GitHub Flow supports continuous integration principles and keeps the workflow very easy to understand and maintain.
+Should we get new team member(s), onboarding will be quite easy, since it is a very easy way of working and learning."
 
-### Why We Did Not Choose Git Flow
+## It sounds like Trunk-Based Development
 
-We did not choose Git Flow because:
+Sure, but there is a difference. We keep a strong emphasis on PRs as core part of the process and a big part of learning internally and knowledge sharing - but we do keep a higher tolerance for mistakes, this is an elective after all, and part of the learning process is making mistakes - sometimes a lot.
 
-- It introduces additional branches such as `develop`, `release`, and `hotfix`
-- It adds unnecessary process overhead for our team size
-- It is better suited for larger teams with structured release planning
+## Why not Git Flow?
 
-For our project, Git Flow would have introduced more complexity without any clear added value.
-
-### Why We Did Not Choose Trunk-Based Development
-
-We did not choose Trunk-Based Development because:
-
-- It requires very mature CI/CD pipelines
-- It relies heavily on automated testing
-- It demands small frequent code changes directly into `main`
-
-As a student team, we preferred a more controlled approach where PRs and code-reviews act as a safety mechanism before changes reach `main`.
-
----
+For our small team and frankly very small codebase, it was too complicated - for now at least. When it is in production and we have a higher sense of Quality Assurance, there might be an argument in changing to this strategy, in order to schedule releases and work with more complex versioning.
 
 ## 3. Advantages and Disadvantages
 
 ### Advantages
 
-- Mandatory code review improves quality
-- Simple workflow
-- Increased knowledge sharing across the team
-- Structured and readable Git history
-- Reduced risk of breaking `main`
+Mandatory code reviews ensure that all changes are validated before reaching main, which improves overall code quality. The workflow itself is simple and easy to follow, and the structured use of branches results in a readable and organized Git history. Knowledge sharing increases naturally as team members review each other's work, and the risk of breaking main is reduced by never committing directly to it.
 
 ### Disadvantages
 
-- PRs can slow development if reviewers are unavailable or not looking for new PRs to merge
-- Requires discipline to keep branches small and focused
-- Workflow heavily depends on the team's responsiveness and level of activeness
+PRs can become a bottleneck if reviewers are unavailable or slow to respond, which may slow down development. The workflow also requires discipline from each team member to keep branches small and focused. Overall, the effectiveness of the strategy heavily depends on the team's responsiveness and engagement.
