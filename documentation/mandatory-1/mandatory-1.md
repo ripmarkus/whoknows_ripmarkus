@@ -159,6 +159,7 @@ User authentication is handled through the following endpoints:
 - `POST /api/login` – Authenticates a user.
 - `POST /api/logout` – Ends the user session.
 
+
 ---
 
 # Branching Strategy
