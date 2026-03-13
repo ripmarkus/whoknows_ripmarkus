@@ -174,9 +174,8 @@ def validate_registration(db, params)
   error = validate_registration_fields(params)
   return error if error
 
-return 'The username already exists' if get_user_id(db, params[:username])
-return 'The email already exists' if db.execute('SELECT 1 FROM users WHERE email = ? LIMIT 1', [params[:email]]).first
-
+  return 'The username already exists' if get_user_id(db, params[:username])
+  'The email already exists' if db.execute('SELECT 1 FROM users WHERE email = ? LIMIT 1', [params[:email]]).first
 end
 post '/api/register' do
   redirect '/' if session[:user_id]
