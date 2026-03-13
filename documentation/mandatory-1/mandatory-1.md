@@ -163,6 +163,141 @@ User authentication is handled through the following endpoints:
 - `POST /api/login` – Authenticates a user.
 - `POST /api/logout` – Ends the user session.
 
+## Generation
+
+```yaml
+openapi: 3.0.0
+info:
+  title: Whoknows - HTML + API
+  version: 1.0.0
+  description: Whoknows Sinatra app - HTML routes and API endpoints
+servers:
+  - url: http://localhost:80
+paths:
+  /:
+    get:
+      summary: GET /
+      parameters:
+        - name: query
+          in: query
+          schema:
+            type: string
+          example: test
+        - name: language
+          in: query
+          schema:
+            type: string
+          example: en
+      responses:
+        default:
+          description: GET /
+      tags:
+        - HTML
+  /about:
+    get:
+      summary: GET /about
+      responses: {}
+      tags:
+        - HTML
+  /login:
+    get:
+      summary: GET /login
+      responses: {}
+      tags:
+        - HTML
+  /register:
+    get:
+      summary: GET /register
+      responses: {}
+      tags:
+        - HTML
+  /weather:
+    get:
+      summary: GET /weather
+      parameters:
+        - name: city
+          in: query
+          schema:
+            type: string
+          example: København
+        - name: country
+          in: query
+          schema:
+            type: string
+          example: DK
+      responses:
+        default:
+          description: GET /weather
+      tags:
+        - HTML
+  /api/users:
+    get:
+      summary: GET /api/users
+      responses: {}
+      tags:
+        - API
+  /api/search:
+    get:
+      summary: GET /api/search
+      parameters:
+        - name: query
+          in: query
+          schema:
+            type: string
+          example: test
+        - name: language
+          in: query
+          schema:
+            type: string
+          example: en
+      responses:
+        default:
+          description: GET /api/search
+      tags:
+        - API
+  /api/weather:
+    get:
+      summary: GET /api/weather
+      parameters:
+        - name: city
+          in: query
+          schema:
+            type: string
+          example: København
+        - name: country
+          in: query
+          schema:
+            type: string
+          example: DK
+      responses:
+        default:
+          description: GET /api/weather
+      tags:
+        - API
+  /api/register:
+    post:
+      summary: POST /api/register
+      responses:
+        default:
+          description: POST /api/register
+      tags:
+        - API
+  /api/login:
+    post:
+      summary: POST /api/login
+      responses:
+        default:
+          description: POST /api/login
+      tags:
+        - API
+  /api/logout:
+    post:
+      summary: POST /api/logout
+      responses: {}
+      tags:
+        - API
+ ```
+
 
 ---
 
