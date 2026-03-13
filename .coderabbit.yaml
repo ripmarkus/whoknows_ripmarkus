@@ -12,7 +12,7 @@ reviews:
   high_level_summary_instructions: >-
     This project is part of a DevOps elective on a CS education, help us develop an understanding of DevOps, and help us write clean code.
     Focus on the principles of DevOps: Culture, Automation, Lean, Measurement, and Sharing.
-    If files changed (x) > commits (y) + 1, comment asking for more commits.
+    If lines changed (z) > commits (y) × 50, or files changed (x) > commits (y) + 1, comment asking for more atomic commits.
     Focus on code smells, overly complex methods, bad patterns, logic errors, and edge cases tests might miss.
     Flag any security concerns such as SQL injection, exposed secrets, or unsafe inputs — explain what makes them suspicious.
     Check that documentation and comments accurately reflect the code, flag anything outdated or missing.

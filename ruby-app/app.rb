@@ -110,8 +110,8 @@ end
 get '/api/users' do
   content_type :json
   db = connect_db
-    users = []
-  
+  users = []
+
   db.execute('SELECT id, username, email FROM users') do |row|
     users << { id: row[0], username: row[1], email: row[2] }
   end
@@ -154,7 +154,7 @@ post '/api/login' do
     error = 'Invalid password'
   else
     session[:user_id] = user[0]
-    session[:username] = user[1] 
+    session[:username] = user[1]
     redirect '/'
   end
 
@@ -162,31 +162,34 @@ post '/api/login' do
   erb :login, locals: { error: error } if error
 end
 
+def validate_registration_fields(params)
+  return 'You have to enter a username' if params[:username].nil? || params[:username].empty?
+  return 'Valid email address needed' if params[:email].nil? || !params[:email].include?('@')
+  return 'You have to enter a password' if params[:password].nil?
+
+  'The two passwords do not match' if params[:password] != params[:password2]
+end
+
+def validate_registration(db, params)
+  error = validate_registration_fields(params)
+  return error if error
+
+  'The username already exists' if get_user_id(db, params[:username])
+end
 post '/api/register' do
   redirect '/' if session[:user_id]
-  error = nil
-  db = connect_db
 
-  if params[:username].nil? || params[:username].empty?
-    error = 'You have to enter a username'
-  elsif params[:email].nil? || !params[:email].include?('@')
-    error = 'Valid email address needed'
-  elsif params[:password].nil?
-    error = 'You have to enter a password'
-  elsif params[:password] != params[:password2]
-    error = 'The two passwords do not match'
-  elsif get_user_id(db, params[:username])
-    error = 'The username already exists'
-  end
+  db = connect_db
+  error = validate_registration(db, params)
 
   if error
     db.close
-    erb :register, locals: { error: error }  # re-render form with error
+    erb :register, locals: { error: error } # re-render form with error
   else
     hashed_pw = hash_password(params[:password])
     db.execute('INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
                [params[:username], params[:email], hashed_pw])
-    session[:user_id] = get_user_id(db, params[:username])  # log them in
+    session[:user_id] = get_user_id(db, params[:username]) # log them in
     session[:username] = params[:username]
     db.close
     redirect '/'
@@ -217,21 +220,37 @@ end
 # WEATHER
 ###############
 
+def fetch_geocoding(location_query, api_key)
+  uri = URI("https://api.openweathermap.org/geo/1.0/direct?q=#{URI.encode_www_form_component(location_query)}&limit=1&appid=#{api_key}")
+  http_get_json(uri)
+end
+
+def fetch_weather(latitude, longitude, api_key)
+  uri = URI("https://api.openweathermap.org/data/2.5/weather?lat=#{latitude}&lon=#{longitude}&units=metric&lang=da&appid=#{api_key}")
+  http_get_json(uri)
+end
+
+def resolve_location(location_query, api_key)
+  status, result = fetch_geocoding(location_query, api_key)
+  return [status, { 'error' => 'geocoding failed', 'details' => result }] unless status == 200
+  return [404, { 'error' => 'no location found', 'query' => location_query }] unless result.is_a?(Array) && result.any?
+
+  location = result.first
+  lat = location['lat']
+  lon = location['lon']
+  return [502, { 'error' => 'no lat/lon', 'location' => location }] if lat.nil? || lon.nil?
+
+  [200, location]
+end
+
 # Weather function - gets lat/lon for city/country and then gets weather for that location
 def get_weather_for(city:, country:, api_key:)
   location_query = country.strip.empty? ? city : "#{city},#{country}"
 
-  geocoding_uri = URI("https://api.openweathermap.org/geo/1.0/direct?q=#{URI.encode_www_form_component(location_query)}&limit=1&appid=#{api_key}")
-  geocoding_status, geocoding_result = http_get_json(geocoding_uri)
-  return [geocoding_status, { 'error' => 'geocoding failed', 'details' => geocoding_result }] unless geocoding_status == 200
-  return [404, { 'error' => 'no location found', 'query' => location_query }] unless geocoding_result.is_a?(Array) && geocoding_result.any?
+  status, location = resolve_location(location_query, api_key)
+  return [status, location] unless status == 200
 
-  location = geocoding_result.first
-  latitude, longitude = location['lat'], location['lon']
-  return [502, { 'error' => 'no lat/lon', 'location' => location }] if latitude.nil? || longitude.nil?
-
-  weather_uri = URI("https://api.openweathermap.org/data/2.5/weather?lat=#{latitude}&lon=#{longitude}&units=metric&lang=da&appid=#{api_key}")
-  weather_status, weather_data = http_get_json(weather_uri)
+  weather_status, weather_data = fetch_weather(location['lat'], location['lon'], api_key)
   return [weather_status, { 'error' => 'weather fetch failed', 'details' => weather_data }] unless weather_status == 200
 
   [200, { 'location' => location, 'weather' => weather_data }]
