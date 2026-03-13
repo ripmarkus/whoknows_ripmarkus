@@ -200,7 +200,7 @@ We chose GitHub Flow mainly because it is an easy start and doesn't require much
 
 Seeing as we are a small team, and will continue to be so, it has been a great fit from the beginning. 
 
-Should we get new team member(s), onboarding will be quite easy, since it is a very easy way of working and learning."
+Should we get new team member(s), onboarding will be quite easy, since it is a very easy way of working and learning.
 
 ## It sounds like Trunk-Based Development
 
