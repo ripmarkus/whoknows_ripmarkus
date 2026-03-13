@@ -163,7 +163,7 @@ User authentication is handled through the following endpoints:
 - `POST /api/login` – Authenticates a user.
 - `POST /api/logout` – Ends the user session.
 
-## Generation
+## OpenAPI Specification
 
 ```yaml
 openapi: 3.0.0
