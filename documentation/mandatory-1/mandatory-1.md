@@ -136,7 +136,7 @@ The route /api/docs is an on premise Swagger/OpenAPI UI. The purpose it serves i
 
 ![OpenAPI](../imgs/OpenAPIpage.png)
 ## Generation
-The OpenAPI specification was generated using Postman. All of our routes were added to a Postman collection. Examples were also added for almost every possible endpoint. The OpenAPI specification was generated shortly after this, using the `Generate Specification` feature.
+The OpenAPI specification was generated using Postman. All of our routes were added to a Postman collection. Examples were also added for almost every possible endpoint. The OpenAPI specification was generated shortly after this, using the `Generate Specification` feature. 
 
 Postman can generate specifications in two different outputs, one being YAML and the other being JSON. YAML is easier for humans to read, which lead us to the conclusion of using YAML.
 
@@ -163,7 +163,7 @@ User authentication is handled through the following endpoints:
 - `POST /api/login` – Authenticates a user.
 - `POST /api/logout` – Ends the user session.
 
-## Generation
+## OpenAPI Specification
 
 ```yaml
 openapi: 3.0.0
