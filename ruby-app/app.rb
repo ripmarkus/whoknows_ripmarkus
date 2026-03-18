@@ -190,7 +190,16 @@ def validate_registration(db, params)
   return error if error
 
   return 'The username already exists' if get_user_id(db, params[:username])
+
   'The email already exists' if db.execute('SELECT 1 FROM users WHERE email = ? LIMIT 1', [params[:email]]).first
+end
+
+def register_user(db, params)
+  hashed_pw = hash_password(params[:password])
+  db.execute('INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
+             [params[:username], params[:email], hashed_pw])
+  session[:user_id] = get_user_id(db, params[:username])
+  session[:username] = params[:username]
 end
 
 post '/api/register' do
@@ -215,11 +224,7 @@ post '/api/register' do
       erb :register, locals: { error: error }
     end
   else
-    hashed_pw = hash_password(params[:password])
-    db.execute('INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
-               [params[:username], params[:email], hashed_pw])
-    session[:user_id] = get_user_id(db, params[:username])
-    session[:username] = params[:username]
+    register_user(db, params)
     db.close
     if json_request?
       content_type :json
@@ -245,12 +250,10 @@ end
 # SECURITY
 ###############
 
-# TODO: Use in the register api route
 def hash_password(password)
   BCrypt::Password.create(password)
 end
 
-# TODO: Use in the login api route
 def password_matches?(password_hash, plaintext_password)
   BCrypt::Password.new(password_hash) == plaintext_password
 end
