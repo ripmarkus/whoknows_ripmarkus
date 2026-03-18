@@ -16,6 +16,10 @@ DATABASE_PATH = File.join(__dir__, 'whoknows.db')
 helpers do
   include Rack::Utils
   alias_method :h, :escape_html
+
+  def json_request?
+    request.content_type&.include?('application/json')
+  end
 end
 
 # JSON helper - sets default content type to json and parses response body as json, with error handling
@@ -155,11 +159,22 @@ post '/api/login' do
   else
     session[:user_id] = user[0]
     session[:username] = user[1]
-    redirect '/'
+    db.close
+    if json_request?
+      content_type :json
+      return { message: 'Login successful', username: user[1] }.to_json
+    else
+      redirect '/'
+    end
   end
 
   db.close
-  erb :login, locals: { error: error } if error
+  if json_request?
+    content_type :json
+    halt 401, { error: error }.to_json
+  else
+    erb :login, locals: { error: error }
+  end
 end
 
 def validate_registration_fields(params)
@@ -177,30 +192,53 @@ def validate_registration(db, params)
   return 'The username already exists' if get_user_id(db, params[:username])
   'The email already exists' if db.execute('SELECT 1 FROM users WHERE email = ? LIMIT 1', [params[:email]]).first
 end
+
 post '/api/register' do
-  redirect '/' if session[:user_id]
+  if session[:user_id]
+    if json_request?
+      content_type :json
+      halt 400, { error: 'Already logged in' }.to_json
+    else
+      redirect '/'
+    end
+  end
 
   db = connect_db
   error = validate_registration(db, params)
 
   if error
     db.close
-    erb :register, locals: { error: error } # re-render form with error
+    if json_request?
+      content_type :json
+      halt 400, { error: error }.to_json
+    else
+      erb :register, locals: { error: error }
+    end
   else
     hashed_pw = hash_password(params[:password])
     db.execute('INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
                [params[:username], params[:email], hashed_pw])
-    session[:user_id] = get_user_id(db, params[:username]) # log them in
+    session[:user_id] = get_user_id(db, params[:username])
     session[:username] = params[:username]
     db.close
-    redirect '/'
+    if json_request?
+      content_type :json
+      { message: 'Registration successful', username: params[:username] }.to_json
+    else
+      redirect '/'
+    end
   end
 end
 
 post '/api/logout' do
-  session[:flash] = 'You were logged out'
   session.delete(:user_id)
-  redirect '/'
+  if json_request?
+    content_type :json
+    { message: 'Logout successful' }.to_json
+  else
+    session[:flash] = 'You were logged out'
+    redirect '/'
+  end
 end
 
 ###############
