@@ -6,7 +6,7 @@
     <nav>
       <h1><a id="nav-logo" href="/search">¿Who Knows?</a></h1>
       <% if session[:user_id] %>
-        <form action="/api/logout" method="post" style="display:inline;">
+        <form action="/logout" method="post" style="display:inline;">
           <button id="nav-logout" type="submit">Log out [<%= session[:username] %>]</button>
         </form>
       <% else %>

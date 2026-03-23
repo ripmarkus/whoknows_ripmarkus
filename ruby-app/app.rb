@@ -16,10 +16,6 @@ DATABASE_PATH = File.join(__dir__, 'whoknows.db')
 helpers do
   include Rack::Utils
   alias_method :h, :escape_html
-
-  def json_request?
-    request.content_type&.include?('application/json')
-  end
 end
 
 # JSON helper - sets default content type to json and parses response body as json, with error handling
@@ -108,23 +104,9 @@ def get_user_id(db, username)
 end
 
 ###############
-# API ENDPOINTS
+# SHARED LOGIC
 ###############
 
-get '/api/users' do
-  content_type :json
-  db = connect_db
-  users = []
-
-  db.execute('SELECT id, username, email FROM users') do |row|
-    users << { id: row[0], username: row[1], email: row[2] }
-  end
-
-  db.close
-  users.to_json
-end
-
-# changed this to accept parameters, so it can be used other places
 def search_pages_query(db, language, query)
   sql = 'SELECT * FROM pages WHERE language = ? AND content LIKE ?'
   pages = []
@@ -137,44 +119,12 @@ def search_pages_query(db, language, query)
   pages
 end
 
-get '/api/search' do
-  content_type :json
-  query    = params[:query]
-  language = params[:language] || 'en'
-  db = connect_db
-  search_results = query ? search_pages_query(db, language, query) : []
-  db.close
-  { message: 'Search endpoint hit', results: search_results }.to_json
-end
+def authenticate_user(db, username, password)
+  user = db.execute('SELECT * FROM users WHERE username = ?', [username]).first
+  return [nil, 'Invalid username'] if user.nil?
+  return [nil, 'Invalid password'] unless password_matches?(user[3], password)
 
-post '/api/login' do
-  db = connect_db
-  error = nil
-  user = db.execute('SELECT * FROM users WHERE username = ?', [params[:username]]).first
-
-  if user.nil?
-    error = 'Invalid username'
-  elsif !password_matches?(user[3], params[:password])
-    error = 'Invalid password'
-  else
-    session[:user_id] = user[0]
-    session[:username] = user[1]
-    db.close
-    if json_request?
-      content_type :json
-      return { message: 'Login successful', username: user[1] }.to_json
-    else
-      redirect '/'
-    end
-  end
-
-  db.close
-  if json_request?
-    content_type :json
-    halt 401, { error: error }.to_json
-  else
-    erb :login, locals: { error: error }
-  end
+  [user, nil]
 end
 
 def validate_registration_fields(params)
@@ -202,48 +152,107 @@ def register_user(db, params)
   session[:username] = params[:username]
 end
 
-post '/api/register' do
-  if session[:user_id]
-    if json_request?
-      content_type :json
-      halt 400, { error: 'Already logged in' }.to_json
-    else
-      redirect '/'
-    end
+###############
+# HTML ROUTES
+###############
+
+post '/login' do
+  db = connect_db
+  user, error = authenticate_user(db, params[:username], params[:password])
+  db.close
+
+  if error
+    erb :login, locals: { error: error }
+  else
+    session[:user_id] = user[0]
+    session[:username] = user[1]
+    redirect '/'
   end
+end
+
+post '/register' do
+  redirect '/' if session[:user_id]
 
   db = connect_db
   error = validate_registration(db, params)
 
   if error
     db.close
-    if json_request?
-      content_type :json
-      halt 400, { error: error }.to_json
-    else
-      erb :register, locals: { error: error }
-    end
+    erb :register, locals: { error: error }
   else
     register_user(db, params)
     db.close
-    if json_request?
-      content_type :json
-      { message: 'Registration successful', username: params[:username] }.to_json
-    else
-      redirect '/'
-    end
+    redirect '/'
   end
 end
 
-post '/api/logout' do
+post '/logout' do
   session.delete(:user_id)
-  if json_request?
-    content_type :json
-    { message: 'Logout successful' }.to_json
-  else
-    session[:flash] = 'You were logged out'
-    redirect '/'
+  session[:flash] = 'You were logged out'
+  redirect '/'
+end
+
+###############
+# API ENDPOINTS
+###############
+
+get '/api/users' do
+  content_type :json
+  db = connect_db
+  users = []
+
+  db.execute('SELECT id, username, email FROM users') do |row|
+    users << { id: row[0], username: row[1], email: row[2] }
   end
+
+  db.close
+  users.to_json
+end
+
+get '/api/search' do
+  content_type :json
+  query    = params[:query]
+  language = params[:language] || 'en'
+  db = connect_db
+  search_results = query ? search_pages_query(db, language, query) : []
+  db.close
+  { message: 'Search endpoint hit', results: search_results }.to_json
+end
+
+post '/api/login' do
+  content_type :json
+  db = connect_db
+  user, error = authenticate_user(db, params[:username], params[:password])
+  db.close
+
+  halt 401, { error: error }.to_json if error
+
+  session[:user_id] = user[0]
+  session[:username] = user[1]
+  { message: 'Login successful', username: user[1] }.to_json
+end
+
+post '/api/register' do
+  content_type :json
+  halt 400, { error: 'Already logged in' }.to_json if session[:user_id]
+
+  db = connect_db
+  error = validate_registration(db, params)
+
+  if error
+    db.close
+    halt 400, { error: error }.to_json
+  end
+
+  register_user(db, params)
+  db.close
+  { message: 'Registration successful', username: params[:username] }.to_json
+end
+
+post '/api/logout' do
+  content_type :json
+  session.delete(:user_id)
+  { message: 'Logout successful' }.to_json
 end
 
 ###############
