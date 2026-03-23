@@ -50,11 +50,11 @@ get '/about' do
 end
 
 get '/login' do
-  erb :login
+  erb :login, locals: { error: nil }
 end
 
 get '/register' do
-  erb :register
+  erb :register, locals: { error: nil }
 end
 
 get '/api/docs' do

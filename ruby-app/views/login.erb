@@ -1,6 +1,6 @@
 <% @title = 'Sign In' %>
 <h2>Log In</h2>
-<% if defined?(error) && error %>
+<% if error %>
   <div class="error"><strong>Error:</strong> <%= error %></div>
 <% end %>
 <form action="/login" method="POST">
