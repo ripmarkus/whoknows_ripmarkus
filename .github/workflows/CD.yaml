@@ -1,0 +1,34 @@
+name: Deployment
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Ruby CI"]
+    types:
+      - completed
+    branches:
+      - development
+
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH deploy
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script_stop: true
+          script: |
+            set -eux
+
+            # Login to GHCR (no token printed)
+            echo '${{ secrets.GHCR_TOKEN }}' | docker login ghcr.io -u '${{ secrets.GHCR_USERNAME }}' --password-stdin
+
+            cd /opt/docker/devops/whoknows_ripmarkus/ruby-app
+            docker compose down
+            docker compose pull
+            docker compose up -d
