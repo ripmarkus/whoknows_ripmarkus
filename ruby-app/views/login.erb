@@ -1,9 +1,9 @@
 <% @title = 'Sign In' %>
 <h2>Log In</h2>
-<% if @error %>
-  <div class="error"><strong>Error:</strong> <%= @error %></div>
+<% if error %>
+  <div class="error"><strong>Error:</strong> <%= error %></div>
 <% end %>
-<form action="/api/login" method="POST">
+<form action="/login" method="POST">
   <dl>
     <dt>Username:
     <dd><input type="text" name="username" size="30" value="<%= params[:username] %>">

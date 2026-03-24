@@ -50,11 +50,11 @@ get '/about' do
 end
 
 get '/login' do
-  erb :login
+  erb :login, locals: { error: nil }
 end
 
 get '/register' do
-  erb :register
+  erb :register, locals: { error: nil }
 end
 
 get '/api/docs' do
@@ -104,6 +104,95 @@ def get_user_id(db, username)
 end
 
 ###############
+# SHARED LOGIC
+###############
+
+def search_pages_query(db, language, query)
+  sql = 'SELECT * FROM pages WHERE language = ? AND content LIKE ?'
+  pages = []
+
+  db.execute(sql, [language, "%#{query}%"]) do |row|
+    title, url, language, last_updated, content = row
+    pages << { title: title, url: url, language: language, last_updated: last_updated, content: content }
+  end
+
+  pages
+end
+
+def authenticate_user(db, username, password)
+  user = db.execute('SELECT * FROM users WHERE username = ?', [username]).first
+  return [nil, 'Invalid username'] if user.nil?
+  return [nil, 'Invalid password'] unless password_matches?(user[3], password)
+
+  [user, nil]
+end
+
+def validate_registration_fields(params)
+  return 'You have to enter a username' if params[:username].nil? || params[:username].empty?
+  return 'Valid email address needed' if params[:email].nil? || !params[:email].include?('@')
+  return 'You have to enter a password' if params[:password].to_s.strip.empty?
+
+  'The two passwords do not match' if params[:password] != params[:password2]
+end
+
+def validate_registration(db, params)
+  error = validate_registration_fields(params)
+  return error if error
+
+  return 'The username already exists' if get_user_id(db, params[:username])
+
+  'The email already exists' if db.execute('SELECT 1 FROM users WHERE email = ? LIMIT 1', [params[:email]]).first
+end
+
+def register_user(db, params)
+  hashed_pw = hash_password(params[:password])
+  db.execute('INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
+             [params[:username], params[:email], hashed_pw])
+  session[:user_id] = get_user_id(db, params[:username])
+  session[:username] = params[:username]
+end
+
+###############
+# HTML ROUTES
+###############
+
+post '/login' do
+  db = connect_db
+  user, error = authenticate_user(db, params[:username], params[:password])
+  db.close
+
+  if error
+    erb :login, locals: { error: error }
+  else
+    session[:user_id] = user[0]
+    session[:username] = user[1]
+    redirect '/'
+  end
+end
+
+post '/register' do
+  redirect '/' if session[:user_id]
+
+  db = connect_db
+  error = validate_registration(db, params)
+
+  if error
+    db.close
+    erb :register, locals: { error: error }
+  else
+    register_user(db, params)
+    db.close
+    redirect '/'
+  end
+end
+
+post '/logout' do
+  session.delete(:user_id)
+  session[:flash] = 'You were logged out'
+  redirect '/'
+end
+
+###############
 # API ENDPOINTS
 ###############
 
@@ -120,19 +209,6 @@ get '/api/users' do
   users.to_json
 end
 
-# changed this to accept parameters, so it can be used other places
-def search_pages_query(db, language, query)
-  sql = 'SELECT * FROM pages WHERE language = ? AND content LIKE ?'
-  pages = []
-
-  db.execute(sql, [language, "%#{query}%"]) do |row|
-    title, url, language, last_updated, content = row
-    pages << { title: title, url: url, language: language, last_updated: last_updated, content: content }
-  end
-
-  pages
-end
-
 get '/api/search' do
   content_type :json
   query    = params[:query]
@@ -144,75 +220,49 @@ get '/api/search' do
 end
 
 post '/api/login' do
+  content_type :json
   db = connect_db
-  error = nil
-  user = db.execute('SELECT * FROM users WHERE username = ?', [params[:username]]).first
-
-  if user.nil?
-    error = 'Invalid username'
-  elsif !password_matches?(user[3], params[:password])
-    error = 'Invalid password'
-  else
-    session[:user_id] = user[0]
-    session[:username] = user[1]
-    redirect '/'
-  end
-
+  user, error = authenticate_user(db, params[:username], params[:password])
   db.close
-  erb :login, locals: { error: error } if error
+
+  halt 401, { error: error }.to_json if error
+
+  session[:user_id] = user[0]
+  session[:username] = user[1]
+  { message: 'Login successful', username: user[1] }.to_json
 end
 
-def validate_registration_fields(params)
-  return 'You have to enter a username' if params[:username].nil? || params[:username].empty?
-  return 'Valid email address needed' if params[:email].nil? || !params[:email].include?('@')
-  return 'You have to enter a password' if params[:password].to_s.strip.empty?
-
-  'The two passwords do not match' if params[:password] != params[:password2]
-end
-
-def validate_registration(db, params)
-  error = validate_registration_fields(params)
-  return error if error
-
-  return 'The username already exists' if get_user_id(db, params[:username])
-  'The email already exists' if db.execute('SELECT 1 FROM users WHERE email = ? LIMIT 1', [params[:email]]).first
-end
 post '/api/register' do
-  redirect '/' if session[:user_id]
+  content_type :json
+  halt 400, { error: 'Already logged in' }.to_json if session[:user_id]
 
   db = connect_db
   error = validate_registration(db, params)
 
   if error
     db.close
-    erb :register, locals: { error: error } # re-render form with error
-  else
-    hashed_pw = hash_password(params[:password])
-    db.execute('INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
-               [params[:username], params[:email], hashed_pw])
-    session[:user_id] = get_user_id(db, params[:username]) # log them in
-    session[:username] = params[:username]
-    db.close
-    redirect '/'
+    halt 400, { error: error }.to_json
   end
+
+  register_user(db, params)
+  db.close
+  { message: 'Registration successful', username: params[:username] }.to_json
 end
 
 post '/api/logout' do
-  session[:flash] = 'You were logged out'
+  content_type :json
   session.delete(:user_id)
-  redirect '/'
+  { message: 'Logout successful' }.to_json
 end
 
 ###############
 # SECURITY
 ###############
 
-# TODO: Use in the register api route
 def hash_password(password)
   BCrypt::Password.create(password)
 end
 
-# TODO: Use in the login api route
 def password_matches?(password_hash, plaintext_password)
   BCrypt::Password.new(password_hash) == plaintext_password
 end

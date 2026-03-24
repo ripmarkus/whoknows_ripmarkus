@@ -1,6 +1,6 @@
 # API Documentation
 
-In the provided python code, we are provided with the following API endpoints:
+In the legacy python code, we are provided with the following API endpoints:
 
 | Method | Route         | Description |
 |--------|---------------|-------------|
@@ -41,7 +41,11 @@ Lastly, we return the logic
 end
 ```
 
-## These are the endpoints we have finished so far:
+## All Endpoints
+
+We changed the API endpoints `/api/login`, `/api/register` and `/api/logout` so that they will return JSON when the client request has `Content-Type: application/json` and HTML redirects otherwise.
+
+It defeated the purpose of having API endpoints when all they did was return HTML and not data.
 
 ### /api/search
 
@@ -66,44 +70,54 @@ Several things that could be better here:
 
 ```ruby
 post '/api/register' do
-  content_type :json
-  redirect '/search' if session[:user_id]
-  error = nil
-
-  if params[:username].nil? || params[:username].empty?
-    error = "You have to enter a username"
-  elsif params[:email].nil? || !params[:email].include?('@')
-    error = "Valid email address needed"
-  elsif params[:password].nil?
-    error = "You have to enter a password"
-  elsif params[:password] != params[:password2]
-    error = "The two passwords do not match"
-  elsif get_user_id_query(get_db, params[:username])
-    error = "The username already exists"
+  if session[:user_id]
+    if json_request?
+      content_type :json
+      halt 400, { error: 'Already logged in' }.to_json
+    else
+      redirect '/'
+    end
   end
 
+  db = connect_db
+  error = validate_registration(db, params)
+
   if error
-    { message: error }.to_json
+    db.close
+    if json_request?
+      content_type :json
+      halt 400, { error: error }.to_json
+    else
+      erb :register, locals: { error: error }
+    end
   else
-    db = get_db
     hashed_pw = hash_password(params[:password])
-    db.execute("INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
+    db.execute('INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
                [params[:username], params[:email], hashed_pw])
-    { message: "You were successfully registered and can login now" }.to_json
+    session[:user_id] = get_user_id(db, params[:username])
+    session[:username] = params[:username]
+    db.close
+    if json_request?
+      content_type :json
+      { message: 'Registration successful', username: params[:username] }.to_json
+    else
+      redirect '/'
+    end
   end
 end
 ```
 
-## These are the ones we still need the logic for:
-
 ### /api/logout
 
 ```ruby
-get "/api/logout" do
+post '/api/logout' do
+  session.delete(:user_id)
+  if json_request?
     content_type :json
-
-    {
-      message: "Logout endpoint hit"
-    }.to_json
+    { message: 'Logout successful' }.to_json
+  else
+    session[:flash] = 'You were logged out'
+    redirect '/'
+  end
 end
 ```
