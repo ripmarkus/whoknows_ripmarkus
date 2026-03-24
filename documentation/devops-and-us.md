@@ -16,3 +16,7 @@ DevOps is hard to define, so in this document we will try to define a single per
 *Through automation and documentation, we create reliability both as a team and as a practice, turning repeatable work into systemized, automated processes that free us to focus on what actually matters. And through fast and frequent deployment, we get quick and telling feedback that keeps us in a mindset to always improve.* 
 
 # Mathias
+
+*DevOps is a mindset in the process of development. It incorporates development and operations, to make the delivery of software faster, stable and of a higher quality. DevOps isn't only about delivering software, its also about culture, teamwork and the idea of a shared responsibility.
+
+*It extends beyond CI & CD, and is often viewed through the common CALMS model. It helps breaking down silos between the team, enabling feedback and continuous improvement all across the board. Generally speaking, DevOps enables teams to build, release and maintain software soloutions more efficiently.*
