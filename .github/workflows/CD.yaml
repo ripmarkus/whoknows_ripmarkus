@@ -19,12 +19,10 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/homeserver
           chmod 600 ~/.ssh/homeserver
-          ssh-keyscan -H "${{ secrets.SERVER_IP }}" >> ~/.ssh/known_hosts
-          chmod 644 ~/.ssh/known_hosts
 
       - name: Deploy on server via SSH
         run: |
-          ssh -i ~/.ssh/homeserver "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}" <<'EOF'
+          ssh -i ~/.ssh/homeserver -o StrictHostKeyChecking=no "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}" <<'EOF'
           set -eux
           echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
           cd /opt/docker/devops/whoknows_ripmarkus/ruby-app
