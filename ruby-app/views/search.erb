@@ -1,38 +1,109 @@
-<!-- Search input form -->
-<div>
-  <input id="search-input" placeholder="Search..." value="<%= query %>"/>
-  <button id="search-button" onclick="makeSearchRequest()">Search</button>
+<div class="flex gap-2 mb-10">
+  <input id="search-input"
+    placeholder="Search..."
+    value="<%= query %>"
+    class="flex-1 px-3 py-2.5 text-sm bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded text-zinc-800 dark:text-zinc-200 placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-500 transition-colors"/>
+  <button id="search-button" onclick="makeSearchRequest()"
+    class="px-4 py-2 text-sm bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded hover:bg-zinc-700 dark:hover:bg-zinc-300 transition-colors">
+    Search
+  </button>
 </div>
 
-<!-- search results container -->
-<div id="results">
+<div id="results" class="space-y-7">
   <% search_results.each do |result| %>
     <div>
-      <%# display search result as a clickable link %>
-      <h2><a class="search-result-title" href="<%= result[:url] %>"><%= result[:title] %></a></h2>
-
-      <p class="search-result-description"><%= result[:content] %></p>
+      <p class="text-xs text-zinc-400 dark:text-zinc-600 mb-1 truncate"><%= result[:url] %></p>
+      <h2 class="font-serif text-lg sm:text-xl leading-snug mb-1">
+        <a href="<%= result[:url] %>" class="text-zinc-900 dark:text-zinc-100 hover:underline underline-offset-2 decoration-zinc-400">
+          <%= result[:title] %>
+        </a>
+      </h2>
+      <% snippet = result[:content].to_s %>
+      <p class="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed"><%= snippet.length > 200 ? snippet[0, 200] + '…' : snippet %></p>
     </div>
   <% end %>
 </div>
 
 <script>
+const PLACEHOLDERS = [
+  'How do I exit vim?',
+  'What is a pointer?',
+  'Why is 0-indexed better?',
+  'Difference between TCP and UDP',
+  'What is Big O notation?',
+  'How does garbage collection work?',
+  'What is a race condition?',
+  'Why is null a billion dollar mistake?',
+  'How do hash tables work?',
+  'What is tail call optimization?',
+  'Why does DNS still run on UDP?',
+  'How to center a div',
+];
+
 let searchInput;
+let phraseIndex = 0;
+let charIndex = 0;
+let typing = true;
+let animTimer;
+let paused = false;
+
+function animatePlaceholder() {
+  if (paused) return;
+
+  const phrase = PLACEHOLDERS[phraseIndex];
+
+  if (typing) {
+    charIndex++;
+    searchInput.placeholder = phrase.slice(0, charIndex);
+    if (charIndex === phrase.length) {
+      typing = false;
+      animTimer = setTimeout(animatePlaceholder, 2000);
+    } else {
+      animTimer = setTimeout(animatePlaceholder, 60);
+    }
+  } else {
+    charIndex--;
+    searchInput.placeholder = phrase.slice(0, charIndex);
+    if (charIndex === 0) {
+      typing = true;
+      phraseIndex = (phraseIndex + 1) % PLACEHOLDERS.length;
+      animTimer = setTimeout(animatePlaceholder, 300);
+    } else {
+      animTimer = setTimeout(animatePlaceholder, 30);
+    }
+  }
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   searchInput = document.getElementById('search-input');
   searchInput.focus();
   searchInput.addEventListener('keypress', (event) => {
-    if (event.key === 'Enter') {
-      makeSearchRequest();
-    }
+    if (event.key === 'Enter') makeSearchRequest();
   });
+
+  // Only animate if the search box is empty (no active query)
+  if (!searchInput.value) {
+    animTimer = setTimeout(animatePlaceholder, 800);
+    searchInput.addEventListener('focus', () => {
+      paused = true;
+      clearTimeout(animTimer);
+      searchInput.placeholder = 'Search...';
+    });
+    searchInput.addEventListener('blur', () => {
+      if (!searchInput.value) {
+        paused = false;
+        charIndex = 0;
+        typing = true;
+        animTimer = setTimeout(animatePlaceholder, 800);
+      }
+    });
+  }
 });
 
 function makeSearchRequest() {
   const query = searchInput.value;
   const url = new URL(window.location.href);
-  url.searchParams.set('query', query); // fixed: was 'q'
+  url.searchParams.set('query', query);
   window.location.href = url.toString();
 }
 </script>
