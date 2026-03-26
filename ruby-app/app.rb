@@ -108,10 +108,10 @@ end
 ###############
 
 def search_pages_query(db, language, query)
-  sql = 'SELECT * FROM pages WHERE language = ? AND content LIKE ?'
+  sql = 'SELECT * FROM pages WHERE language = ? AND lower(title) LIKE lower(?)'
   pages = []
 
-  db.execute(sql, [language, "%#{query}%"]) do |row|
+  db.execute(sql, [language, "%#{query.to_s.strip}%"]) do |row|
     title, url, language, last_updated, content = row
     pages << { title: title, url: url, language: language, last_updated: last_updated, content: content }
   end
