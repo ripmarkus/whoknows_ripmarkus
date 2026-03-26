@@ -1,23 +1,52 @@
 <!-- views/weather.erb -->
-<h1>Vejr</h1>
+<h1 class="font-serif text-xl sm:text-2xl text-zinc-900 dark:text-zinc-100 mb-8">Weather</h1>
 
-<form method="get" action="/weather">
-  <input name="city"    value="<%= h(params[:city] || 'København') %>" placeholder="By (fx København)">
-  <input name="country" value="<%= h(params[:country] || '') %>"       placeholder="Landekode (fx DK)">
-  <button type="submit">Søg</button>
+<form method="get" action="/weather" class="flex flex-col sm:flex-row gap-2 mb-10">
+  <input name="city" value="<%= h(params[:city] || 'København') %>" placeholder="City"
+    class="flex-1 px-3 py-2.5 text-sm bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded text-zinc-800 dark:text-zinc-200 placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-500 transition-colors"/>
+  <input name="country" value="<%= h(params[:country] || '') %>" placeholder="Country code"
+    class="w-full sm:w-32 px-3 py-2.5 text-sm bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded text-zinc-800 dark:text-zinc-200 placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-500 transition-colors"/>
+  <button type="submit"
+    class="px-4 py-2.5 text-sm bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded hover:bg-zinc-700 dark:hover:bg-zinc-300 transition-colors">
+    Search
+  </button>
 </form>
 
-<hr>
+<% if @w %>
+  <div class="border-t border-zinc-200 dark:border-zinc-800 pt-8">
+    <div class="flex items-center gap-3 mb-6">
+      <img src="https://openweathermap.org/img/wn/<%= @w['weather'][0]['icon'] %>@2x.png" alt="weather icon" class="w-12 h-12 -ml-1">
+      <div>
+        <h2 class="font-serif text-2xl text-zinc-900 dark:text-zinc-100 leading-tight">
+          <%= h(@w['name']) %>
+        </h2>
+        <p class="text-sm text-zinc-400 dark:text-zinc-500 capitalize">
+          <%= h(@loc['country']) %> &middot; <%= h(@w['weather'][0]['description']) %>
+        </p>
+      </div>
+    </div>
 
-<h2><%= h(@w['name']) %> (<%= h(@loc['country']) %>)</h2>
-<p>
-  <strong>Temperatur:</strong> <%= @w['main']['temp'] %> °C<br>
-  <strong>Føles som:</strong>  <%= @w['main']['feels_like'] %> °C<br>
-  <strong>Beskrivelse:</strong> <%= h(@w['weather'][0]['description']) %><br>
-  <strong>Vind:</strong> <%= @w['wind']['speed'] %> m/s
-  <% if @w['wind']['deg'] %>(<%= @w['wind']['deg'] %>°)<% end %><br>
-  <strong>Luftfugtighed:</strong> <%= @w['main']['humidity'] %>%<br>
-  <strong>Tryk:</strong> <%= @w['main']['pressure'] %> hPa
-</p>
-
-<img src="https://openweathermap.org/img/wn/<%= @w['weather'][0]['icon'] %>@2x.png" alt="vejr ikon">
+    <dl class="grid grid-cols-2 sm:grid-cols-3 gap-y-5 gap-x-8 text-sm max-w-sm">
+      <div>
+        <dt class="text-xs text-zinc-400 dark:text-zinc-600 uppercase tracking-widest mb-1">Temp</dt>
+        <dd class="text-zinc-700 dark:text-zinc-300"><%= @w['main']['temp'] %> °C</dd>
+      </div>
+      <div>
+        <dt class="text-xs text-zinc-400 dark:text-zinc-600 uppercase tracking-widest mb-1">Feels like</dt>
+        <dd class="text-zinc-700 dark:text-zinc-300"><%= @w['main']['feels_like'] %> °C</dd>
+      </div>
+      <div>
+        <dt class="text-xs text-zinc-400 dark:text-zinc-600 uppercase tracking-widest mb-1">Wind</dt>
+        <dd class="text-zinc-700 dark:text-zinc-300"><%= @w['wind']['speed'] %> m/s<% if @w['wind']['deg'] %> · <%= @w['wind']['deg'] %>°<% end %></dd>
+      </div>
+      <div>
+        <dt class="text-xs text-zinc-400 dark:text-zinc-600 uppercase tracking-widest mb-1">Humidity</dt>
+        <dd class="text-zinc-700 dark:text-zinc-300"><%= @w['main']['humidity'] %>%</dd>
+      </div>
+      <div>
+        <dt class="text-xs text-zinc-400 dark:text-zinc-600 uppercase tracking-widest mb-1">Pressure</dt>
+        <dd class="text-zinc-700 dark:text-zinc-300"><%= @w['main']['pressure'] %> hPa</dd>
+      </div>
+    </dl>
+  </div>
+<% end %>
