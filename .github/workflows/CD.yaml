@@ -22,7 +22,7 @@ jobs:
 
       - name: Deploy on server via SSH
         run: |
-          ssh -i ~/.ssh/homeserver "${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_IP }}" <<'EOF'
+          ssh -i ~/.ssh/homeserver "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}" <<'EOF'
           set -eux
           echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
           cd /opt/docker/devops/whoknows_ripmarkus/ruby-app
