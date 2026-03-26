@@ -6,7 +6,9 @@
     <nav>
       <h1><a id="nav-logo" href="/search">¿Who Knows?</a></h1>
       <% if session[:user_id] %>
-        <a id="nav-logout" href="/logout">Log out [<%= session[:username] %>]</a>
+        <form action="/logout" method="post" style="display:inline;">
+          <button id="nav-logout" type="submit">Log out [<%= session[:username] %>]</button>
+        </form>
       <% else %>
         <a id="nav-login" href="/login">Log in</a>
         <a id="nav-register" href="/register">Register</a>
