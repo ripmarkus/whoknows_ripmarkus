@@ -4,7 +4,7 @@
 <div class="page">
   <div class="navigation">
     <nav>
-      <h1><a id="nav-logo" href="/search">¿Who Knows?</a></h1>
+      <h1><a id="nav-logo" href="/">¿Who Knows?</a></h1>
       <% if session[:user_id] %>
         <form action="/logout" method="post" style="display:inline;">
           <button id="nav-logout" type="submit">Log out [<%= session[:username] %>]</button>
