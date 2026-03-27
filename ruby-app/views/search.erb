@@ -25,79 +25,10 @@
 </div>
 
 <script>
-const PLACEHOLDERS = [
-  'How do I exit vim?',
-  'What is a pointer?',
-  'Why is 0-indexed better?',
-  'Difference between TCP and UDP',
-  'What is Big O notation?',
-  'How does garbage collection work?',
-  'What is a race condition?',
-  'Why is null a billion dollar mistake?',
-  'How do hash tables work?',
-  'What is tail call optimization?',
-  'Why does DNS still run on UDP?',
-  'How to center a div',
-];
-
-let searchInput;
-let phraseIndex = 0;
-let charIndex = 0;
-let typing = true;
-let animTimer;
-let paused = false;
-
-function animatePlaceholder() {
-  if (paused) return;
-
-  const phrase = PLACEHOLDERS[phraseIndex];
-
-  if (typing) {
-    charIndex++;
-    searchInput.placeholder = phrase.slice(0, charIndex);
-    if (charIndex === phrase.length) {
-      typing = false;
-      animTimer = setTimeout(animatePlaceholder, 2000);
-    } else {
-      animTimer = setTimeout(animatePlaceholder, 60);
-    }
-  } else {
-    charIndex--;
-    searchInput.placeholder = phrase.slice(0, charIndex);
-    if (charIndex === 0) {
-      typing = true;
-      phraseIndex = (phraseIndex + 1) % PLACEHOLDERS.length;
-      animTimer = setTimeout(animatePlaceholder, 300);
-    } else {
-      animTimer = setTimeout(animatePlaceholder, 30);
-    }
-  }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  searchInput = document.getElementById('search-input');
-  searchInput.focus();
-  searchInput.addEventListener('keypress', (event) => {
-    if (event.key === 'Enter') makeSearchRequest();
-  });
-
-  // Only animate if the search box is empty (no active query)
-  if (!searchInput.value) {
-    animTimer = setTimeout(animatePlaceholder, 800);
-    searchInput.addEventListener('focus', () => {
-      paused = true;
-      clearTimeout(animTimer);
-      searchInput.placeholder = 'Search...';
-    });
-    searchInput.addEventListener('blur', () => {
-      if (!searchInput.value) {
-        paused = false;
-        charIndex = 0;
-        typing = true;
-        animTimer = setTimeout(animatePlaceholder, 800);
-      }
-    });
-  }
+const searchInput = document.getElementById('search-input');
+searchInput.focus();
+searchInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') makeSearchRequest();
 });
 
 function makeSearchRequest() {

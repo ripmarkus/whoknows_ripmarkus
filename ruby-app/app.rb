@@ -39,10 +39,15 @@ end
 get '/' do
   query    = params[:query]
   language = params[:language] || 'en'
-  db = connect_db
-  search_results = query ? search_pages_query(db, language, query) : []
-  db.close
-  erb :search, locals: { search_results: search_results, query: query }
+
+  if query.nil?
+    erb :home
+  else
+    db = connect_db
+    search_results = search_pages_query(db, language, query)
+    db.close
+    erb :search, locals: { search_results: search_results, query: query }
+  end
 end
 
 get '/about' do
