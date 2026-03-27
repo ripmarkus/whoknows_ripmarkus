@@ -1,9 +1,10 @@
-DevOps is hard to define, so in this document we will try to define a single perspective per teammember.
+DevOps is hard to define, so in this document we will try to define a single perspective per team member.
 
 
 # Niko
-*DevOps to me is the whole culture around developing a project. It's about many things and might be a bit different from team to team, but for me the core values are being as useful as possible in the hours we work, while also setting up boundaries and guidelines for us to be fast, effective while avoiding errors and mistakes. 
-It helps us generate the most value for a buck, while also being faster by being able to focus on the important parts and strengthen our teamwork and constantly learning and improving through the lifecycle.*
+*DevOps to me is the whole culture around developing a project. It's about many things and might be a bit different from team to team, but for me the core values are being as useful as possible in the hours we work, while also setting up boundaries and guidelines for us to be fast, effective while avoiding errors and mistakes.*
+
+*It helps us generate the most value for a buck, while also being faster by being able to focus on the important parts and strengthen our teamwork and constantly learning and improving through the lifecycle.*
 
 # Kristian
 
