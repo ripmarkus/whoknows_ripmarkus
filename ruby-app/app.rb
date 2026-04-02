@@ -126,8 +126,8 @@ end
 
 def authenticate_user(db, username, password)
   user = db.execute('SELECT * FROM users WHERE username = ?', [username]).first
-  return [nil, 'Invalid username'] if user.nil?
-  return [nil, 'Invalid password'] unless password_matches?(user[3], password)
+  return [nil, 'Invalid credentials'] if user.nil?
+  return [nil, 'Invalid credentials'] unless password_matches?(user[3], password)
 
   [user, nil]
 end
