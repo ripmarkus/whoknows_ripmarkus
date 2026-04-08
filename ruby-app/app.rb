@@ -10,6 +10,8 @@ require 'dotenv/load'
 
 enable :sessions
 
+set :protection, host_authorization: { permitted_hosts: %w[localhost 127.0.0.1 ::1 mathiasmortensen.dk]}
+
 DATABASE_PATH = File.join(__dir__, 'whoknows.db')
 
 # XSS (Cross-site scripting) sanitizes html output to prevent malicious scripts from being executed in the browser
