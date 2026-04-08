@@ -10,7 +10,7 @@ require 'dotenv/load'
 
 enable :sessions
 
-set :protection, host_authorization: { permitted_hosts: %w[localhost 127.0.0.1 ::1 mathiasmortensen.dk]}
+set :protection, except: :host_authorization
 
 DATABASE_PATH = File.join(__dir__, 'whoknows.db')
 
