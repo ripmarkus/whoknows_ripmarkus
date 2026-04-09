@@ -24,6 +24,23 @@ schema = <<~SQL
     last_updated TIMESTAMP,
     content TEXT NOT NULL
   );
+
+  DROP TABLE IF EXISTS pages_fts;
+
+  CREATE VIRTUAL TABLE pages_fts USING fts5(title, content, language, content='pages', content_rowid='rowid');
+
+  CREATE TRIGGER IF NOT EXISTS pages_ai AFTER INSERT ON pages BEGIN
+    INSERT INTO pages_fts(rowid, title, content, language) VALUES (new.rowid, new.title, new.content, new.language);
+  END;
+
+  CREATE TRIGGER IF NOT EXISTS pages_ad AFTER DELETE ON pages BEGIN
+    INSERT INTO pages_fts(pages_fts, rowid, title, content, language) VALUES('delete', old.rowid, old.title, old.content, old.language);
+  END;
+
+  CREATE TRIGGER IF NOT EXISTS pages_au AFTER UPDATE ON pages BEGIN
+    INSERT INTO pages_fts(pages_fts, rowid, title, content, language) VALUES('delete', old.rowid, old.title, old.content, old.language);
+    INSERT INTO pages_fts(rowid, title, content, language) VALUES (new.rowid, new.title, new.content, new.language);
+  END;
 SQL
 
 db.execute_batch(schema)
