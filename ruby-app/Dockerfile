@@ -16,7 +16,7 @@ RUN curl -sLO https://github.com/tailwindlabs/tailwindcss/releases/download/v3.4
 
 # Stage 2: Production image
 FROM ruby:3.3-alpine
-RUN apk add --no-cache sqlite-dev tzdata curl \
+RUN apk add --no-cache sqlite-dev tzdata \
     && adduser -D appuser
 
 WORKDIR /app
