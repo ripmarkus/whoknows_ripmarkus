@@ -9,9 +9,9 @@ COPY . .
 
 # Download Tailwind CLI and compile CSS
 RUN apk update; apk add curl
-RUN curl -sLO https://github.com/tailwindlabs/tailwindcss/releases/download/v3.4.17/tailwindcss-linux-x64-musl \
-    && chmod +x tailwindcss-linux-x64-musl \
-    && ./tailwindcss-linux-x64-musl -i ./public/input.css -o ./public/output.css --minify
+RUN curl -sLO https://github.com/tailwindlabs/tailwindcss/releases/download/v3.4.17/tailwindcss-linux-x64 \
+    && chmod +x tailwindcss-linux-x64 \
+    && ./tailwindcss-linux-x64 -i ./public/input.css -o ./public/output.css --minify
 
 # Stage 2: Production image
 FROM ruby:3.3-alpine
