@@ -37,5 +37,8 @@ rows.each do |title, url, language, last_updated, content|
   )
 end
 
+db.execute("INSERT INTO pages_fts(pages_fts) VALUES('rebuild')")
+
 puts 'Cleared pages table'
+puts "Rebuilt FTS5 index"
 puts "Inserted #{rows.length} test pages into whoknows.db"
