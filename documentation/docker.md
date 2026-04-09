@@ -55,3 +55,16 @@ EXPOSE 4567
 
 CMD ["ruby", "app.rb", "-o", "0.0.0.0", "-p", "8080"]
 ```
+
+For production, we don't want to use CDN for serving the tailwind styling. Instead we want to build it with the app.
+
+The following has been added to the Dockerfile:
+
+```docker
+# Download Tailwind CLI and compile CSS
+RUN apk update; apk add curl
+RUN curl -sLO https://github.com/tailwindlabs/tailwindcss/releases/download/v3.4.17/tailwindcss-linux-x64 \
+    && chmod +x tailwindcss-linux-x64 \
+    && ./tailwindcss-linux-x64 -i ./public/input.css -o ./public/output.css --minify
+
+```
