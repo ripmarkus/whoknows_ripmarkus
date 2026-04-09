@@ -139,7 +139,9 @@ def validate_registration_fields(params)
   return 'Valid email address needed' if params[:email].nil? || !params[:email].include?('@')
   return 'You have to enter a password' if params[:password].to_s.strip.empty?
 
-  'The two passwords do not match' if params[:password] != params[:password2]
+  return 'The two passwords do not match' if params[:password] != params[:password2]
+
+  nil
 end
 
 def validate_registration(db, params)
