@@ -13,3 +13,7 @@ gem 'sqlite3'
 group :development do
   gem 'rerun'
 end
+group :test do
+  gem 'rack-test'
+  gem 'rspec'
+end
