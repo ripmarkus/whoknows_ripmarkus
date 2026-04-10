@@ -1,6 +1,6 @@
 # Stage 1: Build
 FROM ruby:3.3-alpine AS build
-RUN apk add --no-cache build-base sqlite-dev tzdata yaml-dev
+RUN apk add --no-cache build-base postgresql-dev tzdata yaml-dev
 WORKDIR /app
 COPY Gemfile Gemfile.lock* ./
 RUN bundle install
@@ -8,7 +8,7 @@ COPY . .
 
 # Stage 2: Production image
 FROM ruby:3.3-alpine
-RUN apk add --no-cache sqlite-dev tzdata curl \
+RUN apk add --no-cache postgresql-dev tzdata curl \
     && adduser -D appuser
 
 WORKDIR /app
