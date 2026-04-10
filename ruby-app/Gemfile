@@ -8,8 +8,14 @@ gem 'puma'
 gem 'rackup'
 gem 'rswag-ui'
 gem 'rubocop', require: false
+gem 'pg'
+gem 'sequel'
 gem 'sinatra'
-gem 'sqlite3'
 group :development do
   gem 'rerun'
+end
+
+group :test do
+  gem 'rack-test'
+  gem 'rspec'
 end
