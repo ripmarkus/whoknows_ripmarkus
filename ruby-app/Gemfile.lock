@@ -178,6 +178,7 @@ GEM
     sqlite3 (2.9.0-x64-mingw-ucrt)
     sqlite3 (2.9.0-x86_64-linux-gnu)
     stringio (3.2.0)
+    tailwindcss (0.1.1)
     thor (1.5.0)
     tilt (2.7.0)
     tsort (0.2.0)
@@ -208,6 +209,7 @@ DEPENDENCIES
   rubocop
   sinatra
   sqlite3
+  tailwindcss
 
 BUNDLED WITH
    2.4.20

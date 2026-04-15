@@ -10,16 +10,19 @@ require 'sqlite3'
 TEST_DB_PATH = File.join(__dir__, '..', 'whoknows_test.db')
 
 def setup_test_db
-  FileUtils.rm_f(TEST_DB_PATH)
   db = SQLite3::Database.new(TEST_DB_PATH)
   db.execute_batch(<<~SQL)
-    CREATE TABLE IF NOT EXISTS users (
+    DROP TABLE IF EXISTS users;
+    DROP TABLE IF EXISTS pages;
+
+    CREATE TABLE users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       username TEXT NOT NULL UNIQUE,
       email TEXT NOT NULL UNIQUE,
-      password TEXT NOT NULL
+      password TEXT NOT NULL,
+      password_reset_required INTEGER NOT NULL DEFAULT 0
     );
-    CREATE TABLE IF NOT EXISTS pages (
+    CREATE TABLE pages (
       title TEXT PRIMARY KEY UNIQUE,
       url TEXT NOT NULL UNIQUE,
       language TEXT NOT NULL CHECK(language IN ('en', 'da')) DEFAULT 'en',
@@ -50,6 +53,7 @@ RSpec.configure do |config|
   end
 
   config.before(:each) do
+    clear_cookies
     setup_test_db
   end
 
