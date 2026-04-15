@@ -32,16 +32,18 @@ jobs:
 
           BACKUP_DIR="/opt/backups/whoknows"
           TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-
           mkdir -p "$BACKUP_DIR"
 
-          docker compose ps
-          docker compose exec -T db pg_dump -U whoknows --format=custom whoknows > "$BACKUP_DIR/pre_deploy_${TIMESTAMP}.dump"
-
-          ls -t "$BACKUP_DIR"/*.dump | tail -n +11 | xargs -r rm
-
           docker compose pull
-          docker compose up -d --pull always
+
+          if docker compose ps --services --status running | grep -q '^db$'; then
+            docker compose exec -T db pg_dump -U whoknows --format=custom whoknows > "$BACKUP_DIR/pre_deploy_${TIMESTAMP}.dump"
+            ls -t "$BACKUP_DIR"/*.dump | tail -n +11 | xargs -r rm
+          else
+            echo "db is not running, skipping backup"
+          fi
+
+          docker compose up -d
 
           docker image prune -f
           EOF
