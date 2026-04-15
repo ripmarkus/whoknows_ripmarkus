@@ -12,15 +12,11 @@ gem 'rubocop', require: false
 gem 'pg'
 gem 'sequel'
 gem 'sinatra'
-gem 'tailwindcss',
+gem 'tailwindcss'
+
 group :development do
   gem 'rerun'
 end
-group :test do
-  gem 'rack-test'
-  gem 'rspec'
-end
-
 group :test do
   gem 'rack-test'
   gem 'rspec'
