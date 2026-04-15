@@ -6,7 +6,7 @@ require 'rspec'
 require 'fileutils'
 require 'sqlite3'
 
-TEST_DB_PATH = File.join(dir, '..', 'whoknows_test.db')
+TEST_DB_PATH = File.join(__dir__, '..', 'whoknows_test.db')
 
 def setup_test_db
   db = SQLite3::Database.new(TEST_DB_PATH)
