@@ -12,7 +12,14 @@ enable :sessions
 
 set :protection, except: :host_authorization
 
+# Handle database connection for test environment
+if ENV['RACK_ENV'] == 'test'
+  # In test mode, change to the ruby-app directory for relative SQLite paths
+  Dir.chdir(__dir__)
+end
+
 DB = Sequel.connect(ENV.fetch('DATABASE_URL'))
+
 
 # XSS (Cross-site scripting) sanitizes html output to prevent malicious scripts from being executed in the browser
 helpers do
@@ -36,10 +43,8 @@ end
 
 before do
   if session[:user_id] && !['/change-password', '/logout', '/api/logout'].include?(request.path_info)
-    db = connect_db
-    user = db.execute('SELECT password_reset_required FROM users WHERE id = ?', [session[:user_id]]).first
-    db.close
-    redirect '/change-password' if user && user[0] == 1
+    user = DB[:users].where(id: session[:user_id]).select(:password_reset_required).first
+    redirect '/change-password' if user && user[:password_reset_required] == 1
   end
 end
 
@@ -82,7 +87,7 @@ get '/api/docs/openapi.yaml' do
 end
 
 ###############
-# DATABASE
+# SHARED LOGIC
 ###############
 
 def get_user_id(username)
@@ -90,18 +95,15 @@ def get_user_id(username)
   user ? user[:id] : nil
 end
 
-###############
-# SHARED LOGIC
-###############
-
 def search_pages_query(language, query)
   return [] if query.to_s.strip.empty?
 
-  term = query.to_s.strip.split(/\s+/).map { |w| "#{w}:*" }.join(' & ')
+  # SQLite doesn't support full-text search with @@ operator
+  # Use simple LIKE search instead for SQLite compatibility
+  search_term = "%#{query}%"
   DB[:pages]
     .where(language: language)
-    .where(Sequel.lit("search_vector @@ to_tsquery('english', ?)", term))
-    .order(Sequel.lit("ts_rank(search_vector, to_tsquery('english', ?)) DESC", term))
+    .where(Sequel.like(:content, search_term) | Sequel.like(:title, search_term))
     .select(:title, :url, :language, :last_updated, :content)
     .all
 end
@@ -180,29 +182,23 @@ end
 post '/change-password' do
   redirect '/login' unless session[:user_id]
 
-  db = connect_db
-  user = db.execute('SELECT * FROM users WHERE id = ?', [session[:user_id]]).first
+  user = DB[:users].where(id: session[:user_id]).first
   halt 403 unless user
 
-  unless password_matches?(user[3], params[:current_password])
-    db.close
+  unless password_matches?(user[:password], params[:current_password])
     return erb :change_password, locals: { error: 'Current password is incorrect' }
   end
 
   if params[:new_password].to_s.strip.empty?
-    db.close
     return erb :change_password, locals: { error: 'New password cannot be empty' }
   end
 
   if params[:new_password] != params[:new_password2]
-    db.close
     return erb :change_password, locals: { error: 'New passwords do not match' }
   end
 
   hashed = hash_password(params[:new_password])
-  db.execute('UPDATE users SET password = ?, password_reset_required = 0 WHERE id = ?',
-             [hashed, session[:user_id]])
-  db.close
+  DB[:users].where(id: session[:user_id]).update(password: hashed, password_reset_required: 0)
 
   redirect '/'
 end
