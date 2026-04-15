@@ -12,6 +12,7 @@ gem 'rubocop', require: false
 gem 'pg'
 gem 'sequel'
 gem 'sinatra'
+gem 'tailwindcss',
 group :development do
   gem 'rerun'
 end
