@@ -1,0 +1,32 @@
+name: Deployment
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Ruby CI"]
+    types:
+      - completed
+    branches:
+      - main
+
+jobs:
+  deploy:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add SSH key to runner
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/homeserver
+          chmod 600 ~/.ssh/homeserver
+
+      - name: Deploy on server via SSH
+        run: |
+          ssh -i ~/.ssh/homeserver -o StrictHostKeyChecking=no "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}" <<'EOF'
+          set -eux
+          echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
+          cd /opt/docker/devops/whoknows_ripmarkus/ruby-app
+          docker compose pull
+          docker compose down
+          docker compose up -d
+          EOF

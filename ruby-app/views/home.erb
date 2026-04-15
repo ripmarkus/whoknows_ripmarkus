@@ -1,0 +1,88 @@
+<div class="flex flex-col items-center justify-center min-h-[65vh]">
+  <h1 class="font-serif text-6xl sm:text-7xl text-zinc-900 dark:text-zinc-100 mb-10 select-none">
+    ¿Who Knows?
+  </h1>
+
+  <div class="flex gap-2 w-full">
+    <input id="search-input"
+      placeholder=""
+      class="flex-1 px-6 py-5 text-lg bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded text-zinc-800 dark:text-zinc-200 placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-500 transition-colors"/>
+    <button onclick="doSearch()"
+      class="px-7 py-5 text-base bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded hover:bg-zinc-700 dark:hover:bg-zinc-300 transition-colors">
+      Search
+    </button>
+  </div>
+</div>
+
+<script>
+const PLACEHOLDERS = [
+  'How do I exit vim?',
+  'What is a pointer?',
+  'Why is 0-indexed better?',
+  'Difference between TCP and UDP',
+  'What is Big O notation?',
+  'How does garbage collection work?',
+  'What is a race condition?',
+  'Why is null a billion dollar mistake?',
+  'How do hash tables work?',
+  'What is tail call optimization?',
+  'Why does DNS still run on UDP?',
+  'How to center a div',
+];
+
+const searchInput = document.getElementById('search-input');
+let phraseIndex = 0;
+let charIndex = 0;
+let typing = true;
+let animTimer;
+let paused = false;
+
+function animatePlaceholder() {
+  if (paused) return;
+  const phrase = PLACEHOLDERS[phraseIndex];
+  if (typing) {
+    charIndex++;
+    searchInput.placeholder = phrase.slice(0, charIndex);
+    animTimer = setTimeout(animatePlaceholder, charIndex === phrase.length ? 2000 : 60);
+    if (charIndex === phrase.length) typing = false;
+  } else {
+    charIndex--;
+    searchInput.placeholder = phrase.slice(0, charIndex);
+    if (charIndex === 0) {
+      typing = true;
+      phraseIndex = (phraseIndex + 1) % PLACEHOLDERS.length;
+      animTimer = setTimeout(animatePlaceholder, 300);
+    } else {
+      animTimer = setTimeout(animatePlaceholder, 30);
+    }
+  }
+}
+
+animTimer = setTimeout(animatePlaceholder, 800);
+
+searchInput.addEventListener('focus', () => {
+  paused = true;
+  clearTimeout(animTimer);
+  searchInput.placeholder = 'Search...';
+});
+
+searchInput.addEventListener('blur', () => {
+  if (!searchInput.value) {
+    paused = false;
+    charIndex = 0;
+    typing = true;
+    animTimer = setTimeout(animatePlaceholder, 800);
+  }
+});
+
+searchInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') doSearch();
+});
+
+searchInput.focus();
+
+function doSearch() {
+  const query = searchInput.value.trim();
+  if (query) window.location.href = '/?query=' + encodeURIComponent(query);
+}
+</script>

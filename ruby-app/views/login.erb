@@ -1,16 +1,29 @@
 <% @title = 'Sign In' %>
-<h2>Log In</h2>
-<% if @error %>
-  <div class="error"><strong>Error:</strong> <%= @error %></div>
-<% end %>
-<form action="/api/login" method="POST">
-  <dl>
-    <dt>Username:
-    <dd><input type="text" name="username" size="30" value="<%= params[:username] %>">
-    <dt>Password:
-    <dd><input type="password" name="password" size="30">
-  </dl>
-  <div class="actions">
-    <input type="submit" id="login-button" value="Log In">
-  </div>
-</form>
+<div class="max-w-xs w-full pt-4">
+  <h1 class="font-serif text-xl sm:text-2xl text-zinc-900 dark:text-zinc-100 mb-8">Log In</h1>
+
+  <% if error %>
+    <p class="text-sm text-red-500 dark:text-red-400 mb-6"><%= error %></p>
+  <% end %>
+
+  <form action="/login" method="POST" class="space-y-5">
+    <div>
+      <label class="block text-xs text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-2">Username</label>
+      <input type="text" name="username" value="<%= params[:username] %>"
+        class="w-full px-3 py-2.5 text-sm bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded text-zinc-800 dark:text-zinc-200 focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-500 transition-colors"/>
+    </div>
+    <div>
+      <label class="block text-xs text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-2">Password</label>
+      <input type="password" name="password"
+        class="w-full px-3 py-2.5 text-sm bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded text-zinc-800 dark:text-zinc-200 focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-500 transition-colors"/>
+    </div>
+    <button type="submit" id="login-button"
+      class="w-full py-2.5 text-sm bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded hover:bg-zinc-700 dark:hover:bg-zinc-300 transition-colors">
+      Log In
+    </button>
+  </form>
+
+  <p class="mt-6 text-sm text-zinc-400 dark:text-zinc-500">
+    No account? <a href="/register" class="underline underline-offset-2 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors">Register</a>
+  </p>
+</div>
