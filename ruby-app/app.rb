@@ -249,6 +249,17 @@ end
 # API ENDPOINTS
 ###############
 
+get '/api/users' do
+  content_type :json
+  db = connect_db
+  rows = db.execute('SELECT id, username, email FROM users')
+  db.close
+  users = rows.map do |id, username, email|
+    { id: id, username: username, email: email }
+  end
+  users.to_json
+end
+
 get '/api/search' do
   content_type :json
   query    = params[:query]
