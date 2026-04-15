@@ -1,14 +1,12 @@
 services:
   db:
     image: postgres:16-alpine
-    env_file:
-      - .env
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: whoknows_test
+      POSTGRES_USER: whoknows
+      POSTGRES_PASSWORD: secret
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U whoknows -d whoknows_test"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -17,14 +15,12 @@ services:
 
   web:
     image: ghcr.io/ripmarkus/whoknows_ripmarkus:main
-    env_file:
-      - .env
     environment:
       PORT: 8080
       APP_ENV: production
       RACK_ENV: production
       SINATRA_ENV: production
-      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_URL: postgres://whoknows:secret@db:5432/whoknows_test
     expose:
       - "8080"
     depends_on:
