@@ -13,6 +13,7 @@ jobs:
   deploy:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
+
     steps:
       - name: Add SSH key to runner
         run: |
@@ -24,17 +25,23 @@ jobs:
         run: |
           ssh -i ~/.ssh/homeserver -o StrictHostKeyChecking=no "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}" <<'EOF'
           set -eux
+
           echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
+
           cd /opt/docker/devops/whoknows_ripmarkus/ruby-app
 
-          # Backup before touching anything
           BACKUP_DIR="/opt/backups/whoknows"
           TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+
           mkdir -p "$BACKUP_DIR"
+
+          docker compose ps
           docker compose exec -T db pg_dump -U whoknows --format=custom whoknows > "$BACKUP_DIR/pre_deploy_${TIMESTAMP}.dump"
+
           ls -t "$BACKUP_DIR"/*.dump | tail -n +11 | xargs -r rm
 
           docker compose pull
-          docker compose down
-          docker compose up -d
+          docker compose up -d --pull always
+
+          docker image prune -f
           EOF
