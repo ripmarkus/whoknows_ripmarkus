@@ -5,14 +5,21 @@ require 'rspec'
 require 'fileutils'
 require 'sequel'
 
-TEST_DB_PATH = File.join(__dir__, '..', 'whoknows_test.db').tr('\\', '/')
+# Database file in ruby-app directory
+TEST_DB_FILE = 'whoknows_test.db'
+TEST_DB_PATH = File.join(__dir__, '..', TEST_DB_FILE)
 
 ENV['RACK_ENV'] = 'test'
-ENV['DATABASE_URL'] = "sqlite:///#{TEST_DB_PATH}"
+# SQLite URL format - Sequel expects sqlite:// for relative paths
+# Use just the filename for relative path from where Sequel.connect is called
+ENV['DATABASE_URL'] = "sqlite://#{TEST_DB_FILE}"
 
 def setup_test_db
-  FileUtils.rm_f(TEST_DB_PATH.tr('/', '\\'))
-  db = Sequel.sqlite(TEST_DB_PATH.tr('/', '\\'))
+  # Remove existing database file
+  FileUtils.rm_f(TEST_DB_PATH)
+  
+  # Create fresh database and tables - Sequel.sqlite() handles the file directly
+  db = Sequel.sqlite(TEST_DB_PATH)
   
   db.create_table(:users) do
     primary_key :id
@@ -41,6 +48,7 @@ def setup_test_db
   db.disconnect
 end
 
+# Set up test database before loading app
 setup_test_db
 
 require_relative '../app'
@@ -55,7 +63,8 @@ RSpec.configure do |config|
   config.before(:each) do
     clear_cookies
     
-    db = Sequel.sqlite(TEST_DB_PATH.tr('/', '\\'))
+    # Reset database for each test
+    db = Sequel.sqlite(TEST_DB_PATH)
     db.run('DELETE FROM pages')
     db.run('DELETE FROM users')
     db[:pages].insert(

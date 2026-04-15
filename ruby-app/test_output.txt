@@ -1,0 +1,91 @@
+C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/bundler-2.4.20/lib/bundler/rubygems_ext.rb:241: warning: already initialized constant Gem::Platform::JAVA
+C:/Ruby40-x64/lib/ruby/site_ruby/4.0.0/rubygems/platform.rb:279: warning: previous definition of JAVA was here
+C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/bundler-2.4.20/lib/bundler/rubygems_ext.rb:242: warning: already initialized constant Gem::Platform::MSWIN
+C:/Ruby40-x64/lib/ruby/site_ruby/4.0.0/rubygems/platform.rb:280: warning: previous definition of MSWIN was here
+C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/bundler-2.4.20/lib/bundler/rubygems_ext.rb:243: warning: already initialized constant Gem::Platform::MSWIN64
+C:/Ruby40-x64/lib/ruby/site_ruby/4.0.0/rubygems/platform.rb:281: warning: previous definition of MSWIN64 was here
+C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/bundler-2.4.20/lib/bundler/rubygems_ext.rb:244: warning: already initialized constant Gem::Platform::MINGW
+C:/Ruby40-x64/lib/ruby/site_ruby/4.0.0/rubygems/platform.rb:282: warning: previous definition of MINGW was here
+C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/bundler-2.4.20/lib/bundler/rubygems_ext.rb:245: warning: already initialized constant Gem::Platform::X64_MINGW
+C:/Ruby40-x64/lib/ruby/site_ruby/4.0.0/rubygems/platform.rb:284: warning: previous definition of X64_MINGW was here
+C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/bundler-2.4.20/lib/bundler/rubygems_ext.rb:247: warning: already initialized constant Gem::Platform::WINDOWS
+C:/Ruby40-x64/lib/ruby/site_ruby/4.0.0/rubygems/platform.rb:286: warning: previous definition of WINDOWS was here
+C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/bundler-2.4.20/lib/bundler/rubygems_ext.rb:248: warning: already initialized constant Gem::Platform::X64_LINUX
+C:/Ruby40-x64/lib/ruby/site_ruby/4.0.0/rubygems/platform.rb:287: warning: previous definition of X64_LINUX was here
+C:/Ruby40-x64/lib/ruby/gems/4.0.0/gems/bundler-2.4.20/lib/bundler/rubygems_ext.rb:249: warning: already initialized constant Gem::Platform::X64_LINUX_MUSL
+C:/Ruby40-x64/lib/ruby/site_ruby/4.0.0/rubygems/platform.rb:288: warning: previous definition of X64_LINUX_MUSL was here
+C:/Users/tiv17/Desktop/test/whoknows_ripmarkus/ruby-app/spec/spec_helper.rb:9: warning: already initialized constant TEST_DB_PATH
+C:/Users/tiv17/Desktop/test/whoknows_ripmarkus/ruby-app/spec/spec_helper.rb:9: warning: previous definition of TEST_DB_PATH was here
+C:/Users/tiv17/Desktop/test/whoknows_ripmarkus/ruby-app/spec/spec_helper.rb:9: warning: already initialized constant TEST_DB_PATH
+C:/Users/tiv17/Desktop/test/whoknows_ripmarkus/ruby-app/spec/spec_helper.rb:9: warning: previous definition of TEST_DB_PATH was here
+C:/Users/tiv17/Desktop/test/whoknows_ripmarkus/ruby-app/spec/spec_helper.rb:9: warning: already initialized constant TEST_DB_PATH
+C:/Users/tiv17/Desktop/test/whoknows_ripmarkus/ruby-app/spec/spec_helper.rb:9: warning: previous definition of TEST_DB_PATH was here
+
+An error occurred while loading ./spec/integration/api_spec.rb.
+Failure/Error: require_relative '../app'
+
+Sequel::DatabaseConnectionError:
+  SQLite3::CantOpenException: unable to open database file
+# ./app.rb:15:in '<top (required)>'
+# ./spec/spec_helper.rb:51:in 'Kernel#require_relative'
+# ./spec/spec_helper.rb:51:in '<top (required)>'
+# ./spec/integration/api_spec.rb:3:in 'Kernel#require_relative'
+# ./spec/integration/api_spec.rb:3:in '<top (required)>'
+# ------------------
+# --- Caused by: ---
+# SQLite3::CantOpenException:
+#   unable to open database file
+#   ./app.rb:15:in '<top (required)>'
+
+An error occurred while loading ./spec/integration/views_spec.rb.
+Failure/Error: require_relative '../app'
+
+Sequel::DatabaseConnectionError:
+  SQLite3::CantOpenException: unable to open database file
+# ./app.rb:15:in '<top (required)>'
+# ./spec/spec_helper.rb:51:in 'Kernel#require_relative'
+# ./spec/spec_helper.rb:51:in '<top (required)>'
+# ./spec/integration/views_spec.rb:3:in 'Kernel#require_relative'
+# ./spec/integration/views_spec.rb:3:in '<top (required)>'
+# ------------------
+# --- Caused by: ---
+# SQLite3::CantOpenException:
+#   unable to open database file
+#   ./app.rb:15:in '<top (required)>'
+
+An error occurred while loading ./spec/unit/security_spec.rb.
+Failure/Error: require_relative '../app'
+
+Sequel::DatabaseConnectionError:
+  SQLite3::CantOpenException: unable to open database file
+# ./app.rb:15:in '<top (required)>'
+# ./spec/spec_helper.rb:51:in 'Kernel#require_relative'
+# ./spec/spec_helper.rb:51:in '<top (required)>'
+# ./spec/unit/security_spec.rb:3:in 'Kernel#require_relative'
+# ./spec/unit/security_spec.rb:3:in '<top (required)>'
+# ------------------
+# --- Caused by: ---
+# SQLite3::CantOpenException:
+#   unable to open database file
+#   ./app.rb:15:in '<top (required)>'
+
+An error occurred while loading ./spec/unit/validation_spec.rb.
+Failure/Error: require_relative '../app'
+
+Sequel::DatabaseConnectionError:
+  SQLite3::CantOpenException: unable to open database file
+# ./app.rb:15:in '<top (required)>'
+# ./spec/spec_helper.rb:51:in 'Kernel#require_relative'
+# ./spec/spec_helper.rb:51:in '<top (required)>'
+# ./spec/unit/validation_spec.rb:3:in 'Kernel#require_relative'
+# ./spec/unit/validation_spec.rb:3:in '<top (required)>'
+# ------------------
+# --- Caused by: ---
+# SQLite3::CantOpenException:
+#   unable to open database file
+#   ./app.rb:15:in '<top (required)>'
+No examples found.
+
+Finished in 0.00004 seconds (files took 0.61741 seconds to load)
+0 examples, 0 failures, 4 errors occurred outside of examples
+
