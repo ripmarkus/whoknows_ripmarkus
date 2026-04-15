@@ -36,10 +36,8 @@ end
 
 before do
   if session[:user_id] && !['/change-password', '/logout', '/api/logout'].include?(request.path_info)
-    db = connect_db
-    user = db.execute('SELECT password_reset_required FROM users WHERE id = ?', [session[:user_id]]).first
-    db.close
-    redirect '/change-password' if user && user[0] == 1
+    user = DB[:users].where(id: session[:user_id]).select(:password_reset_required).first
+    redirect '/change-password' if user && user[:password_reset_required] == 1
   end
 end
 
