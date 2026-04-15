@@ -14,7 +14,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   web:
-    image: ghcr.io/ripmarkus/whoknows_ripmarkus:main
+    image: whoknows_ripmarkus:test
     environment:
       PORT: 8080
       APP_ENV: production
