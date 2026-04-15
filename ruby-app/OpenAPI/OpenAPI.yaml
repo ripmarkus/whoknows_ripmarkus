@@ -62,12 +62,6 @@ paths:
           description: GET /weather
       tags:
         - HTML
-  /api/users:
-    get:
-      summary: GET /api/users
-      responses: {}
-      tags:
-        - API
   /api/search:
     get:
       summary: GET /api/search

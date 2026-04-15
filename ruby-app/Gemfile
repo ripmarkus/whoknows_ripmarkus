@@ -15,6 +15,10 @@ gem 'sinatra'
 group :development do
   gem 'rerun'
 end
+group :test do
+  gem 'rack-test'
+  gem 'rspec'
+end
 
 group :test do
   gem 'rack-test'

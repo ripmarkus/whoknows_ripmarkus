@@ -1,6 +1,6 @@
 # CI/CD
 
-## CI
+## CI (OLD)
 
 At the time of writing, our CI checks focus on compiling the app and linting the code using RuboCop, configured via a .rubocop.yml in the project root. This file defines our code style and complexity rules, ensuring consistent standards are enforced on every PR created.
 
