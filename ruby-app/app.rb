@@ -34,6 +34,15 @@ def http_get_json(uri)
   [res.code.to_i, parsed]
 end
 
+before do
+  if session[:user_id] && !['/change-password', '/logout', '/api/logout'].include?(request.path_info)
+    db = connect_db
+    user = db.execute('SELECT password_reset_required FROM users WHERE id = ?', [session[:user_id]]).first
+    db.close
+    redirect '/change-password' if user && user[0] == 1
+  end
+end
+
 ###############
 # VIEWS
 ###############
@@ -139,7 +148,9 @@ def validate_registration_fields(params)
   return 'Valid email address needed' if params[:email].nil? || !params[:email].include?('@')
   return 'You have to enter a password' if params[:password].to_s.strip.empty?
 
-  'The two passwords do not match' if params[:password] != params[:password2]
+  return 'The two passwords do not match' if params[:password] != params[:password2]
+
+  nil
 end
 
 def validate_registration(db, params)
@@ -153,7 +164,7 @@ end
 
 def register_user(db, params)
   hashed_pw = hash_password(params[:password])
-  db.execute('INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
+  db.execute('INSERT INTO users (username, email, password, password_reset_required) VALUES (?, ?, ?, 0)',
              [params[:username], params[:email], hashed_pw])
   session[:user_id] = get_user_id(db, params[:username])
   session[:username] = params[:username]
@@ -193,6 +204,41 @@ post '/register' do
   end
 end
 
+get '/change-password' do
+  redirect '/login' unless session[:user_id]
+  erb :change_password, locals: { error: nil }
+end
+
+post '/change-password' do
+  redirect '/login' unless session[:user_id]
+
+  db = connect_db
+  user = db.execute('SELECT * FROM users WHERE id = ?', [session[:user_id]]).first
+  halt 403 unless user
+
+  unless password_matches?(user[3], params[:current_password])
+    db.close
+    return erb :change_password, locals: { error: 'Current password is incorrect' }
+  end
+
+  if params[:new_password].to_s.strip.empty?
+    db.close
+    return erb :change_password, locals: { error: 'New password cannot be empty' }
+  end
+
+  if params[:new_password] != params[:new_password2]
+    db.close
+    return erb :change_password, locals: { error: 'New passwords do not match' }
+  end
+
+  hashed = hash_password(params[:new_password])
+  db.execute('UPDATE users SET password = ?, password_reset_required = 0 WHERE id = ?',
+             [hashed, session[:user_id]])
+  db.close
+
+  redirect '/'
+end
+
 post '/logout' do
   session.delete(:user_id)
   session[:flash] = 'You were logged out'
@@ -202,19 +248,6 @@ end
 ###############
 # API ENDPOINTS
 ###############
-
-get '/api/users' do
-  content_type :json
-  db = connect_db
-  users = []
-
-  db.execute('SELECT id, username, email FROM users') do |row|
-    users << { id: row[0], username: row[1], email: row[2] }
-  end
-
-  db.close
-  users.to_json
-end
 
 get '/api/search' do
   content_type :json
