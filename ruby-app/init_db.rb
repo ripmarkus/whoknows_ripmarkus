@@ -11,7 +11,8 @@ schema = <<~SQL
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT NOT NULL UNIQUE,
     email TEXT NOT NULL UNIQUE,
-    password TEXT NOT NULL
+    password TEXT NOT NULL,
+    password_reset_required INTEGER NOT NULL DEFAULT 1
   );
 
   INSERT INTO users (username, email, password)
