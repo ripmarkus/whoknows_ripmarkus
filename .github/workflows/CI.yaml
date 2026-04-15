@@ -15,6 +15,21 @@ jobs:
   test:
     name: Run Tests
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: whoknows
+          POSTGRES_PASSWORD: secret
+          POSTGRES_DB: whoknows_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    env:
+      DATABASE_URL: postgres://whoknows:secret@localhost/whoknows_test
     steps:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
@@ -29,26 +44,21 @@ jobs:
   docker_build:
     name: Docker Build
     needs: test
+    needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: read
-
     steps:
       - uses: actions/checkout@v4
-
       - name: Build Docker image
         run: docker build -f ruby-app/Dockerfile -t whoknows_ripmarkus:test ruby-app
-
       - name: Run Docker container for health check
+        working-directory: ruby-app
         run: |
-          docker run -d --name test-container -p 8080:8080 whoknows_ripmarkus:test
-          sleep 10
-          docker ps -a
-          docker logs test-container
-          docker exec test-container ruby init_db.rb
+          docker compose up -d
+          sleep 15
           curl -f http://localhost:8080/
-          docker stop test-container
-          docker rm test-container
+          docker compose down
 
   docker_push:
     name: Docker Push

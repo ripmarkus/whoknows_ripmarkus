@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'sinatra'
-require 'sqlite3'
+require 'sequel'
 require 'json'
 require 'bcrypt'
 require 'net/http'
@@ -12,7 +12,7 @@ enable :sessions
 
 set :protection, except: :host_authorization
 
-DATABASE_PATH = File.join(__dir__, 'whoknows.db')
+DB = Sequel.connect(ENV.fetch('DATABASE_URL'))
 
 # XSS (Cross-site scripting) sanitizes html output to prevent malicious scripts from being executed in the browser
 helpers do
@@ -54,9 +54,7 @@ get '/' do
   if query.nil?
     erb :home
   else
-    db = connect_db
-    search_results = search_pages_query(db, language, query)
-    db.close
+    search_results = search_pages_query(language, query)
     erb :search, locals: { search_results: search_results, query: query }
   end
 end
@@ -86,59 +84,32 @@ end
 ###############
 # DATABASE
 ###############
-def connect_db(init_mode: false)
-  check_db_exists unless init_mode
-  SQLite3::Database.new(DATABASE_PATH)
-end
 
-def check_db_exists
-  return if File.exist?(DATABASE_PATH)
-
-  puts 'Database not found'
-  exit(1)
-end
-
-def init_db
-  db = connect_db(init_mode: true)
-  schema = File.read('../schema.sql')
-  db.execute_batch(schema)
-  db.close
-  puts "Initialized the database: #{DATABASE_PATH}"
-end
-
-def query_db(db, query, args = [], one: false)
-  results = []
-  db.execute(query, args) do |row, fields|
-    results << fields.map { |col| [col[0], row[fields.index(col)]] }.to_h
-  end
-  one ? (results.first || nil) : results
-end
-
-def get_user_id(db, username)
-  row = db.execute('SELECT id FROM users WHERE username = ?', username).first
-  row ? row[0] : nil
+def get_user_id(username)
+  user = DB[:users].where(username: username).select(:id).first
+  user ? user[:id] : nil
 end
 
 ###############
 # SHARED LOGIC
 ###############
 
-def search_pages_query(db, language, query)
-  sql = 'SELECT * FROM pages WHERE language = ? AND lower(title) LIKE lower(?)'
-  pages = []
+def search_pages_query(language, query)
+  return [] if query.to_s.strip.empty?
 
-  db.execute(sql, [language, "%#{query.to_s.strip}%"]) do |row|
-    title, url, language, last_updated, content = row
-    pages << { title: title, url: url, language: language, last_updated: last_updated, content: content }
-  end
-
-  pages
+  term = query.to_s.strip.split(/\s+/).map { |w| "#{w}:*" }.join(' & ')
+  DB[:pages]
+    .where(language: language)
+    .where(Sequel.lit("search_vector @@ to_tsquery('english', ?)", term))
+    .order(Sequel.lit("ts_rank(search_vector, to_tsquery('english', ?)) DESC", term))
+    .select(:title, :url, :language, :last_updated, :content)
+    .all
 end
 
-def authenticate_user(db, username, password)
-  user = db.execute('SELECT * FROM users WHERE username = ?', [username]).first
+def authenticate_user(username, password)
+  user = DB[:users].where(username: username).first
   return [nil, 'Invalid credentials'] if user.nil?
-  return [nil, 'Invalid credentials'] unless password_matches?(user[3], password)
+  return [nil, 'Invalid credentials'] unless password_matches?(user[:password], password)
 
   [user, nil]
 end
@@ -151,22 +122,24 @@ def validate_registration_fields(params)
   return 'The two passwords do not match' if params[:password] != params[:password2]
 
   nil
+  return 'The two passwords do not match' if params[:password] != params[:password2]
+
+  nil
 end
 
-def validate_registration(db, params)
+def validate_registration(params)
   error = validate_registration_fields(params)
   return error if error
 
-  return 'The username already exists' if get_user_id(db, params[:username])
+  return 'The username already exists' if get_user_id(params[:username])
 
-  'The email already exists' if db.execute('SELECT 1 FROM users WHERE email = ? LIMIT 1', [params[:email]]).first
+  'The email already exists' if DB[:users].where(email: params[:email]).first
 end
 
-def register_user(db, params)
+def register_user(params)
   hashed_pw = hash_password(params[:password])
-  db.execute('INSERT INTO users (username, email, password, password_reset_required) VALUES (?, ?, ?, 0)',
-             [params[:username], params[:email], hashed_pw])
-  session[:user_id] = get_user_id(db, params[:username])
+  DB[:users].insert(username: params[:username], email: params[:email], password: hashed_pw)
+  session[:user_id] = get_user_id(params[:username])
   session[:username] = params[:username]
 end
 
@@ -175,15 +148,13 @@ end
 ###############
 
 post '/login' do
-  db = connect_db
-  user, error = authenticate_user(db, params[:username], params[:password])
-  db.close
+  user, error = authenticate_user(params[:username], params[:password])
 
   if error
     erb :login, locals: { error: error }
   else
-    session[:user_id] = user[0]
-    session[:username] = user[1]
+    session[:user_id] = user[:id]
+    session[:username] = user[:username]
     redirect '/'
   end
 end
@@ -191,15 +162,12 @@ end
 post '/register' do
   redirect '/' if session[:user_id]
 
-  db = connect_db
-  error = validate_registration(db, params)
+  error = validate_registration(params)
 
   if error
-    db.close
     erb :register, locals: { error: error }
   else
-    register_user(db, params)
-    db.close
+    register_user(params)
     redirect '/'
   end
 end
@@ -251,52 +219,39 @@ end
 
 get '/api/users' do
   content_type :json
-  db = connect_db
-  rows = db.execute('SELECT id, username, email FROM users')
-  db.close
-  users = rows.map do |id, username, email|
-    { id: id, username: username, email: email }
-  end
-  users.to_json
+  DB[:users].select(:id, :username, :email).all.to_json
 end
 
 get '/api/search' do
   content_type :json
   query    = params[:query]
   language = params[:language] || 'en'
-  db = connect_db
-  search_results = query ? search_pages_query(db, language, query) : []
-  db.close
+  search_results = query ? search_pages_query(language, query) : []
   { message: 'Search endpoint hit', results: search_results }.to_json
 end
 
 post '/api/login' do
   content_type :json
-  db = connect_db
-  user, error = authenticate_user(db, params[:username], params[:password])
-  db.close
+  user, error = authenticate_user(params[:username], params[:password])
 
   halt 401, { error: error }.to_json if error
 
-  session[:user_id] = user[0]
-  session[:username] = user[1]
-  { message: 'Login successful', username: user[1] }.to_json
+  session[:user_id] = user[:id]
+  session[:username] = user[:username]
+  { message: 'Login successful', username: user[:username] }.to_json
 end
 
 post '/api/register' do
   content_type :json
   halt 400, { error: 'Already logged in' }.to_json if session[:user_id]
 
-  db = connect_db
-  error = validate_registration(db, params)
+  error = validate_registration(params)
 
   if error
-    db.close
     halt 400, { error: error }.to_json
   end
 
-  register_user(db, params)
-  db.close
+  register_user(params)
   { message: 'Registration successful', username: params[:username] }.to_json
 end
 

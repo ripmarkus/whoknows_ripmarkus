@@ -14,21 +14,12 @@ By enforcing these steps, we ensure that every Pull Request meets our baseline s
 
 Running Ruboco locally is definitely a possibility, however running it in our CI flow, allows all developers to see what can be done better with our code quality, before they can submit the code - This nudges our team to fix issues instead of only fixing issues when they become a bigger problem.
 
-## CI (NEW)
+### PostgreSQL in CI
 
-The CI-pipeline runs on every push and pull request to `main`, and can also be triggered manually via `workflow_dispatch`.
-
-The first job (**Docker Build**) builds the Docker image from `ruby-app/Dockerfile`. Once built, a container is spun up and a health check is performed. The database is initialized and a request is made to the app to verify it's running correctly. If any of this fails, the pipeline stops, ensuring broken code won't make it further.
-
-If the build and health check pass, and the trigger was not a pull request, the next job (**Docker Push**) pushes the image to GHCR. This ensures only verified images are published, ready for the CD-pipeline to deploy. 
+After migrating to PostgreSQL, the test job spins up a `postgres:16-alpine` service container alongside the test runner. The `DATABASE_URL` environment variable is passed to RSpec so the app connects to this ephemeral database instead of SQLite. Migrations are applied automatically at the start of the test suite, and the database is torn down with the container when the job ends. This means tests always run against a real PostgreSQL instance, catching any SQL incompatibilities that would not appear with an in-memory database.
 
 ## CD
 
-The CD-pipeline triggers automatically when the CI workflow completes successfully on `main`, or can be triggered manually via `workflow_dispatch`.
+The deployment job connects to the production server via SSH and runs Docker Compose to pull the latest image and restart the app. Migrations are applied automatically when the container starts, since the `command` in `docker-compose.yml` runs `ruby db/migrate.rb` before launching the app. Sequel tracks which migrations have already been applied, so this step is always safe to run and has no effect if the schema is already up to date.
 
-Deployment steps:
-
-1. An SSH key is added to the runner from repository secrets
-2. The runner SSH's into the production server
-3. The server logs into GHCR and pulls the latest Docker image
-4. The running container is stopped, and restarted with the new image via Docker Compose
+Before taking the app down, the pipeline dumps the current PostgreSQL database to `/opt/backups/whoknows/` using `pg_dump`. This gives a restore point in case a deploy introduces a regression. Only the ten most recent dumps are kept to prevent unbounded disk growth. To restore from a backup, run `pg_restore` against the relevant `.dump` file.
