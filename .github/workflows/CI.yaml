@@ -12,8 +12,23 @@ env:
   IMAGE_NAME: whoknows_ripmarkus
 
 jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          working-directory: ruby-app
+          bundler-cache: true
+      - name: Run RSpec
+        working-directory: ruby-app
+        run: bundle exec rspec --format documentation
+
   docker_build:
     name: Docker Build
+    needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: read
