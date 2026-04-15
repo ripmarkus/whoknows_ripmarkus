@@ -1,3 +1,5 @@
+require 'sequel'
+
 Sequel.migration do
   up do
     add_index :pages, %i[language title], name: :idx_pages_language_title

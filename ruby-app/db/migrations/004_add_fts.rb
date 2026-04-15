@@ -1,3 +1,5 @@
+require 'sequel'
+
 Sequel.migration do
   up do
     alter_table(:pages) do
