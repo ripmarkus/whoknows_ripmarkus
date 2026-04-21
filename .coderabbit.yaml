@@ -9,6 +9,8 @@ reviews:
     - documentation/**
     - readme.md
     - .github/**
+    - python-app/**
+    
   high_level_summary_instructions: >-
     This project is part of a DevOps elective on a CS education, help us develop an understanding of DevOps, and help us write clean code.
     Focus on the principles of DevOps: Culture, Automation, Lean, Measurement, and Sharing.
