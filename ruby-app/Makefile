@@ -16,11 +16,11 @@ lint:
 build:
 	docker build -t whoknows .
 
-up: build
-	docker run --rm --name whoknows -p 8080:8080 --env-file .env whoknows
+up:
+	docker compose up --build
 
 down:
-	docker stop whoknows
+	docker compose down
 
 help:
 	@echo "make run      - Run app locally (Ruby + SQLite)"
