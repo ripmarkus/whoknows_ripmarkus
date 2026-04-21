@@ -21,3 +21,25 @@ reviews:
     Always use GitHub suggestion format when providing code suggestions.
 
     Be concise. Prefer short, direct feedback - especially on the PR comment and description.
+
+    In this branch, we just deleted the legacy python application because it wasn't used any more, these are the files deleted:
+    [chore/delete-python-app d0cf8d7] deleted the legacy code
+    18 files changed, 819 deletions(-)
+    delete mode 100644 python-app/.gitattributes
+    delete mode 100644 python-app/.gitignore
+    delete mode 100644 python-app/LICENSE
+    delete mode 100644 python-app/README.md
+    delete mode 100644 python-app/src/Makefile
+    delete mode 100644 python-app/src/README.md
+    delete mode 100644 python-app/src/backend/app.py
+    delete mode 100644 python-app/src/backend/app_tests.py
+    delete mode 100644 python-app/src/backend/requirements.txt
+    delete mode 100644 python-app/src/backend/static/monkgroup.png
+    delete mode 100644 python-app/src/backend/static/style.css
+    delete mode 100644 python-app/src/backend/templates/about.html
+    delete mode 100755 python-app/src/backend/templates/layout.html
+    delete mode 100755 python-app/src/backend/templates/login.html
+    delete mode 100755 python-app/src/backend/templates/register.html
+    delete mode 100755 python-app/src/backend/templates/search.html
+    delete mode 100755 python-app/src/run_forever.sh
+    delete mode 100644 python-app/src/schema.sql
