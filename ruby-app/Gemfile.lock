@@ -89,6 +89,8 @@ GEM
       prettyprint
     prettyprint (0.2.0)
     prism (1.9.0)
+    prometheus-client (4.2.5)
+      base64
     psych (5.3.1)
       date
       stringio
@@ -206,6 +208,7 @@ DEPENDENCIES
   dotenv
   json
   pg
+  prometheus-client
   puma
   rack-test
   rackup

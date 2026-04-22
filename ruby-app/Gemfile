@@ -13,6 +13,7 @@ gem 'pg'
 gem 'sequel'
 gem 'sinatra'
 gem 'tailwindcss'
+gem 'prometheus-client'
 
 group :development do
   gem 'rerun'
