@@ -64,6 +64,12 @@ PASSWORD_CHANGES_TOTAL = PROM_REGISTRY.counter(
   docstring: 'Total successful password changes'
 )
 
+PASSWORD_CHANGE_FAILURES_TOTAL = PROM_REGISTRY.counter(
+  :password_change_failures_total,
+  docstring: 'Total failed password change attempts',
+  labels: %i[reason]
+)
+
 SEARCH_QUERIES_TOTAL = PROM_REGISTRY.counter(
   :search_queries_total,
   docstring: 'Total number of search queries',
@@ -77,15 +83,15 @@ SEARCH_RESULT_COUNT = PROM_REGISTRY.histogram(
   buckets: [0, 1, 2, 5, 10, 20, 50, 100]
 )
 
-WEATHER_REQUESTS_TOTAL = PROM_REGISTRY.counter(
-  :weather_requests_total,
-  docstring: 'Total number of weather requests',
+WEATHER_API_REQUESTS_TOTAL = PROM_REGISTRY.counter(
+  :weather_api_requests_total,
+  docstring: 'Total number of outbound requests to the OpenWeather API',
   labels: %i[status]
 )
 
-WEATHER_REQUEST_DURATION_SECONDS = PROM_REGISTRY.histogram(
-  :weather_request_duration_seconds,
-  docstring: 'Duration of weather requests in seconds',
+WEATHER_API_REQUEST_DURATION_SECONDS = PROM_REGISTRY.histogram(
+  :weather_api_request_duration_seconds,
+  docstring: 'Duration of outbound requests to the OpenWeather API in seconds',
   labels: %i[status],
   buckets: [0.05, 0.1, 0.25, 0.5, 1, 2, 5, 10]
 )
@@ -119,6 +125,11 @@ before do
   end
 end
 
+def metrics_path_label(env)
+  route = env['sinatra.route']
+  route ? route.split(' ', 2).last : 'unknown'
+end
+
 after do
   next if request.path_info == '/metrics'
 
@@ -126,11 +137,12 @@ after do
   next unless started_at
 
   duration = Process.clock_gettime(Process::CLOCK_MONOTONIC) - started_at
+  path_label = metrics_path_label(env)
 
   HTTP_REQUESTS_TOTAL.increment(
     labels: {
       method: request.request_method,
-      path: request.path_info,
+      path: path_label,
       status: response.status.to_s
     }
   )
@@ -139,7 +151,7 @@ after do
     duration,
     labels: {
       method: request.request_method,
-      path: request.path_info,
+      path: path_label,
       status: response.status.to_s
     }
   )
@@ -147,7 +159,7 @@ end
 
 error do
   HTTP_REQUEST_EXCEPTIONS_TOTAL.increment(
-    labels: { path: request.path_info }
+    labels: { path: metrics_path_label(env) }
   )
   env['sinatra.error']
 end
@@ -201,8 +213,9 @@ get '/api/docs/openapi.yaml' do
   send_file File.join(settings.root, 'OpenAPI', 'OpenAPI.yaml')
 end
 
+MONITORING_IP = ENV['MONITORING_IP'].to_s.strip
+
 get '/metrics' do
-  MONITORING_IP = ENV['MONITORING_IP'].to_s.strip
   halt 403, 'Forbidden' unless request.ip == MONITORING_IP
   content_type 'text/plain; version=0.0.4; charset=utf-8'
   Prometheus::Client::Formats::Text.marshal(PROM_REGISTRY)
@@ -307,14 +320,17 @@ post '/change-password' do
   halt 403 unless user
 
   unless password_matches?(user[:password], params[:current_password])
+    PASSWORD_CHANGE_FAILURES_TOTAL.increment(labels: { reason: 'wrong_current' })
     return erb :change_password, locals: { error: 'Current password is incorrect' }
   end
 
   if params[:new_password].to_s.strip.empty?
+    PASSWORD_CHANGE_FAILURES_TOTAL.increment(labels: { reason: 'empty_new' })
     return erb :change_password, locals: { error: 'New password cannot be empty' }
   end
 
   if params[:new_password] != params[:new_password2]
+    PASSWORD_CHANGE_FAILURES_TOTAL.increment(labels: { reason: 'mismatch' })
     return erb :change_password, locals: { error: 'New passwords do not match' }
   end
 
@@ -440,35 +456,33 @@ end
 # Weather function - gets lat/lon for city/country and then gets weather for that location
 def get_weather_for(city:, country:, api_key:)
   started_at = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-  status_label = 'error'
 
   location_query = country.strip.empty? ? city : "#{city},#{country}"
 
   status, location = resolve_location(location_query, api_key)
   unless status == 200
-    WEATHER_REQUESTS_TOTAL.increment(labels: { status: status_label })
-    WEATHER_REQUEST_DURATION_SECONDS.observe(
+    WEATHER_API_REQUESTS_TOTAL.increment(labels: { status: status.to_s })
+    WEATHER_API_REQUEST_DURATION_SECONDS.observe(
       Process.clock_gettime(Process::CLOCK_MONOTONIC) - started_at,
-      labels: { status: status_label }
+      labels: { status: status.to_s }
     )
     return [status, location]
   end
 
   weather_status, weather_data = fetch_weather(location['lat'], location['lon'], api_key)
   unless weather_status == 200
-    WEATHER_REQUESTS_TOTAL.increment(labels: { status: status_label })
-    WEATHER_REQUEST_DURATION_SECONDS.observe(
+    WEATHER_API_REQUESTS_TOTAL.increment(labels: { status: weather_status.to_s })
+    WEATHER_API_REQUEST_DURATION_SECONDS.observe(
       Process.clock_gettime(Process::CLOCK_MONOTONIC) - started_at,
-      labels: { status: status_label }
+      labels: { status: weather_status.to_s }
     )
     return [weather_status, { 'error' => 'weather fetch failed', 'details' => weather_data }]
   end
 
-  status_label = 'success'
-  WEATHER_REQUESTS_TOTAL.increment(labels: { status: status_label })
-  WEATHER_REQUEST_DURATION_SECONDS.observe(
+  WEATHER_API_REQUESTS_TOTAL.increment(labels: { status: '200' })
+  WEATHER_API_REQUEST_DURATION_SECONDS.observe(
     Process.clock_gettime(Process::CLOCK_MONOTONIC) - started_at,
-    labels: { status: status_label }
+    labels: { status: '200' }
   )
 
   [200, { 'location' => location, 'weather' => weather_data }]
