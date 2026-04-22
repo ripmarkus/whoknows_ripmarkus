@@ -4,10 +4,8 @@ on:
   workflow_dispatch:
   workflow_run:
     workflows: ["Ruby CI"]
-    types:
-      - completed
-    branches:
-      - main
+    types: [completed]
+    branches: [main]
 
 jobs:
   deploy:
@@ -15,35 +13,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Add SSH key to runner
+      - name: Add SSH key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/homeserver
           chmod 600 ~/.ssh/homeserver
 
-      - name: Deploy on server via SSH
+      - name: Deploy app
         run: |
           ssh -i ~/.ssh/homeserver -o StrictHostKeyChecking=no "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}" <<'EOF'
-          set -eux
+          set -eu
 
           echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
 
           cd /opt/docker/devops/whoknows_ripmarkus/ruby-app
 
-          BACKUP_DIR="/opt/backups/whoknows"
-          TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-          mkdir -p "$BACKUP_DIR"
-
-          docker compose pull
-
-          if docker compose ps --services --status running | grep -q '^db$'; then
-            docker compose exec -T db pg_dump -U whoknows --format=custom whoknows > "$BACKUP_DIR/pre_deploy_${TIMESTAMP}.dump"
-            ls -t "$BACKUP_DIR"/*.dump | tail -n +11 | xargs -r rm
-          else
-            echo "db is not running, skipping backup"
-          fi
-
-          docker compose up -d
-
-          docker image prune -f
+          docker compose pull app
+          docker compose up -d --no-deps app
           EOF
