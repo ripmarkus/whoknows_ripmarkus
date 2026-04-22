@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 source 'https://rubygems.org'
-gem 'bcrypt'
+gem "bcrypt", ">= 3.1.22"
 gem 'dotenv'
-gem 'json'
+gem 'rack', ">= 3.2.6"
+gem 'json', ">= 2.19.2"
 gem 'sqlite3'
 gem 'puma'
 gem 'rackup'
@@ -14,6 +15,10 @@ gem 'sequel'
 gem 'sinatra'
 gem 'tailwindcss'
 gem 'prometheus-client'
+gem "activesupport", ">= 8.1.2.1"
+gem "loofah", ">= 2.25.1"
+gem "actionview", ">= 8.1.2.1"
+gem "actionpack", ">= 8.1.2.1"
 
 group :development do
   gem 'rerun'
