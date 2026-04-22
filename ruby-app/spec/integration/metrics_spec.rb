@@ -33,12 +33,12 @@ RSpec.describe '/metrics endpoint' do
   end
 
   it 'labels HTTP metrics by route template, not raw path' do
-    get '/api/search', query: 'ignored'
+  get '/api/search', query: 'ignored'
 
-    get '/metrics', {}, { 'REMOTE_ADDR' => '127.0.0.1' }
-    body = last_response.body
+  get '/metrics', {}, { 'REMOTE_ADDR' => '127.0.0.1' }
+  body = last_response.body
 
-    expect(body).to match(%r{http_requests_total\{[^}]*path="/api/search"})
-    expect(body).not_to include('query=ignored')
-  end
+  expect(body).to match(%r|http_requests_total\{[^}]*path="/api/search"|)
+  expect(body).not_to include('query=ignored')
+end
 end
