@@ -118,6 +118,34 @@ WEATHER_API_ERRORS_TOTAL = fetch_or_register_counter(
   labels: %i[phase error_class]
 )
 
+def payload_value(payload, key)
+  payload[key.to_s] || payload[key.to_sym]
+end
+
+def hash_password(password)
+  BCrypt::Password.create(password)
+end
+
+def password_matches?(password_hash, plaintext_password)
+  BCrypt::Password.new(password_hash) == plaintext_password
+rescue BCrypt::Errors::InvalidHash
+  false
+end
+
+def validate_registration_fields(payload)
+  username = payload_value(payload, :username).to_s
+  email = payload_value(payload, :email).to_s
+  password = payload_value(payload, :password).to_s
+  password2 = payload_value(payload, :password2).to_s
+
+  return 'You have to enter a username' if username.strip.empty?
+  return 'Valid email address needed' if email.strip.empty? || !email.include?('@')
+  return 'You have to enter a password' if password.strip.empty?
+  return 'The two passwords do not match' if password != password2
+
+  nil
+end
+
 helpers do
   include Rack::Utils
   alias_method :h, :escape_html
@@ -228,16 +256,6 @@ helpers do
     raise
   end
 
-  def hash_password(password)
-    BCrypt::Password.create(password)
-  end
-
-  def password_matches?(password_hash, plaintext_password)
-    BCrypt::Password.new(password_hash) == plaintext_password
-  rescue BCrypt::Errors::InvalidHash
-    false
-  end
-
   def find_user_for_login(identifier)
     DB[:users].where(email: identifier).first ||
       DB[:users].where(username: identifier).first
@@ -267,23 +285,6 @@ helpers do
       'location' => first_match,
       'weather' => weather_data
     }
-  end
-
-  def validate_registration_fields(payload)
-    username = payload['username'].to_s.strip
-    email = payload['email'].to_s.strip
-    password = payload['password'].to_s
-    password2 = payload.key?('password2') ? payload['password2'].to_s : password
-
-    errors = []
-    errors << 'username is required' if username.empty? && !request.path_info.start_with?('/api') && !request.media_type.to_s.include?('application/json')
-    errors << 'email is required' if email.empty?
-    errors << 'email is invalid' unless email.empty? || email.include?('@')
-    errors << 'password is required' if password.empty?
-    errors << 'password must be at least 8 characters' if !password.empty? && password.length < 8
-    errors << 'passwords do not match' if payload.key?('password2') && password != password2
-
-    errors
   end
 
   def json_request?
@@ -347,7 +348,10 @@ get '/health' do
 end
 
 get '/metrics' do
-  halt 403, 'Forbidden' unless allowed_ip?(current_request_ip, ENV['MONITORING_IP'].to_s.strip)
+  monitoring_ip = ENV['MONITORING_IP'].to_s.strip
+  monitoring_ip = '127.0.0.1' if monitoring_ip.empty?
+
+  halt 403, 'Forbidden' unless allowed_ip?(current_request_ip, monitoring_ip)
 
   content_type 'text/plain; version=0.0.4; charset=utf-8'
   Prometheus::Client::Formats::Text.marshal(PROM_REGISTRY)
@@ -389,9 +393,9 @@ end
 
 post '/login' do
   payload = request_payload
-  identifier = payload['email'].to_s.strip
-  identifier = payload['username'].to_s.strip if identifier.empty?
-  password = payload['password'].to_s
+  identifier = payload_value(payload, :email).to_s.strip
+  identifier = payload_value(payload, :username).to_s.strip if identifier.empty?
+  password = payload_value(payload, :password).to_s
 
   user = find_user_for_login(identifier)
 
@@ -410,7 +414,7 @@ post '/login' do
     LOGIN_ATTEMPTS_TOTAL.increment(labels: { result: 'failure' })
 
     if request.media_type.to_s.include?('application/json')
-      halt 401, json(error: 'invalid_credentials')
+      halt 401, json(error: 'Invalid credentials')
     else
       status 401
       erb :login, locals: { error: 'Invalid credentials' }
@@ -424,27 +428,22 @@ end
 
 post '/register' do
   payload = request_payload
-  errors = validate_registration_fields(payload)
+  error = validate_registration_fields(payload)
 
-  email = payload['email'].to_s.strip
-  username = payload['username'].to_s.strip
+  email = payload_value(payload, :email).to_s.strip
+  username = payload_value(payload, :username).to_s.strip
 
-  if !email.empty? && DB[:users].where(email: email).first
-    errors << 'email already exists'
-  end
+  error = 'The username already exists' if error.nil? && !username.empty? && DB[:users].where(username: username).first
+  error = 'The email already exists' if error.nil? && !email.empty? && DB[:users].where(email: email).first
 
-  if !username.empty? && DB[:users].where(username: username).first
-    errors << 'username already exists'
-  end
-
-  unless errors.empty?
+  if error
     REGISTRATIONS_TOTAL.increment(labels: { result: 'failure' })
 
     if request.media_type.to_s.include?('application/json')
-      halt 422, json(errors: errors)
+      halt 422, json(error: error)
     else
       status 422
-      return erb :register, locals: { error: errors.join(', ') }
+      return erb :register, locals: { error: error }
     end
   end
 
@@ -548,9 +547,8 @@ get '/api/search' do
 
   dataset = DB[:pages]
   dataset = dataset.where(language: language) unless language.empty?
-  dataset = dataset.where(Sequel.ilike(:title, "%#{query}%") | Sequel.ilike(:content, "%#{query}%")) unless query.empty?
-
   results = dataset.select(:title, :url, :language, :last_updated, :content).all
+  results = results.select { |row| row[:title].to_s.include?(query) } unless query.empty?
   hit = results.empty? ? 'miss' : 'hit'
   duration = monotonic_now - started_at
 
@@ -562,9 +560,9 @@ end
 
 post '/api/login' do
   payload = request_payload
-  identifier = payload['email'].to_s.strip
-  identifier = payload['username'].to_s.strip if identifier.empty?
-  password = payload['password'].to_s
+  identifier = payload_value(payload, :email).to_s.strip
+  identifier = payload_value(payload, :username).to_s.strip if identifier.empty?
+  password = payload_value(payload, :password).to_s
 
   user = find_user_for_login(identifier)
 
@@ -573,31 +571,26 @@ post '/api/login' do
     session[:user_id] = user[:id]
     session[:username] = user[:username] if user[:username]
     status 200
-    json message: 'login ok'
+    json message: 'Login successful', username: user[:username]
   else
     LOGIN_ATTEMPTS_TOTAL.increment(labels: { result: 'failure' })
-    halt 401, json(error: 'invalid_credentials')
+    halt 401, json(error: 'Invalid credentials')
   end
 end
 
 post '/api/register' do
   payload = request_payload
-  errors = validate_registration_fields(payload)
+  error = validate_registration_fields(payload)
 
-  email = payload['email'].to_s.strip
-  username = payload['username'].to_s.strip
+  email = payload_value(payload, :email).to_s.strip
+  username = payload_value(payload, :username).to_s.strip
 
-  if !email.empty? && DB[:users].where(email: email).first
-    errors << 'email already exists'
-  end
+  error = 'The username already exists' if error.nil? && DB[:users].where(username: username).first
+  error = 'The email already exists' if error.nil? && DB[:users].where(email: email).first
 
-  if !username.empty? && DB[:users].where(username: username).first
-    errors << 'username already exists'
-  end
-
-  unless errors.empty?
+  if error
     REGISTRATIONS_TOTAL.increment(labels: { result: 'failure' })
-    halt 422, json(errors: errors)
+    halt 400, json(error: error)
   end
 
   insert_data = {
@@ -612,8 +605,8 @@ post '/api/register' do
   session[:user_id] = user_id
   session[:username] = username unless username.empty?
 
-  status 201
-  json message: 'registered'
+  status 200
+  json message: 'Registration successful', username: username
 end
 
 post '/api/logout' do
