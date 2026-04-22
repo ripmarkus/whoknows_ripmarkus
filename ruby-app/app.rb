@@ -202,6 +202,8 @@ get '/api/docs/openapi.yaml' do
 end
 
 get '/metrics' do
+  MONITORING_IP = ENV['MONITORING_IP'].to_s.strip
+  halt 403, 'Forbidden' unless request.ip == MONITORING_IP
   content_type 'text/plain; version=0.0.4; charset=utf-8'
   Prometheus::Client::Formats::Text.marshal(PROM_REGISTRY)
 end
