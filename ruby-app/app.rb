@@ -213,10 +213,16 @@ get '/api/docs/openapi.yaml' do
   send_file File.join(settings.root, 'OpenAPI', 'OpenAPI.yaml')
 end
 
-MONITORING_IP = ENV['MONITORING_IP'].to_s.strip
+def allowed_metrics_request?(request)
+  allowed = ENV['MONITORING_IP'].to_s.strip
+  return false if allowed.empty?
+
+  request.env['REMOTE_ADDR'] == allowed ||
+    request.env['HTTP_X_FORWARDED_FOR']&.start_with?(allowed)
+end
 
 get '/metrics' do
-  halt 403, 'Forbidden' unless request.ip == MONITORING_IP
+  halt 403, 'Forbidden' unless allowed_metrics_request?(request)
   content_type 'text/plain; version=0.0.4; charset=utf-8'
   Prometheus::Client::Formats::Text.marshal(PROM_REGISTRY)
 end
