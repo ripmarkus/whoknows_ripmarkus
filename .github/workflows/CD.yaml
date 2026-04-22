@@ -39,6 +39,6 @@ jobs:
             echo "db is not running, skipping backup"
           fi
 
-          docker compose pull app
+          docker compose pull web
           docker compose up -d --no-deps app
           EOF
