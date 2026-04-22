@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'sinatra'
-require 'sinatra/json'
 require 'sequel'
 require 'json'
 require 'bcrypt'
@@ -122,6 +121,13 @@ WEATHER_API_ERRORS_TOTAL = fetch_or_register_counter(
 helpers do
   include Rack::Utils
   alias_method :h, :escape_html
+
+  def json(payload = nil, status_code: nil, **kwargs)
+    response_payload = payload || kwargs
+    content_type :json
+    status status_code if status_code
+    response_payload.to_json
+  end
 
   def monotonic_now
     Process.clock_gettime(Process::CLOCK_MONOTONIC)
@@ -327,7 +333,6 @@ error do
   LOGGER.error("#{err.class}: #{err.message}") if err
 
   if json_request?
-    content_type :json
     status 500
     json error: 'internal_server_error'
   else
