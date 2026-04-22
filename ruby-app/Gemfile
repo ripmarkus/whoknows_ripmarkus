@@ -11,6 +11,7 @@ gem 'rackup'
 gem 'rswag-ui'
 gem 'rubocop', require: false
 gem 'pg'
+gem 'rack-session', '~> 2.1.2'
 gem 'sequel'
 gem 'sinatra'
 gem 'tailwindcss'
