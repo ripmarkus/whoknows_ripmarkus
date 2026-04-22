@@ -7,6 +7,8 @@ require 'bcrypt'
 require 'net/http'
 require 'uri'
 require 'dotenv/load'
+require 'prometheus/client'
+require 'prometheus/client/formats/text'
 
 enable :sessions
 
@@ -20,6 +22,73 @@ end
 
 DB = Sequel.connect(ENV.fetch('DATABASE_URL'))
 
+# Monitoring Metrics
+PROM_REGISTRY = Prometheus::Client.registry
+
+HTTP_REQUESTS_TOTAL = PROM_REGISTRY.counter(
+  :http_requests_total,
+  docstring: 'Total number of HTTP requests',
+  labels: %i[method path status]
+)
+
+HTTP_REQUEST_DURATION_SECONDS = PROM_REGISTRY.histogram(
+  :http_request_duration_seconds,
+  docstring: 'HTTP request duration in seconds',
+  labels: %i[method path status],
+  buckets: [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2, 5]
+)
+
+HTTP_REQUEST_EXCEPTIONS_TOTAL = PROM_REGISTRY.counter(
+  :http_request_exceptions_total,
+  docstring: 'Total number of exceptions raised while handling requests',
+  labels: %i[path]
+)
+
+USER_LOGINS_TOTAL = PROM_REGISTRY.counter(
+  :user_logins_total,
+  docstring: 'Total successful user logins'
+)
+
+USER_LOGIN_FAILURES_TOTAL = PROM_REGISTRY.counter(
+  :user_login_failures_total,
+  docstring: 'Total failed user login attempts'
+)
+
+USER_REGISTRATIONS_TOTAL = PROM_REGISTRY.counter(
+  :user_registrations_total,
+  docstring: 'Total successful user registrations'
+)
+
+PASSWORD_CHANGES_TOTAL = PROM_REGISTRY.counter(
+  :password_changes_total,
+  docstring: 'Total successful password changes'
+)
+
+SEARCH_QUERIES_TOTAL = PROM_REGISTRY.counter(
+  :search_queries_total,
+  docstring: 'Total number of search queries',
+  labels: %i[language result]
+)
+
+SEARCH_RESULT_COUNT = PROM_REGISTRY.histogram(
+  :search_result_count,
+  docstring: 'Number of search results returned per query',
+  labels: %i[language],
+  buckets: [0, 1, 2, 5, 10, 20, 50, 100]
+)
+
+WEATHER_REQUESTS_TOTAL = PROM_REGISTRY.counter(
+  :weather_requests_total,
+  docstring: 'Total number of weather requests',
+  labels: %i[status]
+)
+
+WEATHER_REQUEST_DURATION_SECONDS = PROM_REGISTRY.histogram(
+  :weather_request_duration_seconds,
+  docstring: 'Duration of weather requests in seconds',
+  labels: %i[status],
+  buckets: [0.05, 0.1, 0.25, 0.5, 1, 2, 5, 10]
+)
 
 # XSS (Cross-site scripting) sanitizes html output to prevent malicious scripts from being executed in the browser
 helpers do
@@ -42,10 +111,45 @@ def http_get_json(uri)
 end
 
 before do
+  env['metrics.request_started_at'] = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+
   if session[:user_id] && !['/change-password', '/logout', '/api/logout'].include?(request.path_info)
     user = DB[:users].where(id: session[:user_id]).select(:password_reset_required).first
     redirect '/change-password' if user && user[:password_reset_required] == 1
   end
+end
+
+after do
+  next if request.path_info == '/metrics'
+
+  started_at = env['metrics.request_started_at']
+  next unless started_at
+
+  duration = Process.clock_gettime(Process::CLOCK_MONOTONIC) - started_at
+
+  HTTP_REQUESTS_TOTAL.increment(
+    labels: {
+      method: request.request_method,
+      path: request.path_info,
+      status: response.status.to_s
+    }
+  )
+
+  HTTP_REQUEST_DURATION_SECONDS.observe(
+    duration,
+    labels: {
+      method: request.request_method,
+      path: request.path_info,
+      status: response.status.to_s
+    }
+  )
+end
+
+error do
+  HTTP_REQUEST_EXCEPTIONS_TOTAL.increment(
+    labels: { path: request.path_info }
+  )
+  env['sinatra.error']
 end
 
 ###############
@@ -60,6 +164,17 @@ get '/' do
     erb :home
   else
     search_results = search_pages_query(language, query)
+    result_label = search_results.empty? ? 'miss' : 'hit'
+
+    SEARCH_QUERIES_TOTAL.increment(
+      labels: { language: language, result: result_label }
+    )
+
+    SEARCH_RESULT_COUNT.observe(
+      search_results.length,
+      labels: { language: language }
+    )
+
     erb :search, locals: { search_results: search_results, query: query }
   end
 end
@@ -84,6 +199,11 @@ end
 get '/api/docs/openapi.yaml' do
   content_type 'text/yaml'
   send_file File.join(settings.root, 'OpenAPI', 'OpenAPI.yaml')
+end
+
+get '/metrics' do
+  content_type 'text/plain; version=0.0.4; charset=utf-8'
+  Prometheus::Client::Formats::Text.marshal(PROM_REGISTRY)
 end
 
 ###############
@@ -120,10 +240,6 @@ def validate_registration_fields(params)
   return 'You have to enter a username' if params[:username].nil? || params[:username].empty?
   return 'Valid email address needed' if params[:email].nil? || !params[:email].include?('@')
   return 'You have to enter a password' if params[:password].to_s.strip.empty?
-
-  return 'The two passwords do not match' if params[:password] != params[:password2]
-
-  nil
   return 'The two passwords do not match' if params[:password] != params[:password2]
 
   nil
@@ -153,8 +269,10 @@ post '/login' do
   user, error = authenticate_user(params[:username], params[:password])
 
   if error
+    USER_LOGIN_FAILURES_TOTAL.increment
     erb :login, locals: { error: error }
   else
+    USER_LOGINS_TOTAL.increment
     session[:user_id] = user[:id]
     session[:username] = user[:username]
     redirect '/'
@@ -170,6 +288,7 @@ post '/register' do
     erb :register, locals: { error: error }
   else
     register_user(params)
+    USER_REGISTRATIONS_TOTAL.increment
     redirect '/'
   end
 end
@@ -199,6 +318,7 @@ post '/change-password' do
 
   hashed = hash_password(params[:new_password])
   DB[:users].where(id: session[:user_id]).update(password: hashed, password_reset_required: 0)
+  PASSWORD_CHANGES_TOTAL.increment
 
   redirect '/'
 end
@@ -223,6 +343,20 @@ get '/api/search' do
   query    = params[:query]
   language = params[:language] || 'en'
   search_results = query ? search_pages_query(language, query) : []
+
+  unless query.nil?
+    result_label = search_results.empty? ? 'miss' : 'hit'
+
+    SEARCH_QUERIES_TOTAL.increment(
+      labels: { language: language, result: result_label }
+    )
+
+    SEARCH_RESULT_COUNT.observe(
+      search_results.length,
+      labels: { language: language }
+    )
+  end
+
   { message: 'Search endpoint hit', results: search_results }.to_json
 end
 
@@ -230,8 +364,12 @@ post '/api/login' do
   content_type :json
   user, error = authenticate_user(params[:username], params[:password])
 
-  halt 401, { error: error }.to_json if error
+  if error
+    USER_LOGIN_FAILURES_TOTAL.increment
+    halt 401, { error: error }.to_json
+  end
 
+  USER_LOGINS_TOTAL.increment
   session[:user_id] = user[:id]
   session[:username] = user[:username]
   { message: 'Login successful', username: user[:username] }.to_json
@@ -248,6 +386,7 @@ post '/api/register' do
   end
 
   register_user(params)
+  USER_REGISTRATIONS_TOTAL.increment
   { message: 'Registration successful', username: params[:username] }.to_json
 end
 
@@ -298,13 +437,37 @@ end
 
 # Weather function - gets lat/lon for city/country and then gets weather for that location
 def get_weather_for(city:, country:, api_key:)
+  started_at = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+  status_label = 'error'
+
   location_query = country.strip.empty? ? city : "#{city},#{country}"
 
   status, location = resolve_location(location_query, api_key)
-  return [status, location] unless status == 200
+  unless status == 200
+    WEATHER_REQUESTS_TOTAL.increment(labels: { status: status_label })
+    WEATHER_REQUEST_DURATION_SECONDS.observe(
+      Process.clock_gettime(Process::CLOCK_MONOTONIC) - started_at,
+      labels: { status: status_label }
+    )
+    return [status, location]
+  end
 
   weather_status, weather_data = fetch_weather(location['lat'], location['lon'], api_key)
-  return [weather_status, { 'error' => 'weather fetch failed', 'details' => weather_data }] unless weather_status == 200
+  unless weather_status == 200
+    WEATHER_REQUESTS_TOTAL.increment(labels: { status: status_label })
+    WEATHER_REQUEST_DURATION_SECONDS.observe(
+      Process.clock_gettime(Process::CLOCK_MONOTONIC) - started_at,
+      labels: { status: status_label }
+    )
+    return [weather_status, { 'error' => 'weather fetch failed', 'details' => weather_data }]
+  end
+
+  status_label = 'success'
+  WEATHER_REQUESTS_TOTAL.increment(labels: { status: status_label })
+  WEATHER_REQUEST_DURATION_SECONDS.observe(
+    Process.clock_gettime(Process::CLOCK_MONOTONIC) - started_at,
+    labels: { status: status_label }
+  )
 
   [200, { 'location' => location, 'weather' => weather_data }]
 end
