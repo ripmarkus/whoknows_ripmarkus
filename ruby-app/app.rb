@@ -1,193 +1,376 @@
 # frozen_string_literal: true
 
 require 'sinatra'
+require 'sinatra/json'
 require 'sequel'
 require 'json'
 require 'bcrypt'
 require 'net/http'
 require 'uri'
+require 'logger'
+require 'ipaddr'
 require 'dotenv/load'
 require 'prometheus/client'
 require 'prometheus/client/formats/text'
 
-enable :sessions
+configure do
+  enable :sessions
+  set :show_exceptions, false
+  set :protection, except: :host_authorization
 
-set :protection, except: :host_authorization
+  LOGGER = Logger.new($stdout)
 
-# Handle database connection for test environment
-if ENV['RACK_ENV'] == 'test'
-  # In test mode, change to the ruby-app directory for relative SQLite paths
-  Dir.chdir(__dir__)
+  Dir.chdir(__dir__) if ENV['RACK_ENV'] == 'test'
+
+  DB = Sequel.connect(ENV.fetch('DATABASE_URL'))
+
+  PROM_REGISTRY = Prometheus::Client.registry
 end
 
-DB = Sequel.connect(ENV.fetch('DATABASE_URL'))
+def fetch_or_register_counter(registry, name, docstring:, labels: [])
+  registry.get(name) || registry.counter(name, docstring:, labels:)
+rescue Prometheus::Client::Registry::AlreadyRegisteredError
+  registry.get(name)
+end
 
-# Monitoring Metrics
-PROM_REGISTRY = Prometheus::Client.registry
+def fetch_or_register_histogram(registry, name, docstring:, labels:, buckets:)
+  registry.get(name) || registry.histogram(name, docstring:, labels:, buckets:)
+rescue Prometheus::Client::Registry::AlreadyRegisteredError
+  registry.get(name)
+end
 
-HTTP_REQUESTS_TOTAL = PROM_REGISTRY.counter(
+HTTP_REQUESTS_TOTAL = fetch_or_register_counter(
+  PROM_REGISTRY,
   :http_requests_total,
   docstring: 'Total number of HTTP requests',
-  labels: %i[method path status]
+  labels: %i[method path status_code]
 )
 
-HTTP_REQUEST_DURATION_SECONDS = PROM_REGISTRY.histogram(
+HTTP_REQUEST_DURATION_SECONDS = fetch_or_register_histogram(
+  PROM_REGISTRY,
   :http_request_duration_seconds,
   docstring: 'HTTP request duration in seconds',
-  labels: %i[method path status],
+  labels: %i[method path status_code],
   buckets: [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2, 5]
 )
 
-HTTP_REQUEST_EXCEPTIONS_TOTAL = PROM_REGISTRY.counter(
-  :http_request_exceptions_total,
-  docstring: 'Total number of exceptions raised while handling requests',
-  labels: %i[path]
+HTTP_REQUEST_ERRORS_TOTAL = fetch_or_register_counter(
+  PROM_REGISTRY,
+  :http_request_errors_total,
+  docstring: 'Total number of HTTP request failures',
+  labels: %i[method path error_class]
 )
 
-USER_LOGINS_TOTAL = PROM_REGISTRY.counter(
-  :user_logins_total,
-  docstring: 'Total successful user logins'
+LOGIN_ATTEMPTS_TOTAL = fetch_or_register_counter(
+  PROM_REGISTRY,
+  :login_attempts_total,
+  docstring: 'Total login attempts',
+  labels: %i[result]
 )
 
-USER_LOGIN_FAILURES_TOTAL = PROM_REGISTRY.counter(
-  :user_login_failures_total,
-  docstring: 'Total failed user login attempts'
+REGISTRATIONS_TOTAL = fetch_or_register_counter(
+  PROM_REGISTRY,
+  :registrations_total,
+  docstring: 'Total registrations',
+  labels: %i[result]
 )
 
-USER_REGISTRATIONS_TOTAL = PROM_REGISTRY.counter(
-  :user_registrations_total,
-  docstring: 'Total successful user registrations'
-)
-
-PASSWORD_CHANGES_TOTAL = PROM_REGISTRY.counter(
+PASSWORD_CHANGES_TOTAL = fetch_or_register_counter(
+  PROM_REGISTRY,
   :password_changes_total,
-  docstring: 'Total successful password changes'
+  docstring: 'Total password change attempts',
+  labels: %i[result]
 )
 
-PASSWORD_CHANGE_FAILURES_TOTAL = PROM_REGISTRY.counter(
-  :password_change_failures_total,
-  docstring: 'Total failed password change attempts',
-  labels: %i[reason]
-)
-
-SEARCH_QUERIES_TOTAL = PROM_REGISTRY.counter(
+SEARCH_QUERIES_TOTAL = fetch_or_register_counter(
+  PROM_REGISTRY,
   :search_queries_total,
   docstring: 'Total number of search queries',
-  labels: %i[language result]
+  labels: %i[language hit]
 )
 
-SEARCH_RESULT_COUNT = PROM_REGISTRY.histogram(
-  :search_result_count,
-  docstring: 'Number of search results returned per query',
-  labels: %i[language],
-  buckets: [0, 1, 2, 5, 10, 20, 50, 100]
+SEARCH_DURATION_SECONDS = fetch_or_register_histogram(
+  PROM_REGISTRY,
+  :search_duration_seconds,
+  docstring: 'Search request duration in seconds',
+  labels: %i[language hit],
+  buckets: [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2]
 )
 
-WEATHER_API_REQUESTS_TOTAL = PROM_REGISTRY.counter(
+WEATHER_API_REQUESTS_TOTAL = fetch_or_register_counter(
+  PROM_REGISTRY,
   :weather_api_requests_total,
   docstring: 'Total number of outbound requests to the OpenWeather API',
-  labels: %i[status]
+  labels: %i[phase status_code]
 )
 
-WEATHER_API_REQUEST_DURATION_SECONDS = PROM_REGISTRY.histogram(
-  :weather_api_request_duration_seconds,
-  docstring: 'Duration of outbound requests to the OpenWeather API in seconds',
-  labels: %i[status],
-  buckets: [0.05, 0.1, 0.25, 0.5, 1, 2, 5, 10]
+WEATHER_API_DURATION_SECONDS = fetch_or_register_histogram(
+  PROM_REGISTRY,
+  :weather_api_duration_seconds,
+  docstring: 'Duration of outbound OpenWeather API requests in seconds',
+  labels: %i[phase status_code],
+  buckets: [0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2, 5]
 )
 
-# XSS (Cross-site scripting) sanitizes html output to prevent malicious scripts from being executed in the browser
+WEATHER_API_ERRORS_TOTAL = fetch_or_register_counter(
+  PROM_REGISTRY,
+  :weather_api_errors_total,
+  docstring: 'Total number of outbound OpenWeather API errors',
+  labels: %i[phase error_class]
+)
+
 helpers do
   include Rack::Utils
   alias_method :h, :escape_html
-end
 
-# JSON helper - sets default content type to json and parses response body as json, with error handling
-def http_get_json(uri)
-  res = Net::HTTP.get_response(uri)
-  body = res.body.to_s
-
-  begin
-    parsed = JSON.parse(body)
-  rescue JSON::ParserError
-    parsed = { 'raw' => body }
+  def monotonic_now
+    Process.clock_gettime(Process::CLOCK_MONOTONIC)
   end
 
-  [res.code.to_i, parsed]
+  def parsed_json_body
+    body = request.body.read.to_s
+    request.body.rewind
+    JSON.parse(body)
+  rescue JSON::ParserError
+    {}
+  end
+
+  def request_payload
+    if request.media_type.to_s.include?('application/json')
+      parsed_json_body
+    else
+      params
+    end
+  end
+
+  def metrics_path_label(env)
+    route = env['sinatra.route']
+    return '/unknown' if route.nil? || route.strip.empty?
+
+    _method, path = route.split(' ', 2)
+    normalized = path.to_s.strip
+    normalized.empty? ? '/unknown' : normalized
+  end
+
+  def skip_http_metrics?(env)
+    path = metrics_path_label(env)
+
+    request.path_info == '/metrics' ||
+      path == '/api/weather' ||
+      path == '/weather'
+  end
+
+  def allowed_ip?(request_ip, allowed)
+    return false if allowed.to_s.strip.empty?
+
+    IPAddr.new(allowed).include?(request_ip)
+  rescue IPAddr::InvalidAddressError
+    request_ip == allowed
+  end
+
+  def current_request_ip
+    request.ip
+  end
+
+  def safe_status_code(response)
+    if response.respond_to?(:code) && !response.code.to_s.strip.empty?
+      response.code.to_s
+    else
+      'unknown'
+    end
+  end
+
+  def safe_json_parse(body, context:)
+    JSON.parse(body)
+  rescue JSON::ParserError => e
+    LOGGER.warn("[#{context}] JSON parse error: #{e.class}: #{e.message}")
+    { 'raw' => body }
+  end
+
+  def language_label_for(query)
+    return 'unknown' if query.to_s.strip.empty?
+
+    query.to_s.ascii_only? ? 'latin' : 'non_latin'
+  end
+
+  def weather_api_key
+    ENV.fetch('OPENWEATHER_API_KEY')
+  end
+
+  def http_get_json(uri_string, phase:)
+    uri = URI(uri_string)
+    started_at = monotonic_now
+
+    response = Net::HTTP.get_response(uri)
+    status_code = safe_status_code(response)
+    duration = monotonic_now - started_at
+
+    WEATHER_API_REQUESTS_TOTAL.increment(
+      labels: { phase: phase, status_code: status_code }
+    )
+
+    WEATHER_API_DURATION_SECONDS.observe(
+      duration,
+      labels: { phase: phase, status_code: status_code }
+    )
+
+    safe_json_parse(response.body.to_s, context: "openweather:#{phase}")
+  rescue StandardError => e
+    WEATHER_API_ERRORS_TOTAL.increment(
+      labels: { phase: phase, error_class: e.class.name }
+    )
+    raise
+  end
+
+  def hash_password(password)
+    BCrypt::Password.create(password)
+  end
+
+  def password_matches?(password_hash, plaintext_password)
+    BCrypt::Password.new(password_hash) == plaintext_password
+  rescue BCrypt::Errors::InvalidHash
+    false
+  end
+
+  def find_user_for_login(identifier)
+    DB[:users].where(email: identifier).first ||
+      DB[:users].where(username: identifier).first
+  end
+
+  def get_weather_for(city, country = nil)
+    location_query =
+      if country.to_s.strip.empty?
+        city
+      else
+        "#{city},#{country}"
+      end
+
+    geocoding_url = "https://api.openweathermap.org/geo/1.0/direct?q=#{URI.encode_www_form_component(location_query)}&limit=1&appid=#{weather_api_key}"
+    geocoding_data = http_get_json(geocoding_url, phase: 'geocoding')
+
+    first_match = geocoding_data.is_a?(Array) ? geocoding_data.first : nil
+    raise Sinatra::NotFound, 'City not found' unless first_match
+
+    lat = first_match.fetch('lat')
+    lon = first_match.fetch('lon')
+
+    weather_url = "https://api.openweathermap.org/data/2.5/weather?lat=#{lat}&lon=#{lon}&appid=#{weather_api_key}&units=metric&lang=da"
+    weather_data = http_get_json(weather_url, phase: 'weather')
+
+    {
+      'location' => first_match,
+      'weather' => weather_data
+    }
+  end
+
+  def validate_registration_fields(payload)
+    username = payload['username'].to_s.strip
+    email = payload['email'].to_s.strip
+    password = payload['password'].to_s
+    password2 = payload.key?('password2') ? payload['password2'].to_s : password
+
+    errors = []
+    errors << 'username is required' if username.empty? && !request.path_info.start_with?('/api') && !request.media_type.to_s.include?('application/json')
+    errors << 'email is required' if email.empty?
+    errors << 'email is invalid' unless email.empty? || email.include?('@')
+    errors << 'password is required' if password.empty?
+    errors << 'password must be at least 8 characters' if !password.empty? && password.length < 8
+    errors << 'passwords do not match' if payload.key?('password2') && password != password2
+
+    errors
+  end
+
+  def json_request?
+    request.path_info.start_with?('/api/') || request.media_type.to_s.include?('application/json')
+  end
 end
 
 before do
-  env['metrics.request_started_at'] = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+  env['metrics.started_at'] = monotonic_now
 
-  if session[:user_id] && !['/change-password', '/logout', '/api/logout'].include?(request.path_info)
+  if session[:user_id] && !['/change-password', '/logout', '/api/logout', '/api/change-password'].include?(request.path_info)
     user = DB[:users].where(id: session[:user_id]).select(:password_reset_required).first
-    redirect '/change-password' if user && user[:password_reset_required] == 1
+    redirect '/change-password' if user && user[:password_reset_required] == 1 && !request.path_info.start_with?('/api/')
   end
 end
 
-def metrics_path_label(env)
-  route = env['sinatra.route']
-  route ? route.split(' ', 2).last : 'unknown'
-end
-
 after do
-  next if request.path_info == '/metrics'
+  next if skip_http_metrics?(env)
 
-  started_at = env['metrics.request_started_at']
-  next unless started_at
+  status_code = response.status.to_i.to_s
+  duration = monotonic_now - env.fetch('metrics.started_at', monotonic_now)
 
-  duration = Process.clock_gettime(Process::CLOCK_MONOTONIC) - started_at
-  path_label = metrics_path_label(env)
+  labels = {
+    method: request.request_method,
+    path: metrics_path_label(env),
+    status_code: status_code
+  }
 
-  HTTP_REQUESTS_TOTAL.increment(
-    labels: {
-      method: request.request_method,
-      path: path_label,
-      status: response.status.to_s
-    }
-  )
-
-  HTTP_REQUEST_DURATION_SECONDS.observe(
-    duration,
-    labels: {
-      method: request.request_method,
-      path: path_label,
-      status: response.status.to_s
-    }
-  )
+  HTTP_REQUESTS_TOTAL.increment(labels: labels)
+  HTTP_REQUEST_DURATION_SECONDS.observe(duration, labels: labels)
 end
 
 error do
-  HTTP_REQUEST_EXCEPTIONS_TOTAL.increment(
-    labels: { path: metrics_path_label(env) }
-  )
-  env['sinatra.error']
+  err = env['sinatra.error']
+  path = metrics_path_label(env)
+
+  unless request.path_info == '/metrics'
+    HTTP_REQUEST_ERRORS_TOTAL.increment(
+      labels: {
+        method: request.request_method,
+        path: path,
+        error_class: err.class.name
+      }
+    )
+  end
+
+  LOGGER.error("#{err.class}: #{err.message}") if err
+
+  if json_request?
+    content_type :json
+    status 500
+    json error: 'internal_server_error'
+  else
+    content_type 'text/plain'
+    status 500
+    'Internal Server Error'
+  end
+end
+
+get '/health' do
+  json status: 'ok'
+end
+
+get '/metrics' do
+  halt 403, 'Forbidden' unless allowed_ip?(current_request_ip, ENV['MONITORING_IP'].to_s.strip)
+
+  content_type 'text/plain; version=0.0.4; charset=utf-8'
+  Prometheus::Client::Formats::Text.marshal(PROM_REGISTRY)
 end
 
 ###############
-# VIEWS
+# HTML ROUTES
 ###############
 
 get '/' do
-  query    = params[:query]
+  query = params[:query]
   language = params[:language] || 'en'
 
   if query.nil?
     erb :home
   else
-    search_results = search_pages_query(language, query)
-    result_label = search_results.empty? ? 'miss' : 'hit'
+    started_at = monotonic_now
+    dataset = DB[:pages]
+    dataset = dataset.where(language: language)
+    dataset = dataset.where(Sequel.ilike(:title, "%#{query}%") | Sequel.ilike(:content, "%#{query}%")) unless query.to_s.strip.empty?
+    results = dataset.select(:title, :url, :language, :last_updated, :content).all
+    hit = results.empty? ? 'miss' : 'hit'
+    duration = monotonic_now - started_at
 
-    SEARCH_QUERIES_TOTAL.increment(
-      labels: { language: language, result: result_label }
-    )
+    SEARCH_QUERIES_TOTAL.increment(labels: { language: language_label_for(query), hit: hit })
+    SEARCH_DURATION_SECONDS.observe(duration, labels: { language: language_label_for(query), hit: hit })
 
-    SEARCH_RESULT_COUNT.observe(
-      search_results.length,
-      labels: { language: language }
-    )
-
-    erb :search, locals: { search_results: search_results, query: query }
+    erb :search, locals: { search_results: results, query: query }
   end
 end
 
@@ -199,117 +382,83 @@ get '/login' do
   erb :login, locals: { error: nil }
 end
 
+post '/login' do
+  payload = request_payload
+  identifier = payload['email'].to_s.strip
+  identifier = payload['username'].to_s.strip if identifier.empty?
+  password = payload['password'].to_s
+
+  user = find_user_for_login(identifier)
+
+  if user && password_matches?(user[:password], password)
+    LOGIN_ATTEMPTS_TOTAL.increment(labels: { result: 'success' })
+    session[:user_id] = user[:id]
+    session[:username] = user[:username] if user[:username]
+
+    if request.media_type.to_s.include?('application/json')
+      status 200
+      json message: 'login ok'
+    else
+      redirect '/'
+    end
+  else
+    LOGIN_ATTEMPTS_TOTAL.increment(labels: { result: 'failure' })
+
+    if request.media_type.to_s.include?('application/json')
+      halt 401, json(error: 'invalid_credentials')
+    else
+      status 401
+      erb :login, locals: { error: 'Invalid credentials' }
+    end
+  end
+end
+
 get '/register' do
   erb :register, locals: { error: nil }
 end
 
-get '/api/docs' do
-  spec_url = '/api-docs/openapi.yaml'
-  erb :openapi, locals: { spec_url: spec_url }, layout: false
-end
-
-get '/api/docs/openapi.yaml' do
-  content_type 'text/yaml'
-  send_file File.join(settings.root, 'OpenAPI', 'OpenAPI.yaml')
-end
-
-def allowed_metrics_request?(request)
-  allowed = ENV['MONITORING_IP'].to_s.strip
-  return false if allowed.empty?
-
-  request.env['REMOTE_ADDR'] == allowed ||
-    request.env['HTTP_X_FORWARDED_FOR']&.start_with?(allowed)
-end
-
-get '/metrics' do
-  halt 403, 'Forbidden' unless allowed_metrics_request?(request)
-  content_type 'text/plain; version=0.0.4; charset=utf-8'
-  Prometheus::Client::Formats::Text.marshal(PROM_REGISTRY)
-end
-
-###############
-# SHARED LOGIC
-###############
-
-def get_user_id(username)
-  user = DB[:users].where(username: username).select(:id).first
-  user ? user[:id] : nil
-end
-
-def search_pages_query(language, query)
-  return [] if query.to_s.strip.empty?
-
-  # SQLite doesn't support full-text search with @@ operator
-  # Use simple LIKE search instead for SQLite compatibility
-  search_term = "%#{query}%"
-  DB[:pages]
-    .where(language: language)
-    .where(Sequel.like(:content, search_term) | Sequel.like(:title, search_term))
-    .select(:title, :url, :language, :last_updated, :content)
-    .all
-end
-
-def authenticate_user(username, password)
-  user = DB[:users].where(username: username).first
-  return [nil, 'Invalid credentials'] if user.nil?
-  return [nil, 'Invalid credentials'] unless password_matches?(user[:password], password)
-
-  [user, nil]
-end
-
-def validate_registration_fields(params)
-  return 'You have to enter a username' if params[:username].nil? || params[:username].empty?
-  return 'Valid email address needed' if params[:email].nil? || !params[:email].include?('@')
-  return 'You have to enter a password' if params[:password].to_s.strip.empty?
-  return 'The two passwords do not match' if params[:password] != params[:password2]
-
-  nil
-end
-
-def validate_registration(params)
-  error = validate_registration_fields(params)
-  return error if error
-
-  return 'The username already exists' if get_user_id(params[:username])
-
-  'The email already exists' if DB[:users].where(email: params[:email]).first
-end
-
-def register_user(params)
-  hashed_pw = hash_password(params[:password])
-  DB[:users].insert(username: params[:username], email: params[:email], password: hashed_pw)
-  session[:user_id] = get_user_id(params[:username])
-  session[:username] = params[:username]
-end
-
-###############
-# HTML ROUTES
-###############
-
-post '/login' do
-  user, error = authenticate_user(params[:username], params[:password])
-
-  if error
-    USER_LOGIN_FAILURES_TOTAL.increment
-    erb :login, locals: { error: error }
-  else
-    USER_LOGINS_TOTAL.increment
-    session[:user_id] = user[:id]
-    session[:username] = user[:username]
-    redirect '/'
-  end
-end
-
 post '/register' do
-  redirect '/' if session[:user_id]
+  payload = request_payload
+  errors = validate_registration_fields(payload)
 
-  error = validate_registration(params)
+  email = payload['email'].to_s.strip
+  username = payload['username'].to_s.strip
 
-  if error
-    erb :register, locals: { error: error }
+  if !email.empty? && DB[:users].where(email: email).first
+    errors << 'email already exists'
+  end
+
+  if !username.empty? && DB[:users].where(username: username).first
+    errors << 'username already exists'
+  end
+
+  unless errors.empty?
+    REGISTRATIONS_TOTAL.increment(labels: { result: 'failure' })
+
+    if request.media_type.to_s.include?('application/json')
+      halt 422, json(errors: errors)
+    else
+      status 422
+      return erb :register, locals: { error: errors.join(', ') }
+    end
+  end
+
+  insert_data = {
+    email: email,
+    password: hash_password(payload['password'].to_s)
+  }
+  insert_data[:username] = username unless username.empty?
+
+  user_id = DB[:users].insert(insert_data)
+
+  REGISTRATIONS_TOTAL.increment(labels: { result: 'success' })
+  session[:user_id] = user_id
+  session[:username] = username unless username.empty?
+
+  if request.media_type.to_s.include?('application/json')
+    status 201
+    json message: 'registered'
   else
-    register_user(params)
-    USER_REGISTRATIONS_TOTAL.increment
     redirect '/'
   end
 end
@@ -325,37 +474,60 @@ post '/change-password' do
   user = DB[:users].where(id: session[:user_id]).first
   halt 403 unless user
 
-  unless password_matches?(user[:password], params[:current_password])
-    PASSWORD_CHANGE_FAILURES_TOTAL.increment(labels: { reason: 'wrong_current' })
+  unless password_matches?(user[:password], params[:current_password].to_s)
+    PASSWORD_CHANGES_TOTAL.increment(labels: { result: 'failure' })
     return erb :change_password, locals: { error: 'Current password is incorrect' }
   end
 
-  if params[:new_password].to_s.strip.empty?
-    PASSWORD_CHANGE_FAILURES_TOTAL.increment(labels: { reason: 'empty_new' })
-    return erb :change_password, locals: { error: 'New password cannot be empty' }
+  if params[:new_password].to_s.length < 8
+    PASSWORD_CHANGES_TOTAL.increment(labels: { result: 'failure' })
+    return erb :change_password, locals: { error: 'New password must be at least 8 characters' }
   end
 
-  if params[:new_password] != params[:new_password2]
-    PASSWORD_CHANGE_FAILURES_TOTAL.increment(labels: { reason: 'mismatch' })
+  if params[:new_password].to_s != params[:new_password2].to_s
+    PASSWORD_CHANGES_TOTAL.increment(labels: { result: 'failure' })
     return erb :change_password, locals: { error: 'New passwords do not match' }
   end
 
-  hashed = hash_password(params[:new_password])
-  DB[:users].where(id: session[:user_id]).update(password: hashed, password_reset_required: 0)
-  PASSWORD_CHANGES_TOTAL.increment
+  DB[:users].where(id: session[:user_id]).update(
+    password: hash_password(params[:new_password].to_s),
+    password_reset_required: 0
+  )
 
+  PASSWORD_CHANGES_TOTAL.increment(labels: { result: 'success' })
   redirect '/'
 end
 
 post '/logout' do
   session.delete(:user_id)
+  session.delete(:username)
   session[:flash] = 'You were logged out'
   redirect '/'
 end
 
+get '/weather' do
+  city = params.fetch(:city, 'København').to_s.strip
+  country = params.fetch(:country, '').to_s.strip
+
+  payload = get_weather_for(city, country)
+  @loc = payload['location']
+  @w = payload['weather']
+  erb :weather
+end
+
 ###############
-# API ENDPOINTS
+# API ROUTES
 ###############
+
+get '/api/docs' do
+  spec_url = '/api/docs/openapi.yaml'
+  erb :openapi, locals: { spec_url: spec_url }, layout: false
+end
+
+get '/api/docs/openapi.yaml' do
+  content_type 'text/yaml'
+  send_file File.join(settings.root, 'OpenAPI', 'OpenAPI.yaml')
+end
 
 get '/api/users' do
   content_type :json
@@ -363,166 +535,123 @@ get '/api/users' do
 end
 
 get '/api/search' do
-  content_type :json
-  query    = params[:query]
-  language = params[:language] || 'en'
-  search_results = query ? search_pages_query(language, query) : []
+  query = params['query'].to_s.strip
+  language = params['language'].to_s.strip
+  language = 'en' if language.empty?
 
-  unless query.nil?
-    result_label = search_results.empty? ? 'miss' : 'hit'
+  started_at = monotonic_now
 
-    SEARCH_QUERIES_TOTAL.increment(
-      labels: { language: language, result: result_label }
-    )
+  dataset = DB[:pages]
+  dataset = dataset.where(language: language) unless language.empty?
+  dataset = dataset.where(Sequel.ilike(:title, "%#{query}%") | Sequel.ilike(:content, "%#{query}%")) unless query.empty?
 
-    SEARCH_RESULT_COUNT.observe(
-      search_results.length,
-      labels: { language: language }
-    )
-  end
+  results = dataset.select(:title, :url, :language, :last_updated, :content).all
+  hit = results.empty? ? 'miss' : 'hit'
+  duration = monotonic_now - started_at
 
-  { message: 'Search endpoint hit', results: search_results }.to_json
+  SEARCH_QUERIES_TOTAL.increment(labels: { language: language_label_for(query), hit: hit })
+  SEARCH_DURATION_SECONDS.observe(duration, labels: { language: language_label_for(query), hit: hit })
+
+  json results: results
 end
 
 post '/api/login' do
-  content_type :json
-  user, error = authenticate_user(params[:username], params[:password])
+  payload = request_payload
+  identifier = payload['email'].to_s.strip
+  identifier = payload['username'].to_s.strip if identifier.empty?
+  password = payload['password'].to_s
 
-  if error
-    USER_LOGIN_FAILURES_TOTAL.increment
-    halt 401, { error: error }.to_json
+  user = find_user_for_login(identifier)
+
+  if user && password_matches?(user[:password], password)
+    LOGIN_ATTEMPTS_TOTAL.increment(labels: { result: 'success' })
+    session[:user_id] = user[:id]
+    session[:username] = user[:username] if user[:username]
+    status 200
+    json message: 'login ok'
+  else
+    LOGIN_ATTEMPTS_TOTAL.increment(labels: { result: 'failure' })
+    halt 401, json(error: 'invalid_credentials')
   end
-
-  USER_LOGINS_TOTAL.increment
-  session[:user_id] = user[:id]
-  session[:username] = user[:username]
-  { message: 'Login successful', username: user[:username] }.to_json
 end
 
 post '/api/register' do
-  content_type :json
-  halt 400, { error: 'Already logged in' }.to_json if session[:user_id]
+  payload = request_payload
+  errors = validate_registration_fields(payload)
 
-  error = validate_registration(params)
+  email = payload['email'].to_s.strip
+  username = payload['username'].to_s.strip
 
-  if error
-    halt 400, { error: error }.to_json
+  if !email.empty? && DB[:users].where(email: email).first
+    errors << 'email already exists'
   end
 
-  register_user(params)
-  USER_REGISTRATIONS_TOTAL.increment
-  { message: 'Registration successful', username: params[:username] }.to_json
+  if !username.empty? && DB[:users].where(username: username).first
+    errors << 'username already exists'
+  end
+
+  unless errors.empty?
+    REGISTRATIONS_TOTAL.increment(labels: { result: 'failure' })
+    halt 422, json(errors: errors)
+  end
+
+  insert_data = {
+    email: email,
+    password: hash_password(payload['password'].to_s)
+  }
+  insert_data[:username] = username unless username.empty?
+
+  user_id = DB[:users].insert(insert_data)
+
+  REGISTRATIONS_TOTAL.increment(labels: { result: 'success' })
+  session[:user_id] = user_id
+  session[:username] = username unless username.empty?
+
+  status 201
+  json message: 'registered'
 end
 
 post '/api/logout' do
-  content_type :json
   session.delete(:user_id)
-  { message: 'Logout successful' }.to_json
+  session.delete(:username)
+  json message: 'logout ok'
 end
 
-###############
-# SECURITY
-###############
+post '/api/change-password' do
+  halt 401, json(error: 'not_authenticated') unless session[:user_id]
 
-def hash_password(password)
-  BCrypt::Password.create(password)
-end
+  payload = request_payload
+  old_password = payload['old_password'].to_s
+  old_password = payload['current_password'].to_s if old_password.empty?
+  new_password = payload['new_password'].to_s
 
-def password_matches?(password_hash, plaintext_password)
-  BCrypt::Password.new(password_hash) == plaintext_password
-end
+  user = DB[:users].where(id: session[:user_id]).first
 
-###############
-# WEATHER
-###############
-
-def fetch_geocoding(location_query, api_key)
-  uri = URI("https://api.openweathermap.org/geo/1.0/direct?q=#{URI.encode_www_form_component(location_query)}&limit=1&appid=#{api_key}")
-  http_get_json(uri)
-end
-
-def fetch_weather(latitude, longitude, api_key)
-  uri = URI("https://api.openweathermap.org/data/2.5/weather?lat=#{latitude}&lon=#{longitude}&units=metric&lang=da&appid=#{api_key}")
-  http_get_json(uri)
-end
-
-def resolve_location(location_query, api_key)
-  status, result = fetch_geocoding(location_query, api_key)
-  return [status, { 'error' => 'geocoding failed', 'details' => result }] unless status == 200
-  return [404, { 'error' => 'no location found', 'query' => location_query }] unless result.is_a?(Array) && result.any?
-
-  location = result.first
-  lat = location['lat']
-  lon = location['lon']
-  return [502, { 'error' => 'no lat/lon', 'location' => location }] if lat.nil? || lon.nil?
-
-  [200, location]
-end
-
-# Weather function - gets lat/lon for city/country and then gets weather for that location
-def get_weather_for(city:, country:, api_key:)
-  started_at = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-
-  location_query = country.strip.empty? ? city : "#{city},#{country}"
-
-  status, location = resolve_location(location_query, api_key)
-  unless status == 200
-    WEATHER_API_REQUESTS_TOTAL.increment(labels: { status: status.to_s })
-    WEATHER_API_REQUEST_DURATION_SECONDS.observe(
-      Process.clock_gettime(Process::CLOCK_MONOTONIC) - started_at,
-      labels: { status: status.to_s }
-    )
-    return [status, location]
+  unless user && password_matches?(user[:password], old_password)
+    PASSWORD_CHANGES_TOTAL.increment(labels: { result: 'failure' })
+    halt 401, json(error: 'invalid_credentials')
   end
 
-  weather_status, weather_data = fetch_weather(location['lat'], location['lon'], api_key)
-  unless weather_status == 200
-    WEATHER_API_REQUESTS_TOTAL.increment(labels: { status: weather_status.to_s })
-    WEATHER_API_REQUEST_DURATION_SECONDS.observe(
-      Process.clock_gettime(Process::CLOCK_MONOTONIC) - started_at,
-      labels: { status: weather_status.to_s }
-    )
-    return [weather_status, { 'error' => 'weather fetch failed', 'details' => weather_data }]
+  if new_password.length < 8
+    PASSWORD_CHANGES_TOTAL.increment(labels: { result: 'failure' })
+    halt 422, json(error: 'new_password_too_short')
   end
 
-  WEATHER_API_REQUESTS_TOTAL.increment(labels: { status: '200' })
-  WEATHER_API_REQUEST_DURATION_SECONDS.observe(
-    Process.clock_gettime(Process::CLOCK_MONOTONIC) - started_at,
-    labels: { status: '200' }
+  DB[:users].where(id: session[:user_id]).update(
+    password: hash_password(new_password),
+    password_reset_required: 0
   )
 
-  [200, { 'location' => location, 'weather' => weather_data }]
+  PASSWORD_CHANGES_TOTAL.increment(labels: { result: 'success' })
+  json message: 'password changed'
 end
 
-# Shows the weather page for a given city and country, using the OpenWeather API, with error handling
-# Example: /weather?city=København&country=DK
-get '/weather' do
-  api_key = ENV['OPENWEATHER_API_KEY'].to_s.strip
-  halt 500, 'Missing OPENWEATHER_API_KEY' if api_key.empty?
-
-  city    = params.fetch(:city, 'København').to_s.strip
-  country = params.fetch(:country, '').to_s.strip
-
-  status, payload = get_weather_for(city: city, country: country, api_key: api_key)
-  halt status, payload.to_json unless status == 200
-
-  @loc = payload['location']
-  @w   = payload['weather']
-  erb :weather
-end
-
-# Example: /api/weather?city=København&country=DK
-# Gets weather data for a given city within a country, using the OpenWeather API, with error handling and JSON response
 get '/api/weather' do
-  content_type :json
-  api_key = ENV['OPENWEATHER_API_KEY'].to_s.strip
-  halt 500, { error: 'Missing OPENWEATHER_API_KEY' }.to_json if api_key.empty?
+  city = params['city'].to_s.strip
+  country = params['country'].to_s.strip
 
-  city    = params.fetch(:city, 'København').to_s.strip
-  country = params.fetch(:country, '').to_s.strip
+  halt 422, json(error: 'city is required') if city.empty?
 
-  status, payload = get_weather_for(city: city, country: country, api_key: api_key)
-  halt status, payload.to_json unless status == 200
-
-  payload.to_json
+  payload = get_weather_for(city, country)
+  json payload
 end
