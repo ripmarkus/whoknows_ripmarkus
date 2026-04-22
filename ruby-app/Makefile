@@ -1,11 +1,14 @@
 # Makefile
-.PHONY: run install lint build up down help
+.PHONY: run install lint build up down help css
 
 run:
 	ruby app.rb
 
 install:
 	bundle install
+
+css:
+	bundle exec tailwindcss -i public/input.css -o public/output.css --watch
 
 lint:
 	bundle exec rubocop
@@ -21,6 +24,7 @@ down:
 
 help:
 	@echo "make run      - Run app locally (Ruby + SQLite)"
+	@echo "make css      - Run Tailwind CSS watcher in background"
 	@echo "make install  - Bundle install dependencies"
 	@echo "make lint     - Run RuboCop linter"
 	@echo "make build    - Build Docker image"

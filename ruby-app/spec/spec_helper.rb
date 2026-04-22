@@ -1,46 +1,57 @@
 # frozen_string_literal: true
 
-ENV['RACK_ENV'] = 'test'
-
 require 'rack/test'
 require 'rspec'
 require 'fileutils'
-require 'sqlite3'
+require 'sequel'
 
-TEST_DB_PATH = File.join(__dir__, '..', 'whoknows_test.db')
+# Database file in ruby-app directory
+TEST_DB_FILE = 'whoknows_test.db'
+TEST_DB_PATH = File.join(__dir__, '..', TEST_DB_FILE)
+
+ENV['RACK_ENV'] = 'test'
+# SQLite URL format - Sequel expects sqlite:// for relative paths
+# Use just the filename for relative path from where Sequel.connect is called
+ENV['DATABASE_URL'] = "sqlite://#{TEST_DB_FILE}"
 
 def setup_test_db
+  # Remove existing database file
   FileUtils.rm_f(TEST_DB_PATH)
-  db = SQLite3::Database.new(TEST_DB_PATH)
-  db.execute_batch(<<~SQL)
-    CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      username TEXT NOT NULL UNIQUE,
-      email TEXT NOT NULL UNIQUE,
-      password TEXT NOT NULL
-    );
-    CREATE TABLE IF NOT EXISTS pages (
-      title TEXT PRIMARY KEY UNIQUE,
-      url TEXT NOT NULL UNIQUE,
-      language TEXT NOT NULL CHECK(language IN ('en', 'da')) DEFAULT 'en',
-      last_updated TIMESTAMP,
-      content TEXT NOT NULL
-    );
-    INSERT INTO pages (title, url, language, last_updated, content)
-    VALUES ('Test Page', 'http://example.com', 'en', '2024-01-01', 'test content');
-  SQL
-  db.close
+  
+  # Create fresh database and tables - Sequel.sqlite() handles the file directly
+  db = Sequel.sqlite(TEST_DB_PATH)
+  
+  db.create_table(:users) do
+    primary_key :id
+    String :username, null: false, unique: true
+    String :email, null: false, unique: true
+    String :password, null: false
+    Integer :password_reset_required, null: false, default: 0
+  end
+
+  db.create_table(:pages) do
+    String :title, primary_key: true, unique: true
+    String :url, null: false, unique: true
+    String :language, null: false, default: 'en', check: Sequel.lit("language IN ('en', 'da')")
+    DateTime :last_updated
+    String :content, null: false, text: true
+  end
+
+  db[:pages].insert(
+    title: 'Test Page',
+    url: 'http://example.com',
+    language: 'en',
+    last_updated: '2024-01-01',
+    content: 'test content'
+  )
+  
+  db.disconnect
 end
 
+# Set up test database before loading app
 setup_test_db
 
 require_relative '../app'
-
-# Point app at test database
-$VERBOSE = nil
-Object.send(:remove_const, :DATABASE_PATH)
-DATABASE_PATH = TEST_DB_PATH
-$VERBOSE = true
 
 RSpec.configure do |config|
   config.include Rack::Test::Methods
@@ -50,7 +61,20 @@ RSpec.configure do |config|
   end
 
   config.before(:each) do
-    setup_test_db
+    clear_cookies
+    
+    # Reset database for each test
+    db = Sequel.sqlite(TEST_DB_PATH)
+    db.run('DELETE FROM pages')
+    db.run('DELETE FROM users')
+    db[:pages].insert(
+      title: 'Test Page',
+      url: 'http://example.com',
+      language: 'en',
+      last_updated: '2024-01-01',
+      content: 'test content'
+    )
+    db.disconnect
   end
 
   config.after(:suite) do

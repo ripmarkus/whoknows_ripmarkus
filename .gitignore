@@ -66,6 +66,9 @@ _yardoc/
 doc/
 rdoc/
 
+# Generated CSS output
+ruby-app/public/output.css
+
 # Ruby debugging
 .byebug_history
 .pry_history
