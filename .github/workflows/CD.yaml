@@ -22,11 +22,22 @@ jobs:
       - name: Deploy app
         run: |
           ssh -i ~/.ssh/homeserver -o StrictHostKeyChecking=no "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}" <<'EOF'
-          set -eu
+          set -eux
 
           echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
 
           cd /opt/docker/devops/whoknows_ripmarkus/ruby-app
+
+          BACKUP_DIR="/opt/backups/whoknows"
+          TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+          mkdir -p "$BACKUP_DIR"
+
+          if docker compose ps --services --status running | grep -q '^db$'; then
+            docker compose exec -T db pg_dump -U whoknows --format=custom whoknows > "$BACKUP_DIR/pre_deploy_${TIMESTAMP}.dump"
+            ls -t "$BACKUP_DIR"/*.dump | tail -n +11 | xargs -r rm
+          else
+            echo "db is not running, skipping backup"
+          fi
 
           docker compose pull app
           docker compose up -d --no-deps app
