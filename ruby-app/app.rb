@@ -228,7 +228,7 @@ helpers do
   end
 
   def weather_api_key
-    ENV.fetch('OPENWEATHER_API_KEY')
+    ENV['OPENWEATHER_API_KEY'].to_s.strip
   end
 
   def http_get_json(uri_string, phase:)
