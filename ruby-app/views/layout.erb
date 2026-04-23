@@ -9,15 +9,19 @@
 </head>
 <body>
 <div class="page">
-  <div class="navigation">
-    <nav>
-      <h1><a id="nav-logo" href="/">¿Who Knows?</a></h1>
-      <% if session[:user_id] %>
-        <a id="nav-logout" href="/logout">Log out [<%= session[:username] %>]</a>
-      <% else %>
-        <a id="nav-login" href="/login">Log in</a>
-        <a id="nav-register" href="/register">Register</a>
-      <% end %>
+  <div class="border-b border-zinc-200 dark:border-zinc-800">
+    <nav class="max-w-2xl mx-auto px-4 sm:px-5 py-4 flex items-center justify-between gap-4">
+      <h1 class="font-serif text-xl">
+        <a id="nav-logo" href="/" class="hover:text-zinc-600 dark:hover:text-zinc-400 transition-colors">¿Who Knows?</a>
+      </h1>
+      <div class="flex items-center gap-4 text-sm">
+        <% if session[:user_id] %>
+          <a id="nav-logout" href="/logout" class="text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors">Log out [<%= session[:username] %>]</a>
+        <% else %>
+          <a id="nav-login" href="/login" class="text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors">Log in</a>
+          <a id="nav-register" href="/register" class="text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors">Register</a>
+        <% end %>
+      </div>
     </nav>
   </div>
 
