@@ -40,5 +40,5 @@ jobs:
           fi
 
           docker compose pull web
-          docker compose up -d --no-deps app
+          docker compose up -d --no-deps web
           EOF
