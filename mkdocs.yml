@@ -9,23 +9,22 @@ docs_dir: documentation
 theme:
   name: material
   palette:
-    - scheme: default
-      primary: indigo
-      accent: indigo
-      toggle:
-        icon: material/brightness-7
-        name: Switch to dark mode
-    - scheme: slate
-      primary: indigo
-      accent: indigo
-      toggle:
-        icon: material/brightness-4
-        name: Switch to light mode
+    scheme: slate
+    primary: black
+    accent: deep purple
+  font:
+    text: Inter
+    code: JetBrains Mono
   features:
     - navigation.sections
+    - navigation.instant
+    - navigation.tracking
     - navigation.top
+    - toc.follow
     - search.highlight
+    - search.suggest
     - content.action.edit
+    - content.code.copy
 
 nav:
   - Home: README.md
