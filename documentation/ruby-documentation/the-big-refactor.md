@@ -44,12 +44,3 @@ Two files under `routes/` replaced the inline route definitions:
 
 ---
 
-## Step 4: Fixed a Docker permissions bug
-
-The `compose.yaml` bind-mounts `./logs` into the container at `/app/logs`. The directory did not exist on the host, and a prior container run had created it as root, making it unwritable by `appuser`. We fixed the Dockerfile to pre-create the directory and then updated local permissions to unblock the container startup.
-
----
-
-## Commit breakdown
-
-Every file was committed individually, one commit per file created and one final commit per change to `app.rb`.
