@@ -189,14 +189,13 @@ helpers do
         rank_fts = Sequel.function(:ts_rank, :search_vector, ts_query)
         dataset = dataset.where { search_vector.op('@@', ts_query) }
         dataset = dataset.select_append(rank_title.as(:rank_title), rank_fts.as(:rank_fts))
-        dataset = dataset.order(Sequel.desc(:rank_title), Sequel.desc(:rank_fts))
+        dataset = dataset.order(Sequel.desc(rank_title), Sequel.desc(rank_fts))
       else
         like_query = "%#{query.downcase}%"
         title_match = Sequel.function(:lower, :title).like(like_query)
         content_match = Sequel.function(:lower, :content).like(like_query)
         dataset = dataset.where(Sequel.|(title_match, content_match))
-        dataset = dataset.select_append(rank_title.as(:rank_title))
-        dataset = dataset.order(Sequel.desc(:rank_title))
+        dataset = dataset.order(Sequel.desc(rank_title))
       end
       dataset
     end
@@ -422,7 +421,9 @@ get '/' do
     dataset = DB[:pages]
     dataset = dataset.where(language: language)
       dataset = apply_search(dataset, query, language) unless query.to_s.strip.empty?
+    
     results = dataset.select(:title, :url, :language, :last_updated, :content).all
+    
     hit = results.empty? ? 'miss' : 'hit'
     duration = monotonic_now - started_at
 
@@ -598,10 +599,10 @@ get '/api/search' do
   dataset = DB[:pages]
   dataset = dataset.where(language: language) unless language.empty?
     dataset = apply_search(dataset, query, language) unless query.empty?
+  
   results = dataset.select(:title, :url, :language, :last_updated, :content).all
-  # Filter out any extra fields (e.g., rank_title, rank_fts) for API output
-  filtered_results = results.map { |row| row.slice(:title, :url, :language, :last_updated, :content) }
-  hit = filtered_results.empty? ? 'miss' : 'hit'
+  
+  hit = results.empty? ? 'miss' : 'hit'
   duration = monotonic_now - started_at
 
   # Ensure metrics use the correct path label for /api/search
@@ -609,7 +610,7 @@ get '/api/search' do
   SEARCH_QUERIES_TOTAL.increment(labels: { language: language_label_for(query), hit: hit })
   SEARCH_DURATION_SECONDS.observe(duration, labels: { language: language_label_for(query), hit: hit })
 
-  json results: filtered_results
+  json results: results
 end
 
 post '/api/login' do
