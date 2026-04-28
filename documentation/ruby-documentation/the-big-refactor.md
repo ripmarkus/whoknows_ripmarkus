@@ -6,17 +6,7 @@ We modularized `app.rb`, which had grown to 688 lines mixing concerns: Prometheu
 
 ---
 
-## Step 1: Created a chore branch
-
-We branched off the latest `main` after pulling a concurrent MkDocs push from a teammate.
-
-```
-chore/modularize-app
-```
-
----
-
-## Step 2: Extracted logic into focused modules
+## Step 1: Extracted logic into focused modules
 
 Each concern got its own directory with a `.rb` file and a `README.md`.
 
@@ -32,7 +22,7 @@ All modules are included into the Sinatra app via `helpers do; include ModuleNam
 
 ---
 
-## Step 3: Moved routes into a routes folder
+## Step 2: Moved routes into a routes folder
 
 Two files under `routes/` replaced the inline route definitions:
 
@@ -41,7 +31,7 @@ Two files under `routes/` replaced the inline route definitions:
 
 ---
 
-## Step 4: What app.rb looks like now
+## Step 3: What app.rb looks like now
 
 `app.rb` is now 97 lines and only contains:
 
@@ -54,7 +44,7 @@ Two files under `routes/` replaced the inline route definitions:
 
 ---
 
-## Step 5: Fixed a Docker permissions bug
+## Step 4: Fixed a Docker permissions bug
 
 The `compose.yaml` bind-mounts `./logs` into the container at `/app/logs`. The directory did not exist on the host, and a prior container run had created it as root, making it unwritable by `appuser`. We fixed the Dockerfile to pre-create the directory and then updated local permissions to unblock the container startup.
 
