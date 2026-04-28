@@ -33,3 +33,23 @@ When you've added a new feature, please add solid documentation on what you've m
 
 Add it to the issues tab!
 
+# Documentation Site (MkDocs)
+
+The `documentation/` folder is published as a static site via [MkDocs Material](https://squidfunk.github.io/mkdocs-material/) and automatically deployed to GitHub Pages on every push to `main`.
+
+**Run locally:**
+
+```bash
+pip install mkdocs-material
+mkdocs serve          # live-reload preview at http://127.0.0.1:8000
+```
+
+**Add a new page:**
+
+1. Drop a `.md` file into the relevant subfolder under `documentation/`.
+2. Add an entry for it under the correct section in `mkdocs.yml` → `nav`.
+3. Push to `main` — GitHub Actions deploys automatically.
+
+**Deployment:** GitHub Pages at `https://ripmarkus.github.io/whoknows_ripmarkus/`
+(Enable Pages in repo Settings → Pages → Source: `gh-pages` branch.)
+

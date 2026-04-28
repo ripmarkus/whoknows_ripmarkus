@@ -1,0 +1,61 @@
+site_name: WhoKnows Docs
+site_description: Internal documentation for the WhoKnows project
+repo_url: https://github.com/ripmarkus/whoknows_ripmarkus
+repo_name: ripmarkus/whoknows_ripmarkus
+edit_uri: edit/main/documentation/
+
+docs_dir: documentation
+
+theme:
+  name: material
+  palette:
+    scheme: slate
+    primary: black
+    accent: deep purple
+  font:
+    text: Inter
+    code: JetBrains Mono
+  features:
+    - navigation.sections
+    - navigation.instant
+    - navigation.tracking
+    - navigation.top
+    - toc.follow
+    - search.highlight
+    - search.suggest
+    - content.action.edit
+    - content.code.copy
+
+nav:
+  - Home: README.md
+  - Getting Started:
+      - Local Setup: development/init_pages and init_db.md
+      - Branching Strategy: development/branching-strategy.md
+      - Contributing: development/contributions.md
+  - Architecture:
+      - Dependency Graph: architecture/dependency-graph.md
+      - OpenAPI Contracts: architecture/open-api.md
+  - DevOps:
+      - CI/CD Pipeline: devops/ci-cd.md
+      - Docker: devops/docker.md
+      - DevOps Philosophy: devops/devops-and-us.md
+      - Code Review (CodeRabbit): devops/coderabbit-review.md
+  - Database:
+      - Postgres Migrations: database/postgres-migration.md
+  - Testing:
+      - Testing Overview: testing/testing.md
+      - Postman Monitoring: testing/postman-monitoring.md
+  - Runbooks & Incidents:
+      - Post-Mortem: incidents/post-mortem-shuresm57.md
+      - Python App Issues: incidents/problems-with-python-app.md
+      - Ruby App Issues: incidents/problems-with-ruby-app.md
+      - Security Breach: incidents/security-breach.md
+  - Ruby App:
+      - API Docs: ruby-documentation/api-docs.md
+      - Database Config: ruby-documentation/db-config.md
+      - Security: ruby-documentation/security-docs.md
+  - Reports:
+      - KPI Report: reports/KPI-report.md
+      - Mandatory 1: reports/mandatory-1/mandatory-1.md
+  - Reference:
+      - Useful Links: reference/useful-links.md
