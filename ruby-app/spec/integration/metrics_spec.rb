@@ -52,7 +52,7 @@ RSpec.describe 'Metrics endpoint and instrumentation' do
       before_body,
       'search_queries_total',
       language: 'latin',
-      hit: 'miss'
+      hit: 'hit'
     )
 
     get '/api/search', { query: 'test' }
@@ -62,7 +62,7 @@ RSpec.describe 'Metrics endpoint and instrumentation' do
       after_body,
       'search_queries_total',
       language: 'latin',
-      hit: 'miss'
+      hit: 'hit'
     )
 
     expect(after_value).to be > before_value

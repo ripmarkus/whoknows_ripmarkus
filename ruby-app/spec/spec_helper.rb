@@ -13,6 +13,7 @@ ENV['RACK_ENV'] = 'test'
 # SQLite URL format - Sequel expects sqlite:// for relative paths
 # Use just the filename for relative path from where Sequel.connect is called
 ENV['DATABASE_URL'] = "sqlite://#{TEST_DB_FILE}"
+ENV['MONITORING_IP'] = '127.0.0.1'
 
 def setup_test_db
   # Remove existing database file
