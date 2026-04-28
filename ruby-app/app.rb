@@ -371,7 +371,16 @@ get '/' do
     started_at = monotonic_now
     dataset = DB[:pages]
     dataset = dataset.where(language: language)
-    dataset = dataset.where(Sequel.ilike(:title, "%#{query}%") | Sequel.ilike(:content, "%#{query}%")) unless query.to_s.strip.empty?
+    unless query.to_s.strip.empty?
+      # Brug full-text search og prioriter eksakte matches
+      ts_query = Sequel.function(:plainto_tsquery, 'english', query)
+      # Rank: eksakt match på title > full-text match > ingen
+      rank_title = Sequel.case({true => 2}, 0, Sequel.function(:lower, :title) => query.downcase)
+      rank_fts = Sequel.function(:ts_rank, :search_vector, ts_query)
+      dataset = dataset.where{ search_vector.op('@@', ts_query) }
+      dataset = dataset.select_append(rank_title.as(:rank_title), rank_fts.as(:rank_fts))
+      dataset = dataset.order(Sequel.desc(:rank_title), Sequel.desc(:rank_fts))
+    end
     results = dataset.select(:title, :url, :language, :last_updated, :content).all
     hit = results.empty? ? 'miss' : 'hit'
     duration = monotonic_now - started_at
@@ -547,8 +556,15 @@ get '/api/search' do
 
   dataset = DB[:pages]
   dataset = dataset.where(language: language) unless language.empty?
+  unless query.empty?
+    ts_query = Sequel.function(:plainto_tsquery, 'english', query)
+    rank_title = Sequel.case({true => 2}, 0, Sequel.function(:lower, :title) => query.downcase)
+    rank_fts = Sequel.function(:ts_rank, :search_vector, ts_query)
+    dataset = dataset.where{ search_vector.op('@@', ts_query) }
+    dataset = dataset.select_append(rank_title.as(:rank_title), rank_fts.as(:rank_fts))
+    dataset = dataset.order(Sequel.desc(:rank_title), Sequel.desc(:rank_fts))
+  end
   results = dataset.select(:title, :url, :language, :last_updated, :content).all
-  results = results.select { |row| row[:title].to_s.include?(query) } unless query.empty?
   hit = results.empty? ? 'miss' : 'hit'
   duration = monotonic_now - started_at
 
