@@ -1,6 +1,9 @@
 # WhoKnows Application - Multi-language Repository
 # Ruby + Python applications with shared patterns
 
+# === MkDocs ===
+site/
+
 # === Common Patterns ===
 # Environment and secrets
 .env
