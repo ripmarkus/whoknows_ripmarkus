@@ -8,6 +8,10 @@ on:
       - 'documentation/**'
       - 'mkdocs.yml'
 
+concurrency:
+  group: docs-deploy
+  cancel-in-progress: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
