@@ -565,13 +565,15 @@ get '/api/search' do
     dataset = dataset.order(Sequel.desc(:rank_title), Sequel.desc(:rank_fts))
   end
   results = dataset.select(:title, :url, :language, :last_updated, :content).all
-  hit = results.empty? ? 'miss' : 'hit'
+  # Filter out any extra fields (e.g., rank_title, rank_fts) for API output
+  filtered_results = results.map { |row| row.slice(:title, :url, :language, :last_updated, :content) }
+  hit = filtered_results.empty? ? 'miss' : 'hit'
   duration = monotonic_now - started_at
 
   SEARCH_QUERIES_TOTAL.increment(labels: { language: language_label_for(query), hit: hit })
   SEARCH_DURATION_SECONDS.observe(duration, labels: { language: language_label_for(query), hit: hit })
 
-  json results: results
+  json results: filtered_results
 end
 
 post '/api/login' do
