@@ -146,10 +146,60 @@ def validate_registration_fields(payload)
   nil
 end
 
+# FIX 3: Extracted shared search logic into a helper to avoid duplication
+# between the HTML route (GET /) and the API route (GET /api/search).
+# FIX 1: Added Postgres/SQLite fallback so tests running against SQLite don't crash.
+# FIX 2: ORDER BY uses expressions directly instead of aliases, so the order
+#         is not lost when .select() later drops the appended rank columns.
+def apply_search_filters(dataset, query, language)
+  lang_map = { 'en' => 'english', 'da' => 'danish' }
+  pg_language = lang_map[language] || 'english'
+
+  rank_title = Sequel.case({ true => 2 }, 0, Sequel.function(:lower, :title) => query.downcase)
+
+  if DB.database_type == :postgres
+    ts_query = Sequel.function(:plainto_tsquery, pg_language, query)
+    rank_fts = Sequel.function(:ts_rank, :search_vector, ts_query)
+    dataset = dataset.where { search_vector.op('@@', ts_query) }
+    dataset = dataset.select_append(rank_title.as(:rank_title), rank_fts.as(:rank_fts))
+    dataset = dataset.order(Sequel.desc(rank_title), Sequel.desc(rank_fts))
+  else
+    like_query = "%#{query.downcase}%"
+    title_match = Sequel.function(:lower, :title).like(like_query)
+    content_match = Sequel.function(:lower, :content).like(like_query)
+    dataset = dataset.where(Sequel.|(title_match, content_match))
+    dataset = dataset.select_append(rank_title.as(:rank_title))
+    dataset = dataset.order(Sequel.desc(rank_title))
+  end
+
+  dataset
+end
+
 helpers do
   include Rack::Utils
   alias_method :h, :escape_html
 
+    # Helper for search logic with Postgres/SQLite fallback
+    def apply_search(dataset, query, language)
+      rank_title = Sequel.case({ true => 2 }, 0, Sequel.function(:lower, :title) => query.downcase)
+      if DB.database_type == :postgres
+        lang_map = { 'en' => 'english', 'da' => 'danish' }
+        pg_language = lang_map[language] || 'english'
+        ts_query = Sequel.function(:plainto_tsquery, pg_language, query)
+        rank_fts = Sequel.function(:ts_rank, :search_vector, ts_query)
+        dataset = dataset.where { search_vector.op('@@', ts_query) }
+        dataset = dataset.select_append(rank_title.as(:rank_title), rank_fts.as(:rank_fts))
+        dataset = dataset.order(Sequel.desc(:rank_title), Sequel.desc(:rank_fts))
+      else
+        like_query = "%#{query.downcase}%"
+        title_match = Sequel.function(:lower, :title).like(like_query)
+        content_match = Sequel.function(:lower, :content).like(like_query)
+        dataset = dataset.where(Sequel.|(title_match, content_match))
+        dataset = dataset.select_append(rank_title.as(:rank_title))
+        dataset = dataset.order(Sequel.desc(:rank_title))
+      end
+      dataset
+    end
   def json(payload = nil, status_code: nil, **kwargs)
     response_payload = payload || kwargs
     content_type :json
@@ -371,16 +421,7 @@ get '/' do
     started_at = monotonic_now
     dataset = DB[:pages]
     dataset = dataset.where(language: language)
-    unless query.to_s.strip.empty?
-      # Brug full-text search og prioriter eksakte matches
-      ts_query = Sequel.function(:plainto_tsquery, 'english', query)
-      # Rank: eksakt match på title > full-text match > ingen
-      rank_title = Sequel.case({true => 2}, 0, Sequel.function(:lower, :title) => query.downcase)
-      rank_fts = Sequel.function(:ts_rank, :search_vector, ts_query)
-      dataset = dataset.where{ search_vector.op('@@', ts_query) }
-      dataset = dataset.select_append(rank_title.as(:rank_title), rank_fts.as(:rank_fts))
-      dataset = dataset.order(Sequel.desc(:rank_title), Sequel.desc(:rank_fts))
-    end
+      dataset = apply_search(dataset, query, language) unless query.to_s.strip.empty?
     results = dataset.select(:title, :url, :language, :last_updated, :content).all
     hit = results.empty? ? 'miss' : 'hit'
     duration = monotonic_now - started_at
@@ -556,24 +597,15 @@ get '/api/search' do
 
   dataset = DB[:pages]
   dataset = dataset.where(language: language) unless language.empty?
-  unless query.empty?
-    ts_query = Sequel.function(:plainto_tsquery, 'english', query)
-    rank_title = Sequel.case({true => 2}, 0, Sequel.function(:lower, :title) => query.downcase)
-    rank_fts = Sequel.function(:ts_rank, :search_vector, ts_query)
-    dataset = dataset.where{ search_vector.op('@@', ts_query) }
-    dataset = dataset.select_append(rank_title.as(:rank_title), rank_fts.as(:rank_fts))
-    dataset = dataset.order(Sequel.desc(:rank_title), Sequel.desc(:rank_fts))
-  end
+    dataset = apply_search(dataset, query, language) unless query.empty?
   results = dataset.select(:title, :url, :language, :last_updated, :content).all
-  # Filter out any extra fields (e.g., rank_title, rank_fts) for API output
-  filtered_results = results.map { |row| row.slice(:title, :url, :language, :last_updated, :content) }
-  hit = filtered_results.empty? ? 'miss' : 'hit'
+  hit = results.empty? ? 'miss' : 'hit'
   duration = monotonic_now - started_at
 
   SEARCH_QUERIES_TOTAL.increment(labels: { language: language_label_for(query), hit: hit })
   SEARCH_DURATION_SECONDS.observe(duration, labels: { language: language_label_for(query), hit: hit })
 
-  json results: filtered_results
+  json results: results
 end
 
 post '/api/login' do
