@@ -34,7 +34,7 @@ WORKDIR /app
 COPY --from=build /usr/local/bundle /usr/local/bundle
 COPY --from=build /app .
 
-RUN chown -R appuser:appuser /app
+RUN mkdir -p /app/logs && chown -R appuser:appuser /app
 USER appuser
 
 EXPOSE 8080
