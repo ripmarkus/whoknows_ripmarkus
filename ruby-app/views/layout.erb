@@ -15,9 +15,13 @@
         <a id="nav-logo" href="/" class="hover:text-zinc-600 dark:hover:text-zinc-400 transition-colors">¿Who Knows?</a>
       </h1>
       <div class="flex items-center gap-4 text-sm">
-        <% if session[:user_id] %>
-          <a id="nav-logout" href="/logout" class="text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors">Log out [<%= session[:username] %>]</a>
-        <% else %>
+<% if session[:user_id] %>
+  <form action="/logout" method="post" style="display:inline">
+    <button type="submit" id="nav-logout" class="text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors cursor-pointer bg-transparent border-0 p-0">
+      Log out [<%= session[:username] %>]
+    </button>
+  </form>
+<% else %>
           <a id="nav-login" href="/login" class="text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors">Log in</a>
           <a id="nav-register" href="/register" class="text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors">Register</a>
         <% end %>
