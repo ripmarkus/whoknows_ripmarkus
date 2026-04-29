@@ -12,6 +12,7 @@ The monitor helps verify:
 - If the API returns the expected response format
 - If responses arrive within a reasonable time
 - If routes accidentally break after changes
+- If the API correctly handles both valid and invalid requests
 
 ---
 
@@ -34,17 +35,17 @@ The monitor currently checks the following endpoints:
 
 | Endpoint | Method | Purpose |
 |--------|--------|--------|
-| `/` | GET | Checks that the frontpage returns successfully. |
-| `/about` | GET | Checks that the about page returns successfully. |
-| `/login` | GET | Checks that the login page returns successfully. |
-| `/register` | GET | Checks that the register page returns successfully. |
-| `/weather` | GET | Checks that the weather page returns successfully. |
-| `/api/users` | GET | Tests the users API |
-| `/api/search` | GET | Tests the search API |
-| `/api/weather` | GET | Tests the weather API |
-| `/api/register` | POST | Tests the user registration endpoint |
-| `/api/login` | POST | Tests the login endpoint |
-| `/api/logout` | POST | Tests the logout endpoint |
+| `/` | GET | Verifies that the frontpage is reachable and returns a valid HTML document |
+| `/about` | GET | Verifies that the about page is reachable and returns a valid HTML document |
+| `/login` | GET | Verifies that the login page is reachable and returns a valid HTML document |
+| `/register` | GET | Verifies that the register page is reachable and returns a valid HTML document |
+| `/weather` | GET | Verifies that the weather page is reachable and returns a valid HTML document |
+| `/api/users` | GET | Verifies that the users API responds successfully |
+| `/api/search` | GET | Verifies that the search API responds successfully |
+| `/api/weather` | GET | Verifies that the weather API returns valid JSON data containing location information |
+| `/api/register` | POST | Verifies that the registration endpoint correctly rejects invalid input (e.g. missing data) |
+| `/api/login` | POST | Verifies that the login endpoint correctly rejects requests without valid credentials |
+| `/api/logout` | POST | Verifies that the logout endpoint responds correctly |
 
 ---
 
@@ -58,17 +59,17 @@ This makes it easy to change the deployment URL without modifying every endpoint
 
 ![Base URL variable configuration](/documentation/imgs/2026-03-10_18-10.png)
 
-Requests are then written like this:
+Requests are then written like this using the variable:
 
-![Example request using BASE_URL](/documentation/imgs/2026-03-10_18-12.png)
+![Example request using BASE_URL](/documentation/imgs/2026-04-29_09-04.png)
 ![Example request using BASE_URL](/documentation/imgs/2026-03-10_18-17.png)
 
 ---
 
 ### Shared Tests
 
-All endpoints in our monitoring collection use a couple of basic tests to verify that the application is responding correctly.
+All endpoints in our monitoring collection use a shared test to verify that the response time stays within an acceptable limit.
 
-These tests run for every request in the collection.
+This test runs for every request in the collection and ensures that the application remains responsive.
 
-![Shared tests example](/documentation/imgs/2026-03-10_18-21.png)
+![Shared tests example](/documentation/imgs/2026-04-29_09-07.png)
