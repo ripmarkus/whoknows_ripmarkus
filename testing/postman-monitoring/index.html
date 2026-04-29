@@ -1653,6 +1653,7 @@
 <li>If the API returns the expected response format</li>
 <li>If responses arrive within a reasonable time</li>
 <li>If routes accidentally break after changes</li>
+<li>If the API correctly handles both valid and invalid requests</li>
 </ul>
 <hr />
 <h2 id="monitoring-schedule">Monitoring Schedule</h2>
@@ -1679,57 +1680,57 @@
 <tr>
 <td><code>/</code></td>
 <td>GET</td>
-<td>Checks that the frontpage returns successfully.</td>
+<td>Verifies that the frontpage is reachable and returns a valid HTML document</td>
 </tr>
 <tr>
 <td><code>/about</code></td>
 <td>GET</td>
-<td>Checks that the about page returns successfully.</td>
+<td>Verifies that the about page is reachable and returns a valid HTML document</td>
 </tr>
 <tr>
 <td><code>/login</code></td>
 <td>GET</td>
-<td>Checks that the login page returns successfully.</td>
+<td>Verifies that the login page is reachable and returns a valid HTML document</td>
 </tr>
 <tr>
 <td><code>/register</code></td>
 <td>GET</td>
-<td>Checks that the register page returns successfully.</td>
+<td>Verifies that the register page is reachable and returns a valid HTML document</td>
 </tr>
 <tr>
 <td><code>/weather</code></td>
 <td>GET</td>
-<td>Checks that the weather page returns successfully.</td>
+<td>Verifies that the weather page is reachable and returns a valid HTML document</td>
 </tr>
 <tr>
 <td><code>/api/users</code></td>
 <td>GET</td>
-<td>Tests the users API</td>
+<td>Verifies that the users API responds successfully</td>
 </tr>
 <tr>
 <td><code>/api/search</code></td>
 <td>GET</td>
-<td>Tests the search API</td>
+<td>Verifies that the search API responds successfully</td>
 </tr>
 <tr>
 <td><code>/api/weather</code></td>
 <td>GET</td>
-<td>Tests the weather API</td>
+<td>Verifies that the weather API returns valid JSON data containing location information</td>
 </tr>
 <tr>
 <td><code>/api/register</code></td>
 <td>POST</td>
-<td>Tests the user registration endpoint</td>
+<td>Verifies that the registration endpoint correctly rejects invalid input (e.g. missing data)</td>
 </tr>
 <tr>
 <td><code>/api/login</code></td>
 <td>POST</td>
-<td>Tests the login endpoint</td>
+<td>Verifies that the login endpoint correctly rejects requests without valid credentials</td>
 </tr>
 <tr>
 <td><code>/api/logout</code></td>
 <td>POST</td>
-<td>Tests the logout endpoint</td>
+<td>Verifies that the logout endpoint responds correctly</td>
 </tr>
 </tbody>
 </table>
@@ -1739,14 +1740,14 @@
 <p>To avoid repeating the domain in every request, we use a <strong>collection variable</strong>.</p>
 <p>This makes it easy to change the deployment URL without modifying every endpoint.</p>
 <p><img alt="Base URL variable configuration" src="/documentation/imgs/2026-03-10_18-10.png" /></p>
-<p>Requests are then written like this:</p>
-<p><img alt="Example request using BASE_URL" src="/documentation/imgs/2026-03-10_18-12.png" />
+<p>Requests are then written like this using the variable:</p>
+<p><img alt="Example request using BASE_URL" src="/documentation/imgs/2026-04-29_09-04.png" />
 <img alt="Example request using BASE_URL" src="/documentation/imgs/2026-03-10_18-17.png" /></p>
 <hr />
 <h3 id="shared-tests">Shared Tests</h3>
-<p>All endpoints in our monitoring collection use a couple of basic tests to verify that the application is responding correctly.</p>
-<p>These tests run for every request in the collection.</p>
-<p><img alt="Shared tests example" src="/documentation/imgs/2026-03-10_18-21.png" /></p>
+<p>All endpoints in our monitoring collection use a shared test to verify that the response time stays within an acceptable limit.</p>
+<p>This test runs for every request in the collection and ensures that the application remains responsive.</p>
+<p><img alt="Shared tests example" src="/documentation/imgs/2026-04-29_09-07.png" /></p>
 
 
 
