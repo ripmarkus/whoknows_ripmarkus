@@ -22,7 +22,7 @@ jobs:
       - name: Deploy app
         run: |
           ssh -i ~/.ssh/homeserver -o StrictHostKeyChecking=no "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}" <<'EOF'
-          set -eux
+          set -ux
 
           echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
 
@@ -32,13 +32,28 @@ jobs:
           TIMESTAMP=$(date +%Y%m%d_%H%M%S)
           mkdir -p "$BACKUP_DIR"
 
+          echo "Starting optional backup..."
+
           if docker compose ps --services --status running | grep -q '^db$'; then
-            docker compose exec -T db pg_dump -U whoknows --format=custom whoknows > "$BACKUP_DIR/pre_deploy_${TIMESTAMP}.dump"
-            ls -t "$BACKUP_DIR"/*.dump | tail -n +11 | xargs -r rm
+            BACKUP_FILE="$BACKUP_DIR/pre_deploy_${TIMESTAMP}.dump"
+
+            if docker compose exec -T db pg_dump -U whoknows --format=custom whoknows > "$BACKUP_FILE"; then
+              echo "Backup created: $BACKUP_FILE"
+
+              echo "Cleaning old backups..."
+              ls -t "$BACKUP_DIR"/*.dump 2>/dev/null | tail -n +11 | xargs -r rm -f || true
+            else
+              echo "WARNING: Backup failed, continuing deployment anyway"
+            fi
           else
             echo "db is not running, skipping backup"
           fi
 
+          echo "Pulling new web image..."
           docker compose pull web
+
+          echo "Restarting web container..."
           docker compose up -d --no-deps web
+
+          echo "Deployment done"
           EOF
