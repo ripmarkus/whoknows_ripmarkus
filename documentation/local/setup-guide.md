@@ -1,18 +1,43 @@
-# Prerequisites
+# whoknows — Developer Setup Guide
+> Windows · PostgreSQL 18 · Ruby
+
+---
+
+## Step 1 — Install Ruby Dependencies
+
+Navigate into the project folder and install all gems:
+
 ```bash
 cd ruby-app
 bundle install
+
+# Install and build Tailwind CSS
+gem install tailwindcss-ruby
 bundle exec tailwindcss -i public/input.css -o public/output.css
 ```
 
-You will also need to download and install postgres..
-Windows:
+> **Note:** If the Tailwind commands fail, skip them for now and return to this step later.
+
+---
+
+## Step 2 — Install PostgreSQL 18
+
 ```bash
 winget install PostgreSQL.PostgreSQL.18
 ```
-Once this step is complete, you will want to edit your pg_hba.conf file...
-It is often on windows located here: C:\Program Files\PostgreSQL\18\data\pg_hba.conf
-Open your editor:
+
+---
+
+## Step 3 — Configure `pg_hba.conf`
+
+Open the config file in your editor. On Windows it is typically located at:
+
+```
+C:\Program Files\PostgreSQL\18\data\pg_hba.conf
+```
+
+Find every entry where the `METHOD` column reads `scram-sha-256` and change it to `trust`. The finished file should look like this:
+
 ```conf
 # TYPE  DATABASE        USER            ADDRESS                 METHOD
 local   all             all                                     trust
@@ -22,36 +47,64 @@ local   replication     all                                     trust
 host    replication     all             127.0.0.1/32            trust
 host    replication     all             ::1/128                 trust
 ```
-In here you want to replace the method 'scram-sha-256' to trust..
-This disables passwords on your local psql service - which is perfect, since the point is not exposing the db..
-After this, you will have to restart the service. Open up powershell with administrator privileges and run:
-```bash
-restart-Service postgresql-x64-18
+
+> ⚠️ **Security note:** Setting the method to `trust` disables password authentication for the local PostgreSQL service. This is intentional for local development — never do this on a publicly accessible server.
+
+---
+
+## Step 4 — Restart the PostgreSQL Service
+
+Open PowerShell **as Administrator** and run:
+
+```powershell
+Restart-Service postgresql-x64-18
 ```
-You will also have to add this directory: 'C:\Program Files\PostgreSQL\18\bin' to your path, for easier use..
 
-It is also important to note, that when you install postgres with winget the default user is 'postgres' and by changing your method from 'scram-sha-256' to trust, you are basically disabling password auth for postgres..
+Also add the PostgreSQL bin directory to your `PATH` so commands like `createdb` are available everywhere:
 
-When this step is complete, you will have to create a new database...
+```
+C:\Program Files\PostgreSQL\18\bin
+```
+
+---
+
+## Step 5 — Create the Database
+
+The default user created by the winget installer is `postgres`. Create the application database:
+
 ```bash
 createdb -U postgres whoknows
 ```
 
-After this you will have to replace your newly created and empty db with your dump... 
+---
+
+## Step 6 — Restore the Database Dump
+
+Replace the empty database with the provided SQL dump:
+
 ```bash
 psql -h 127.0.0.1 -U postgres -d whoknows -f .\full_dump.sql
 ```
-This line opens a connection to your already running postgress db, with the username postgres, database name whoknows, and at last the path to your SQL dump..
 
+This connects to your running PostgreSQL instance and imports the full schema and data from the dump file.
 
+---
 
-Once you're here you will want to change your environmental variables.. The variables are automatically loaded into the ruby program, once it starts..
+## Step 7 — Configure Environment Variables
+
+Look for the '.env' file in the root of the `ruby-app` directory. These variables are automatically loaded when the application starts:
+
 ```env
-OPENWEATHER_API_KEY=set
-POSTGRES_DB=set
-POSTGRES_USER=set
-POSTGRES_PASSWORD=set
+OPENWEATHER_API_KEY=<your_key>
+POSTGRES_DB=whoknows
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=
 DATABASE_URL=postgres://postgres@localhost:5432/whoknows
-MONITORING_IP=set
+MONITORING_IP=<your_ip>
 ```
 
+> **Tip:** `DATABASE_URL` is the most important variable. Check the application code if you are unsure which of the others are required.
+
+---
+
+**You're all set!** Start the application and verify everything is working.
