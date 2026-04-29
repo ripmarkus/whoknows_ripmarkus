@@ -22,7 +22,7 @@ local   replication     all                                     trust
 host    replication     all             127.0.0.1/32            trust
 host    replication     all             ::1/128                 trust
 ```
-In here you want to replace the method 'sha-bla-bla' to trust..
+In here you want to replace the method 'scram-sha-256' to trust..
 This disables passwords on your local psql service - which is perfect, since the point is not exposing the db..
 After this, you will have to restart the service. Open up powershell with administrator privileges and run:
 ```bash
@@ -30,7 +30,7 @@ restart-Service postgresql-x64-18
 ```
 You will also have to add this directory: 'C:\Program Files\PostgreSQL\18\bin' to your path, for easier use..
 
-It is also important to note, that when you install postgres with winget the default user is 'postgres' and by changing your method from 'sha' to trust, you are basically disabling password auth for postgres..
+It is also important to note, that when you install postgres with winget the default user is 'postgres' and by changing your method from 'scram-sha-256' to trust, you are basically disabling password auth for postgres..
 
 When this step is complete, you will have to create a new database...
 ```bash
