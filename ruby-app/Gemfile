@@ -14,7 +14,7 @@ gem 'pg'
 gem 'rack-session', '~> 2.1.2'
 gem 'sequel'
 gem 'sinatra'
-gem 'tailwindcss'
+gem "tailwindcss-ruby", "~> 4.0"
 gem 'prometheus-client'
 gem "activesupport", ">= 8.1.2.1"
 gem "loofah", ">= 2.25.1"
