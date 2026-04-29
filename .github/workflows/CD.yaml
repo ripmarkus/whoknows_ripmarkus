@@ -21,24 +21,44 @@ jobs:
 
       - name: Deploy app
         run: |
-          ssh -i ~/.ssh/homeserver -o StrictHostKeyChecking=no "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}" <<'EOF'
-          set -eux
+          ssh -i ~/.ssh/homeserver -o StrictHostKeyChecking=no "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}" 'bash -s' <<'EOF'
+          set -euo pipefail
 
+          echo "Logging in to GHCR..."
           echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
 
+          echo "Changing to app directory..."
           cd /opt/docker/devops/whoknows_ripmarkus/ruby-app
+
+          echo "Starting optional pre-deploy backup..."
 
           BACKUP_DIR="/opt/backups/whoknows"
           TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+          BACKUP_FILE="$BACKUP_DIR/pre_deploy_${TIMESTAMP}.dump"
+
           mkdir -p "$BACKUP_DIR"
 
           if docker compose ps --services --status running | grep -q '^db$'; then
-            docker compose exec -T db pg_dump -U whoknows --format=custom whoknows > "$BACKUP_DIR/pre_deploy_${TIMESTAMP}.dump"
-            ls -t "$BACKUP_DIR"/*.dump | tail -n +11 | xargs -r rm
+            echo "Database container is running. Creating backup..."
+
+            if docker compose exec -T db pg_dump -U whoknows --format=custom whoknows > "$BACKUP_FILE"; then
+              echo "Backup created: $BACKUP_FILE"
+
+              echo "Cleaning old backups..."
+              ls -t "$BACKUP_DIR"/*.dump 2>/dev/null | tail -n +11 | xargs -r rm -f || true
+            else
+              rm -f "$BACKUP_FILE"
+              echo "WARNING: Backup failed. Continuing deployment anyway."
+            fi
           else
-            echo "db is not running, skipping backup"
+            echo "WARNING: Database container is not running. Skipping backup."
           fi
 
+          echo "Pulling latest web image..."
           docker compose pull web
+
+          echo "Restarting web container..."
           docker compose up -d --no-deps web
+
+          echo "Deployment done."
           EOF
