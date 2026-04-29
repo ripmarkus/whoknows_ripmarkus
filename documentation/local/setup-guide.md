@@ -16,6 +16,8 @@ gem install tailwindcss-ruby
 bundle exec tailwindcss -i public/input.css -o public/output.css
 ```
 
+> **Note:** This project uses Tailwind CSS v4 syntax in `public/input.css` (`@import "tailwindcss"`). If the build fails with `Failed to find 'tailwindcss'`, your local bundle is still on Tailwind 3.x. Update the gem to `tailwindcss-ruby ~> 4.0`, run `bundle update tailwindcss-ruby`, and then rerun the build command above.
+
 > **Note:** If the Tailwind commands fail, skip them for now and return to this step later.
 
 ---
