@@ -7,6 +7,7 @@ require 'bcrypt'
 require 'net/http'
 require 'uri'
 require 'logger'
+require 'fileutils'
 require 'ipaddr'
 require 'dotenv/load'
 require 'prometheus/client'
@@ -17,7 +18,8 @@ configure do
   set :show_exceptions, false
   set :protection, except: :host_authorization
 
-  LOGGER = Logger.new($stdout)
+  FileUtils.mkdir_p('logs')
+  LOGGER = Logger.new('logs/app.log')
 
   Dir.chdir(__dir__) if ENV['RACK_ENV'] == 'test'
 
@@ -403,6 +405,7 @@ get '/' do
     dataset = apply_search_filters(dataset, query, language) unless query.to_s.strip.empty?
     results = dataset.select(:title, :url, :language, :last_updated, :content).all
     hit = results.empty? ? 'miss' : 'hit'
+    LOGGER.info("[SEARCH] query=#{query.to_s.strip.inspect} language=#{language.inspect} hit=#{hit} results=#{results.size}")
     duration = monotonic_now - started_at
 
     SEARCH_QUERIES_TOTAL.increment(labels: { language: language_label_for(query), hit: hit })
@@ -579,6 +582,7 @@ get '/api/search' do
   dataset = apply_search_filters(dataset, query, language) unless query.empty?
   results = dataset.select(:title, :url, :language, :last_updated, :content).all
   hit = results.empty? ? 'miss' : 'hit'
+  LOGGER.info("[SEARCH] query=#{query.inspect} language=#{language.inspect} hit=#{hit} results=#{results.size}")
   duration = monotonic_now - started_at
 
   SEARCH_QUERIES_TOTAL.increment(labels: { language: language_label_for(query), hit: hit })
