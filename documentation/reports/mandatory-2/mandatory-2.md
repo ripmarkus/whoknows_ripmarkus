@@ -84,6 +84,47 @@ We have a vast amount of documentation, served as a deployment on Github Pages, 
 
 # Software Quality
 
+In our project we used **RuboCop** and **CodeRabbit** as software quality tools.
+
+**RuboCop** was mainly used to keep a consistent code style and highlight issues such as high complexity, long methods, or unclear structure. It helped us quickly see where the code might become harder to maintain.
+
+**CodeRabbit** was used in pull requests to give automated code reviews. It helped the team spot potential issues like logic mistakes, missing edge cases, and general improvements. It also made PR reviews a bit easier since we had something to start from.
+
+## Do you agree with the findings?
+
+Mostly yes, but not everything.
+
+We agree with findings that point to real issues, like complexity or bad structure. Those are things we’ve also noticed ourselves and are currently working on (like splitting things into smaller parts). This is something we are actively improving by restructuring the code into smaller and more focused parts.
+
+But some of the comments feel a bit unnecessary, especially smaller style things or suggestions that don’t really fit how our project is built.
+
+## Which ones did you fix?
+
+We focused on fixing the issues that had a real impact on the system.
+
+For example, CodeRabbit pointed out that our logout link was incorrect. The frontend was pointing to `/logout`, while the backend endpoint was actually `/api/logout`.
+
+This would have caused a 404 error when users tried to log out, so we fixed it by updating the link to match the correct endpoint. This is a good example of how the tool helped catch an issue that directly affects the user experience.
+
+![CodeRabbit-example](/documentation/imgs/2026-05-05_21-25.png)
+
+## Which ones did you ignore?
+
+We also ignored some minor suggestions from CodeRabbit that were related to wording and formatting.
+
+For example, CodeRabbit suggested fixing a double space and slightly awkward phrasing in a comment/text. While the suggestion was valid, it did not affect functionality or maintainability, so we chose not to prioritize it.
+
+![CodeRabbit-example](/documentation/imgs/2026-05-05_21-40.png)
+
+## Why?
+
+We prioritized issues that affect functionality and user experience.
+
+The logout example is a good case where the tool caught a real bug that we might not have noticed immediately. In this case, the suggestion was clearly useful and worth fixing, since it would otherwise lead to a broken feature.
+
+At the same time, we chose to ignore smaller or less relevant suggestions, since not everything the tools point out has the same impact. Some issues are more about style or wording, and those were not as important compared to fixing actual problems in the system.
+
+Overall, we used the tools as guidance, not as the source of truth.
 
 # Monitoring Realization 
 
@@ -95,7 +136,7 @@ One of the main things we found out was, that monitoring is only useful when it'
 
 We did actually catch a very big error partly through our monitoring. We had in the past set up a cronjob in our pipeline which ran every third day. But because our pipeline setup had changed since, the cronjob now ran with the outdated setup and caused a lot of server downtime. Which we did not notice under development, but the monitoring showed these unexplained downtimes and helped us realize the cronjob was at fault. We ended up removing the whole cronjob out of spite.
 
-We also adjusted some of our tests along the way, we once had an endpoint which should monitor for error handling, but the monitor reported it as an error when it reveived a code 400. Which was the correct response and it seems obvious now, but something that slipped our mind back then, because the logic is effectively reversed compared to the other endpoints.
+We also adjusted some of our tests along the way, we once had an endpoint which should monitor for error handling, but the monitor reported it as an error when it received a code 400. Which was the correct response and it seems obvious now, but something that slipped our mind back then, because the logic is effectively reversed compared to the other endpoints.
 
 ## Conclusion
 
