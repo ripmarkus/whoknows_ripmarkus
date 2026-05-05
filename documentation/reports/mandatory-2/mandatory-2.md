@@ -61,7 +61,7 @@ For example, CodeRabbit pointed out that our logout link was incorrect. The fron
 
 This would have caused a 404 error when users tried to log out, so we fixed it by updating the link to match the correct endpoint. This is a good example of how the tool helped catch an issue that directly affects the user experience.
 
-![CodeRabbit-example](documentation/imgs/2026-05-05_21-25.png)
+![CodeRabbit-example](/documentation/imgs/2026-05-05_21-25.png)
 
 ## Which ones did you ignore?
 
@@ -69,7 +69,7 @@ We also ignored some minor suggestions from CodeRabbit that were related to word
 
 For example, CodeRabbit suggested fixing a double space and slightly awkward phrasing in a comment/text. While the suggestion was valid, it did not affect functionality or maintainability, so we chose not to prioritize it.
 
-![CodeRabbit-example](documentation/imgs/2026-05-05_21-40.png)
+![CodeRabbit-example](/documentation/imgs/2026-05-05_21-40.png)
 
 ## Why?
 
@@ -91,7 +91,7 @@ One of the main things we found out was, that monitoring is only useful when it'
 
 We did actually catch a very big error partly through our monitoring. We had in the past set up a cronjob in our pipeline which ran every third day. But because our pipeline setup had changed since, the cronjob now ran with the outdated setup and caused a lot of server downtime. Which we did not notice under development, but the monitoring showed these unexplained downtimes and helped us realize the cronjob was at fault. We ended up removing the whole cronjob out of spite.
 
-We also adjusted some of our tests along the way, we once had an endpoint which should monitor for error handling, but the monitor reported it as an error when it reveived a code 400. Which was the correct response and it seems obvious now, but something that slipped our mind back then, because the logic is effectively reversed compared to the other endpoints.
+We also adjusted some of our tests along the way, we once had an endpoint which should monitor for error handling, but the monitor reported it as an error when it received a code 400. Which was the correct response and it seems obvious now, but something that slipped our mind back then, because the logic is effectively reversed compared to the other endpoints.
 
 ## Conclusion
 
