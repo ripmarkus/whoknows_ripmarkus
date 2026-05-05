@@ -1,5 +1,50 @@
 # How we use Version Control
 
+## Branching Strategy
+
+In this project, we have used the main branch as our production-ready branch. All changes have been made in separate branches, such as feat/, documentation/, and chore/, which are then merged through pull requests.
+
+Overall, this strategy has worked well for us, especially because it made deployment easy and fast. In total, we have had 475 commits, 126 closed pull requests, and as of now, 2 open pull requests.
+
+## Issue Based Workflow
+
+Another way we have structured the delivery of functionality is by creating an issue whenever something needs to be done. A branch is then created from that issue, and the task is solved there.
+Whenever changes are pushed to a separate branch, a pull request is created against main.
+
+## Pull Requests
+
+When creating a pull request, the author has to answer a few questions:
+
+1.  What has changed?
+2.  Why did it need to be changed?
+3.  How was it changed?
+
+The pull request also includes a small checklist:
+
+1.  Does the application compile?
+2.  Has documentation been added?
+
+We have done it this way to ensure that changes are sincere and, at the very least, well thought through.
+
+## CI
+
+When a pull request is created, a GitHub Actions workflow runs, namely CI.yaml. This workflow boots up a GitHub runner using Ubuntu as the operating system. PostgreSQL is then started, Ruby is set up, RSpec tests are run, a Docker image is built, and the containers are started while health checks are performed.
+
+However, the Docker image is not pushed. We have chosen to do it this way to make our main branch even more secure.
+
+## Inconsistencies and Reflection
+
+Another important part of our workflow is that whenever a pull request is created, another person has to review it. This forces us to do code reviews and also helps share knowledge across the team.
+
+If the pull request is approved and the CI.yaml checks succeed, the branch is then eligible to be merged into main.
+
+That being said, we are not claiming that our project or workflow has been perfect. We have failed a few times.
+
+For example, our naming conventions for branches have not always been upheld. This might seem like a small thing, but we think it shows that conventions are not always respected as much as they should be.
+
+Another example is our rule about deleting branches after they have been merged. We try to do this consistently, and most of the time we have done so, but at times pull requests have piled up a little.
+
+As of now, we have two open pull requests that will be reviewed after this assignment and hopefully approved.
 
 
 # How are you DevOps?
