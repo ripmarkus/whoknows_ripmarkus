@@ -74,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#how-we-use-version-control" class="md-skip">
+        <a href="#mandatory-2-ripmarkus" class="md-skip">
           Skip to content
         </a>
       
@@ -1323,24 +1323,6 @@
         
       
       
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Mandatory 2
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -1357,80 +1339,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#branching-strategy" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Branching Strategy
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#issue-based-workflow" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Issue Based Workflow
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#pull-requests" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Pull Requests
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#ci" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        CI
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#inconsistencies-and-reflection" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Inconsistencies and Reflection
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
       
     </li>
   
@@ -1551,69 +1459,6 @@
     
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#branching-strategy" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Branching Strategy
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#issue-based-workflow" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Issue Based Workflow
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#pull-requests" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Pull Requests
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#ci" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        CI
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#inconsistencies-and-reflection" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Inconsistencies and Reflection
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -1637,6 +1482,16 @@
   
 
 
+<h1 id="mandatory-2-ripmarkus">Mandatory 2 - ripmarkus</h1>
+<p>Kristian, Valdemar, Niko &amp; Mathias</p>
+<p>This mandatory hand-in documents how we worked with version control, delivery workflows, software quality, DevOps practices, and monitoring during the project.</p>
+<p>Unlike the first hand-in, this document is not primarily about describing the application itself. Instead, it focuses on how we worked as a team: how changes moved from issues to branches, how pull requests were reviewed, how CI supported our workflow, and where our process worked well or broke down.</p>
+<p>The documentation reflects the state of the project on 06/06/2026. Refer to the repository documentation for the latest updates.</p>
+<p>Use the links below to navigate to the relevant section.</p>
+<p><a href="#how-we-use-version-control">How We Use Version Control</a><br />
+<a href="#how-are-you-devops">How Are We DevOps?</a><br />
+<a href="#software-quality">Software Quality</a><br />
+<a href="#monitoring-realization">Monitoring Realization</a></p>
 <h1 id="how-we-use-version-control">How we use Version Control</h1>
 <h2 id="branching-strategy">Branching Strategy</h2>
 <p>In this project, we have used the main branch as our production-ready branch. All changes have been made in separate branches, such as feat/, documentation/, and chore/, which are then merged through pull requests.</p>
@@ -1668,7 +1523,8 @@ Whenever changes are pushed to a separate branch, a pull request is created agai
 <p>Another example is our rule about deleting branches after they have been merged. We try to do this consistently, and most of the time we have done so, but at times pull requests have piled up a little.</p>
 <p>As of now, we have two open pull requests that will be reviewed after this assignment and hopefully approved.</p>
 <h1 id="how-are-you-devops">How are you DevOps?</h1>
-<p>We use CALMS as a framework to argue why we are DevOps, and where we fall short.</p>
+<p>DevOps is not a checklist, it is a culture that emerges from continuous, full-time collaboration over time. A 10 ECTS course represents roughly 275 hours of total student work, spread across a semester, split between multiple people, and competing with other obligations. The practices described below are real, but they exist in a context that is structurally incompatible with what DevOps actually demands. What follows is an honest reflection on how close we got, and where the constraints showed.</p>
+<p>With that said, the following tries to answer the question on its own terms. We use CALMS as a framework to argue why we are DevOps, and where we fall short.</p>
 <h2 id="culture">Culture</h2>
 <p>No one merges their own PR. We require peer review, and we have CodeRabbit set up as an extra reviewer on every PR. The idea is that the codebase belongs to the team, not whoever wrote a given feature. In practice though, reviews are not always serious. Sometimes a PR gets approved to unblock someone rather than because it was actually reviewed. We also started with commit message conventions but stopped following them, which makes the history harder to read.</p>
 <h2 id="automation">Automation</h2>
@@ -1684,6 +1540,7 @@ Whenever changes are pushed to a separate branch, a pull request is created agai
 <h2 id="sharing">Sharing</h2>
 <p>All infrastructure is in the repo as code, and anyone can reproduce the full environment from it. The documentation site publishes automatically on every push to main. Where it falls down is that documentation gets written after the fact, not during. </p>
 <p>We have a vast amount of documentation, served as a deployment on Github Pages, meaning that everyone can at any given time read well formatted documentation on the application and team.</p>
+<p>We built real habits around shared ownership, transparency, and continuous delivery, but the gaps are mostly cultural and not technical. Reviews that approve without reading, fixes pushed to production to verify, metrics that confirm the system is alive but say nothing about whether it is useful. We have learnt that DevOps is a direction and that it takes time to align with the tracks properly.</p>
 <h1 id="software-quality">Software Quality</h1>
 <p>In our project we used <strong>RuboCop</strong> and <strong>CodeRabbit</strong> as software quality tools.</p>
 <p><strong>RuboCop</strong> was mainly used to keep a consistent code style and highlight issues such as high complexity, long methods, or unclear structure. It helped us quickly see where the code might become harder to maintain.</p>
