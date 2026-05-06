@@ -1,3 +1,19 @@
+# Mandatory 2 - ripmarkus
+Kristian, Valdemar, Niko & Mathias
+
+This mandatory hand-in documents how we worked with version control, delivery workflows, software quality, DevOps practices, and monitoring during the project.
+
+Unlike the first hand-in, this document is not primarily about describing the application itself. Instead, it focuses on how we worked as a team: how changes moved from issues to branches, how pull requests were reviewed, how CI supported our workflow, and where our process worked well or broke down.
+
+The documentation reflects the state of the project on 06/06/2026. Refer to the repository documentation for the latest updates.
+
+Use the links below to navigate to the relevant section.
+
+[How We Use Version Control](#how-we-use-version-control)  
+[How Are We DevOps?](#how-are-you-devops)  
+[Software Quality](#software-quality)  
+[Monitoring Realization](#monitoring-realization)
+
 # How we use Version Control
 
 ## Branching Strategy
@@ -49,7 +65,9 @@ As of now, we have two open pull requests that will be reviewed after this assig
 
 # How are you DevOps?
 
-We use CALMS as a framework to argue why we are DevOps, and where we fall short.
+DevOps is not a checklist, it is a culture that emerges from continuous, full-time collaboration over time. A 10 ECTS course represents roughly 275 hours of total student work, spread across a semester, split between multiple people, and competing with other obligations. The practices described below are real, but they exist in a context that is structurally incompatible with what DevOps actually demands. What follows is an honest reflection on how close we got, and where the constraints showed.
+
+With that said, the following tries to answer the question on its own terms. We use CALMS as a framework to argue why we are DevOps, and where we fall short.
 
 ## Culture
 
@@ -81,6 +99,7 @@ All infrastructure is in the repo as code, and anyone can reproduce the full env
 
 We have a vast amount of documentation, served as a deployment on Github Pages, meaning that everyone can at any given time read well formatted documentation on the application and team.
 
+We built real habits around shared ownership, transparency, and continuous delivery, but the gaps are mostly cultural and not technical. Reviews that approve without reading, fixes pushed to production to verify, metrics that confirm the system is alive but say nothing about whether it is useful. We have learnt that DevOps is a direction and that it takes time to align with the tracks properly.
 
 # Software Quality
 
