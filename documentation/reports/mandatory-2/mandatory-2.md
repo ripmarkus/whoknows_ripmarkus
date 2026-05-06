@@ -65,6 +65,10 @@ As of now, we have two open pull requests that will be reviewed after this assig
 
 # How are you DevOps?
 
+DevOps is not a checklist, it is a culture that emerges from continuous, full-time collaboration over time. A 10 ECTS course represents roughly 275 hours of total student work, spread across a semester, split between multiple people, and competing with other obligations. The practices described below are real, but they exist in a context that is structurally incompatible with what DevOps actually demands. What follows is an honest reflection on how close we got, and where the constraints showed.
+
+With that said, the following tries to answer the question on its own terms.
+
 We use CALMS as a framework to argue why we are DevOps, and where we fall short.
 
 ## Culture
