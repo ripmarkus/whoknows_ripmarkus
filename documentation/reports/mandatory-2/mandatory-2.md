@@ -125,7 +125,7 @@ For example, CodeRabbit pointed out that our logout link was incorrect. The fron
 
 This would have caused a 404 error when users tried to log out, so we fixed it by updating the link to match the correct endpoint. This is a good example of how the tool helped catch an issue that directly affects the user experience.
 
-![CodeRabbit-example](/documentation/imgs/2026-05-05_21-25.png)
+![CodeRabbit-example](../../imgs/2026-05-05_21-25.png)
 
 ## Which ones did you ignore?
 
@@ -133,7 +133,7 @@ We also ignored some minor suggestions from CodeRabbit that were related to word
 
 For example, CodeRabbit suggested fixing a double space and slightly awkward phrasing in a comment/text. While the suggestion was valid, it did not affect functionality or maintainability, so we chose not to prioritize it.
 
-![CodeRabbit-example](/documentation/imgs/2026-05-05_21-40.png)
+![CodeRabbit-example](../../imgs/2026-05-05_21-40.png)
 
 ## Why?
 
