@@ -1553,11 +1553,11 @@ Whenever changes are pushed to a separate branch, a pull request is created agai
 <p>We focused on fixing the issues that had a real impact on the system.</p>
 <p>For example, CodeRabbit pointed out that our logout link was incorrect. The frontend was pointing to <code>/logout</code>, while the backend endpoint was actually <code>/api/logout</code>.</p>
 <p>This would have caused a 404 error when users tried to log out, so we fixed it by updating the link to match the correct endpoint. This is a good example of how the tool helped catch an issue that directly affects the user experience.</p>
-<p><img alt="CodeRabbit-example" src="/documentation/imgs/2026-05-05_21-25.png" /></p>
+<p><img alt="CodeRabbit-example" src="../../../imgs/2026-05-05_21-25.png" /></p>
 <h2 id="which-ones-did-you-ignore">Which ones did you ignore?</h2>
 <p>We also ignored some minor suggestions from CodeRabbit that were related to wording and formatting.</p>
 <p>For example, CodeRabbit suggested fixing a double space and slightly awkward phrasing in a comment/text. While the suggestion was valid, it did not affect functionality or maintainability, so we chose not to prioritize it.</p>
-<p><img alt="CodeRabbit-example" src="/documentation/imgs/2026-05-05_21-40.png" /></p>
+<p><img alt="CodeRabbit-example" src="../../../imgs/2026-05-05_21-40.png" /></p>
 <h2 id="why">Why?</h2>
 <p>We prioritized issues that affect functionality and user experience.</p>
 <p>The logout example is a good case where the tool caught a real bug that we might not have noticed immediately. In this case, the suggestion was clearly useful and worth fixing, since it would otherwise lead to a broken feature.</p>
