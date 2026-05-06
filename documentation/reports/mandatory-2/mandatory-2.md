@@ -67,9 +67,7 @@ As of now, we have two open pull requests that will be reviewed after this assig
 
 DevOps is not a checklist, it is a culture that emerges from continuous, full-time collaboration over time. A 10 ECTS course represents roughly 275 hours of total student work, spread across a semester, split between multiple people, and competing with other obligations. The practices described below are real, but they exist in a context that is structurally incompatible with what DevOps actually demands. What follows is an honest reflection on how close we got, and where the constraints showed.
 
-With that said, the following tries to answer the question on its own terms.
-
-We use CALMS as a framework to argue why we are DevOps, and where we fall short.
+With that said, the following tries to answer the question on its own terms. We use CALMS as a framework to argue why we are DevOps, and where we fall short.
 
 ## Culture
 
@@ -101,6 +99,7 @@ All infrastructure is in the repo as code, and anyone can reproduce the full env
 
 We have a vast amount of documentation, served as a deployment on Github Pages, meaning that everyone can at any given time read well formatted documentation on the application and team.
 
+We built real habits around shared ownership, transparency, and continuous delivery, but the gaps are mostly cultural and not technical. Reviews that approve without reading, fixes pushed to production to verify, metrics that confirm the system is alive but say nothing about whether it is useful. We have learnt that DevOps is a direction and that it takes time to align with the tracks properly.
 
 # Software Quality
 
