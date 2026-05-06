@@ -62,7 +62,7 @@ On top of this, it introduces technical debt by forcing us to learn a toolchain 
 
 It adds unnecessary overhead and doesn't provide us with clear functional value, time we'd rather spend on properly converting from Python2 to Ruby and making sure our new codebase is at its best.
 
-![dependencygraph](../imgs/dependency-graph.png)
+![dependencygraph](../../imgs/dependency-graph.png)
 
 # Problems With Legacy Codebase
 
@@ -134,7 +134,7 @@ We want all developers to have a clear overview of our API and page endpoints, s
 The route /api/docs is an on premise Swagger/OpenAPI UI. The purpose it serves is to interact with the API directly from our browsers, and to test all of our endpoints.
 
 
-![OpenAPI](../imgs/OpenAPIpage.png)
+![OpenAPI](../../imgs/OpenAPIpage.png)
 ## Generation
 The OpenAPI specification was generated using Postman. All of our routes were added to a Postman collection. Examples were also added for almost every possible endpoint. The OpenAPI specification was generated shortly after this, using the `Generate Specification` feature. 
 
