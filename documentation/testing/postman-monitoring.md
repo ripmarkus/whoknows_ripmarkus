@@ -57,12 +57,12 @@ To avoid repeating the domain in every request, we use a **collection variable**
 
 This makes it easy to change the deployment URL without modifying every endpoint.
 
-![Base URL variable configuration](/documentation/imgs/2026-03-10_18-10.png)
+![Base URL variable configuration](../imgs/2026-03-10_18-10.png)
 
 Requests are then written like this using the variable:
 
-![Example request using BASE_URL](/documentation/imgs/2026-04-29_09-04.png)
-![Example request using BASE_URL](/documentation/imgs/2026-03-10_18-17.png)
+![Example request using BASE_URL](../imgs/2026-04-29_09-04.png)
+![Example request using BASE_URL](../imgs/2026-03-10_18-17.png)
 
 ---
 
@@ -72,4 +72,4 @@ All endpoints in our monitoring collection use a shared test to verify that the 
 
 This test runs for every request in the collection and ensures that the application remains responsive.
 
-![Shared tests example](/documentation/imgs/2026-04-29_09-07.png)
+![Shared tests example](../imgs/2026-04-29_09-07.png)
