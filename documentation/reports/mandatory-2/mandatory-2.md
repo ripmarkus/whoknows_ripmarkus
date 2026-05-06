@@ -5,7 +5,7 @@ This mandatory hand-in documents how we worked with version control, delivery wo
 
 Unlike the first hand-in, this document is not primarily about describing the application itself. Instead, it focuses on how we worked as a team: how changes moved from issues to branches, how pull requests were reviewed, how CI supported our workflow, and where our process worked well or broke down.
 
-The documentation reflects the state of the project on 13/03/2026. Refer to the repository documentation for the latest updates.
+The documentation reflects the state of the project on 06/06/2026. Refer to the repository documentation for the latest updates.
 
 Use the links below to navigate to the relevant section.
 
