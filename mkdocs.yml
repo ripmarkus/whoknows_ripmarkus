@@ -57,5 +57,6 @@ nav:
   - Reports:
       - KPI Report: reports/KPI-report.md
       - Mandatory 1: reports/mandatory-1/mandatory-1.md
+      - Mandatory 2: reports/mandatory-2/mandatory-2.md
   - Reference:
       - Useful Links: reference/useful-links.md
