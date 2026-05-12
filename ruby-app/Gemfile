@@ -20,6 +20,7 @@ gem "activesupport", ">= 8.1.2.1"
 gem "loofah", ">= 2.25.1"
 gem "actionview", ">= 8.1.2.1"
 gem "actionpack", ">= 8.1.2.1"
+gem "nokogiri", ">= 1.19.3"
 
 group :development do
   gem 'rerun'
