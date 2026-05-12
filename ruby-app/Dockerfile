@@ -12,7 +12,6 @@ COPY Gemfile Gemfile.lock* ./
 RUN bundle install
 COPY . .
 
-
 # Download Tailwind CLI v4 (musl build for Alpine) and compile CSS
 RUN apk add --no-cache curl
 RUN curl -sLO https://github.com/tailwindlabs/tailwindcss/releases/download/v4.2.4/tailwindcss-linux-x64-musl && \
@@ -34,7 +33,7 @@ WORKDIR /app
 COPY --from=build /usr/local/bundle /usr/local/bundle
 COPY --from=build /app .
 
-RUN chown -R appuser:appuser /app
+RUN mkdir -p /app/logs && chown -R appuser:appuser /app
 USER appuser
 
 EXPOSE 8080
