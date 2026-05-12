@@ -56,7 +56,10 @@ jobs:
         run: |
           docker compose up -d
           for i in $(seq 1 15); do
-            curl -sf http://localhost:8080/ && echo "App is up!" && break
+            if curl -sf http://localhost:8080/; then
+              echo "App is up!"
+              break
+            fi
             echo "Attempt $i failed, waiting..."
             sleep 3
             if [ $i -eq 15 ]; then
