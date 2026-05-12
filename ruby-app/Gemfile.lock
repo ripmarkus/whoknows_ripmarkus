@@ -71,11 +71,11 @@ GEM
       prism (~> 1.5)
     mustermann (3.1.1)
     nio4r (2.7.5)
-    nokogiri (1.19.2-arm64-darwin)
+    nokogiri (1.19.3-arm64-darwin)
       racc (~> 1.4)
-    nokogiri (1.19.2-x64-mingw-ucrt)
+    nokogiri (1.19.3-x64-mingw-ucrt)
       racc (~> 1.4)
-    nokogiri (1.19.2-x86_64-linux-gnu)
+    nokogiri (1.19.3-x86_64-linux-gnu)
       racc (~> 1.4)
     parallel (2.0.1)
     parser (3.3.11.1)
@@ -211,6 +211,7 @@ DEPENDENCIES
   dotenv
   json (>= 2.19.2)
   loofah (>= 2.25.1)
+  nokogiri (>= 1.19.3)
   pg
   prometheus-client
   puma
