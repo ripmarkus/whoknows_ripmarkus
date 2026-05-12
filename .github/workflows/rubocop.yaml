@@ -1,16 +1,21 @@
-name: CI
+name: RuboCop PR Review
 
 on:
   pull_request:
     paths:
-      - 'ruby-app/app.rb'
+      - '.rubocop.yml'
+      - 'ruby-app/**/*.rb'
+      - 'ruby-app/Gemfile'
+      - 'ruby-app/Gemfile.lock'
 
 permissions:
+  contents: read
   pull-requests: write
   issues: write
 
 jobs:
-  test:
+  rubocop-report:
+    name: Comment RuboCop report
     runs-on: ubuntu-latest
     defaults:
       run:

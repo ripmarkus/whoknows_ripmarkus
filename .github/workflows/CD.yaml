@@ -1,10 +1,15 @@
 name: Deployment
+
 on:
   workflow_dispatch:
   workflow_run:
     workflows: ["Ruby CI"]
     types: [completed]
     branches: [main]
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -23,7 +28,7 @@ jobs:
           GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
         run: |
           ssh -i ~/.ssh/homeserver -o StrictHostKeyChecking=no "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}" 'bash -s' << EOF
-          set -uo pipefail
+          set -euo pipefail
 
           echo "Logging in to GHCR..."
           echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
@@ -58,5 +63,19 @@ jobs:
           echo "Restarting web container..."
           docker compose up -d --no-deps web || exit 1
 
-          echo "Deployment complete."
+          echo "Running post-deploy smoke check..."
+          for i in \$(seq 1 10); do
+            if curl -fsS http://127.0.0.1:8080/ >/dev/null 2>&1 || wget -qO- http://127.0.0.1:8080/ >/dev/null 2>&1; then
+              echo "Smoke check passed."
+              echo "Deployment complete."
+              exit 0
+            fi
+
+            echo "Smoke check attempt \$i failed, waiting..."
+            sleep 3
+          done
+
+          echo "Smoke check failed. Printing web container logs..."
+          docker compose logs web || true
+          exit 1
           EOF

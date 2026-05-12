@@ -41,9 +41,23 @@ jobs:
         working-directory: ruby-app
         run: bundle exec rspec --format documentation
 
+  lint:
+    name: RuboCop
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          working-directory: ruby-app
+          bundler-cache: true
+      - name: Run RuboCop
+        working-directory: ruby-app
+        run: bundle exec rubocop
+
   docker_build:
     name: Docker Build
-    needs: test
+    needs: [test, lint]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -54,6 +68,7 @@ jobs:
       - name: Run Docker container for health check
         working-directory: ruby-app
         run: |
+          trap 'docker compose down' EXIT
           docker compose up -d
           for i in $(seq 1 10); do
             if curl -sf http://localhost:8080/; then
