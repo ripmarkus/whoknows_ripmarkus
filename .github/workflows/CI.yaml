@@ -55,14 +55,14 @@ jobs:
         working-directory: ruby-app
         run: |
           docker compose up -d
-          for i in $(seq 1 15); do
+          for i in $(seq 1 10); do
             if curl -sf http://localhost:8080/; then
               echo "App is up!"
               break
             fi
             echo "Attempt $i failed, waiting..."
             sleep 3
-            if [ $i -eq 15 ]; then
+            if [ $i -eq 10 ]; then
               echo "App failed to start, printing logs..."
               docker compose logs web
               exit 1
