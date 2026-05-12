@@ -70,6 +70,13 @@ SEARCH_DURATION_SECONDS = fetch_or_register_histogram(
   buckets: [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2]
 )
 
+SEARCH_KEYWORD_TOTAL = fetch_or_register_counter(
+  PROM_REGISTRY,
+  :search_keyword_total,
+  docstring: 'Search queries broken down by keyword and hit/miss',
+  labels: %i[keyword hit]
+)
+
 WEATHER_API_REQUESTS_TOTAL = fetch_or_register_counter(
   PROM_REGISTRY,
   :weather_api_requests_total,
