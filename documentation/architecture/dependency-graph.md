@@ -16,4 +16,4 @@ On top of this, it introduces technical debt by forcing us to learn a toolchain 
 
 It adds unnecessary overhead and doesn't provide us with clear functional value, time we'd rather spend on properly converting from Python2 to Ruby and making sure our new codebase is at its best.
 
-![dependencygraph](./imgs/dependency-graph.png)
+![dependencygraph](../imgs/dependency-graph.png)

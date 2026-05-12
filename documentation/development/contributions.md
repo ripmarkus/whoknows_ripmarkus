@@ -60,7 +60,7 @@ When you are done with the issue at hand, push the changes, go to the repository
 
 1. Compare & pull request
 
-![alt text](/documentation/imgs/2026-02-05_20-02.png)
+![alt text](../imgs/2026-02-05_20-02.png)
 
 The following is extremely important, so follow the numbered list with numbers on the image closely:
 
@@ -69,7 +69,7 @@ The following is extremely important, so follow the numbered list with numbers o
 ## 3. Base = main
 ## 4. Base repository = ripmarkus/whoknows_ripmarkus
 
-![alt text](/documentation/imgs/2026-02-05_20-06.png)
+![alt text](../imgs/2026-02-05_20-06.png)
 
 **Please use the PR template when submitting pull requests. This helps maintain consistency and keeps PRs clear and concise. Thank you!**
 
@@ -89,7 +89,7 @@ Select review.
 2. Select Comment, Approve or Request Changes.
 3. Submit Review
 
-![alt text](/documentation/imgs/2026-02-05_20-41.png)
+![alt text](../imgs/2026-02-05_20-41.png)
 
 After merging, delete the feature branch to keep the repository clean.
 

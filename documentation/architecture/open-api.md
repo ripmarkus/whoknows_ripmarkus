@@ -5,7 +5,7 @@ We want all developers to have a clear overview of our API and page endpoints, s
 
 The route /api/docs is an on premise Swagger/OpenAPI UI. The purpose it serves is to interact with the API directly from our browsers, and to test all of our endpoints.
 
-![OpenAPI](./imgs/OpenAPIpage.png)
+![OpenAPI](../imgs/OpenAPIpage.png)
 
 
 ## HTML Routes

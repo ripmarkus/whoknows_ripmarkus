@@ -20,8 +20,9 @@ configure do
   set :show_exceptions, false
   set :protection, except: :host_authorization
 
-  FileUtils.mkdir_p('logs')
-  LOGGER = Logger.new('logs/app.log')
+  log_dir = File.join(__dir__, 'logs')
+  FileUtils.mkdir_p(log_dir)
+  LOGGER = Logger.new(File.join(log_dir, 'app.log'))
 
   Dir.chdir(__dir__) if ENV['RACK_ENV'] == 'test'
 
