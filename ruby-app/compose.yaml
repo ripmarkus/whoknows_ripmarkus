@@ -24,6 +24,8 @@ services:
       DATABASE_URL: postgres://whoknows:secret@db:5432/whoknows_test
     ports:
       - "8080:8080"
+    volumes:
+      - app_logs:/app/logs
     depends_on:
       db:
         condition: service_healthy
@@ -35,3 +37,4 @@ services:
 
 volumes:
   postgres_data:
+  app_logs:
