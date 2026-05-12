@@ -73,8 +73,8 @@ SEARCH_DURATION_SECONDS = fetch_or_register_histogram(
 SEARCH_KEYWORD_TOTAL = fetch_or_register_counter(
   PROM_REGISTRY,
   :search_keyword_total,
-  docstring: 'Search queries broken down by keyword and hit/miss',
-  labels: %i[keyword hit]
+  docstring: 'Search queries broken down by hit/miss (keywords logged separately)',
+  labels: %i[hit]
 )
 
 WEATHER_API_REQUESTS_TOTAL = fetch_or_register_counter(

@@ -18,7 +18,7 @@ get '/' do
 
     SEARCH_QUERIES_TOTAL.increment(labels: { language: language_label_for(query), hit: hit })
     SEARCH_DURATION_SECONDS.observe(duration, labels: { language: language_label_for(query), hit: hit })
-    SEARCH_KEYWORD_TOTAL.increment(labels: { keyword: query.to_s.strip.downcase, hit: hit }) unless query.to_s.strip.empty?
+    SEARCH_KEYWORD_TOTAL.increment(labels: { hit: hit }) unless query.to_s.strip.empty?
 
     erb :search, locals: { search_results: results, query: query }
   end
