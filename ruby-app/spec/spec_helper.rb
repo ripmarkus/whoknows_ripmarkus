@@ -54,9 +54,11 @@ setup_test_db
 
 require_relative '../app'
 require_relative '../auth/auth'
+require_relative '../helpers/helpers'
 
 RSpec.configure do |config|
   config.include Rack::Test::Methods
+  config.include AppHelpers
   config.include AuthHelpers
 
   def app
