@@ -1,0 +1,46 @@
+name: OWASP ZAP Security Scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  zap_scan:
+    name: OWASP ZAP Baseline Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Start application
+        working-directory: ruby-app
+        run: docker compose up -d --build
+
+      - name: Wait for application to be healthy
+        run: |
+          curl --retry 15 --retry-delay 5 --retry-connrefused -sf http://localhost:8080/ || \
+          (docker compose -f ruby-app/compose.yaml logs web && exit 1)
+
+      - name: Run ZAP baseline scan
+        run: |
+          docker run --network host \
+            -v ${{ github.workspace }}:/zap/wrk/:rw \
+            ghcr.io/zaproxy/zaproxy:stable \
+            zap-baseline.py \
+              -t http://localhost:8080 \
+              -r zap-report.html \
+              -I
+
+      - name: Upload ZAP report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: zap-security-report
+          path: zap-report.html
+
+      - name: Tear down application
+        if: always()
+        working-directory: ruby-app
+        run: docker compose down
