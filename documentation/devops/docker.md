@@ -56,6 +56,26 @@ EXPOSE 4567
 CMD ["ruby", "app.rb", "-o", "0.0.0.0", "-p", "8080"]
 ```
 
+## Dev vs Production Compose
+
+There are two Compose files in `ruby-app/`:
+
+| File | Purpose |
+|---|---|
+| `compose.yaml` | Production - no bind mounts, uses the built image |
+| `compose.dev.yml` | Development - bind mounts source code, uses `rerun` for hot-reloading |
+
+To run locally with hot-reloading:
+
+```bash
+cd ruby-app
+docker compose -f compose.dev.yml up --build
+```
+
+Any change to a `.rb` file will automatically restart the app inside the container. The production `compose.yaml` is never used for local development - it exists for CI and the deployment pipeline.
+
+---
+
 For production, we don't want to use CDN for serving the tailwind styling. Instead we want to build it with the app.
 
 The following has been added to the Dockerfile:
