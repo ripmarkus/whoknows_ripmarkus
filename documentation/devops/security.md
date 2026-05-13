@@ -15,9 +15,18 @@ The `owasp_zap.yml` workflow runs on every push and pull request to `main`. It s
 
 **Why `-I`:** The scan uses the `-I` flag so warnings do not fail the build - the goal is visibility, not blocking PRs on informational findings. Promote issues to failures selectively by using a ZAP rules config file if needed in future.
 
+**Known warnings from first scan:**
+- Missing CSP and Permissions-Policy headers
+- Cookie without SameSite attribute
+- Absence of Anti-CSRF tokens on login/register
+- Debug error messages exposed on `/login` and `/register` (500 responses)
+- Cross-Origin-Embedder-Policy header missing
+
+These are tracked as future hardening work, not blockers.
+
 ## RuboCop - Code Quality
 
-RuboCop enforces style and complexity rules via `.rubocop.yml`. While primarily a linter, it catches patterns that can lead to security issues (e.g., overly complex methods, unsafe string handling). Configured in `rubocop.yaml` and runs on every PR.
+RuboCop enforces style and complexity rules. While primarily a linter, it catches patterns that can lead to security issues (e.g., overly complex methods, unsafe string handling). It runs on every PR via the `.github/workflows/rubocop.yaml` workflow.
 
 ## Dependency Scanning
 
