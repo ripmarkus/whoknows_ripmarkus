@@ -36,6 +36,7 @@ jobs:
 
       - name: Run ZAP baseline scan
         run: |
+          touch zap-report.html && chmod 777 zap-report.html
           docker run --network host \
             -v ${{ github.workspace }}:/zap/wrk/:rw \
             ghcr.io/zaproxy/zaproxy:stable \
