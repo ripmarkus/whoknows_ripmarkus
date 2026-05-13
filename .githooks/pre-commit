@@ -1,0 +1,14 @@
+#!/bin/sh
+# Scan staged files for secrets using gitleaks
+
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks protect --staged --no-banner -q
+  if [ $? -ne 0 ]; then
+    echo "gitleaks: secrets detected in staged files. Commit blocked."
+    echo "Run 'gitleaks protect --staged' to see details."
+    exit 1
+  fi
+else
+  echo "gitleaks not installed - skipping secrets scan."
+  echo "Install it: https://github.com/gitleaks/gitleaks#installing"
+fi
