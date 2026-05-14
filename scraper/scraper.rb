@@ -6,8 +6,10 @@ require 'json'
 require 'uri'
 
 API_URL = ENV.fetch('API_URL', 'http://localhost:4567')
-SECRET  = ENV.fetch('CRAWLER_SECRET', '')
+SECRET  = ENV.fetch('CRAWLER_SECRET') { raise 'CRAWLER_SECRET env var is not set' }
 TARGETS = File.join(__dir__, 'targets.txt')
+
+raise "Invalid API_URL: #{API_URL.inspect}" unless URI.parse(API_URL).host
 
 def fetch_page(url)
   uri = URI.parse(url)
@@ -41,10 +43,12 @@ def post_pages(pages)
 
   Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https') do |http|
     res = http.request(req)
+    raise "POST failed: #{res.code} #{res.body}" unless res.code.to_i < 300
     puts "POST /api/pages -> #{res.code} #{res.body}"
   end
 rescue StandardError => e
   warn "post error: #{e.message}"
+  exit 1
 end
 
 urls = File.readlines(TARGETS, chomp: true).reject { |l| l.strip.empty? || l.start_with?('#') }
