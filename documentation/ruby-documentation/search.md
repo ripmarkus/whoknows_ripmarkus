@@ -70,7 +70,7 @@ The crawler runs weekly via a GitHub Actions scheduled workflow (`.github/workfl
 | Option | Pros | Cons |
 |---|---|---|
 | Manual script | Zero setup, full control | Requires human to run it |
-| GitHub Actions cron | Free, repo-integrated, no extra infra, auditable run history | Limited to public repos or Actions minutes quota; cold-start per run |
+| GitHub Actions cron | Free, repo-integrated, no extra infra, auditable run history | Scheduled workflows are **automatically disabled after 60 days of repo inactivity** in public repos; jobs may be dropped under high load - schedule at odd hours to mitigate |
 | Serverless (Lambda/Cloud Run) | Always-on, scales infinitely, event-driven | Requires cloud account, extra infra to maintain, cost at scale |
 
 GitHub Actions was chosen because it requires no external infrastructure, runs are logged and auditable in the repo, and the crawl volume is small enough that weekly scheduling is sufficient. Serverless would be the right upgrade path if the crawler needed to run hourly or respond to events.
