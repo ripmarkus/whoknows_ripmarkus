@@ -1,0 +1,25 @@
+name: Crawler
+
+on:
+  schedule:
+    - cron: '0 3 * * 0'
+  workflow_dispatch:
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+
+      - name: Install dependencies
+        run: gem install nokogiri
+
+      - name: Run scraper
+        env:
+          API_URL: ${{ secrets.API_URL }}
+          CRAWLER_SECRET: ${{ secrets.CRAWLER_SECRET }}
+        run: ruby scraper/scraper.rb
