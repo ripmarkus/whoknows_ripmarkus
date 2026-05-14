@@ -19,6 +19,7 @@ jobs:
         run: gem install nokogiri
 
       - name: Run scraper
+        timeout-minutes: 10
         env:
           API_URL: ${{ secrets.API_URL }}
           CRAWLER_SECRET: ${{ secrets.CRAWLER_SECRET }}
