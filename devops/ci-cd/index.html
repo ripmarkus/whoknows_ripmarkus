@@ -631,22 +631,55 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#ci-old" class="md-nav__link">
+  <a href="#ci" class="md-nav__link">
     <span class="md-ellipsis">
       
-        CI (OLD)
+        CI
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="CI (OLD)">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rubocop-pr-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RuboCop PR Review
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CD
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="CD">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#postgresql-in-ci" class="md-nav__link">
+  <a href="#required-secrets" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PostgreSQL in CI
+        Required Secrets
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deployment-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deployment Steps
       
     </span>
   </a>
@@ -659,10 +692,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#cd" class="md-nav__link">
+  <a href="#documentation-deployment" class="md-nav__link">
     <span class="md-ellipsis">
       
-        CD
+        Documentation Deployment
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pipeline-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pipeline Review
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dependency-maintenance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependency Maintenance
       
     </span>
   </a>
@@ -1542,22 +1597,55 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#ci-old" class="md-nav__link">
+  <a href="#ci" class="md-nav__link">
     <span class="md-ellipsis">
       
-        CI (OLD)
+        CI
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="CI (OLD)">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rubocop-pr-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RuboCop PR Review
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CD
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="CD">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#postgresql-in-ci" class="md-nav__link">
+  <a href="#required-secrets" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PostgreSQL in CI
+        Required Secrets
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deployment-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deployment Steps
       
     </span>
   </a>
@@ -1570,10 +1658,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#cd" class="md-nav__link">
+  <a href="#documentation-deployment" class="md-nav__link">
     <span class="md-ellipsis">
       
-        CD
+        Documentation Deployment
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pipeline-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pipeline Review
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dependency-maintenance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependency Maintenance
       
     </span>
   </a>
@@ -1606,18 +1716,136 @@
 
 
 <h1 id="cicd">CI/CD</h1>
-<h2 id="ci-old">CI (OLD)</h2>
-<p>At the time of writing, our CI checks focus on compiling the app and linting the code using RuboCop, configured via a .rubocop.yml in the project root. This file defines our code style and complexity rules, ensuring consistent standards are enforced on every PR created.</p>
-<p>Once linting is complete, the results are automatically posted as a comment on the Pull Request. If a report already exists from a previous run, it is overwritten rather than duplicated. </p>
-<p>This ensures every PR has an up-to-date summary of code quality issues directly on the Pull Request for review.</p>
-<p>By enforcing these steps, we ensure that every Pull Request meets our baseline standards for code quality and maintainability, allowing us to run a tight ship throughout the development lifecycle.</p>
-<p><strong>Why not locally?</strong></p>
-<p>Running Ruboco locally is definitely a possibility, however running it in our CI flow, allows all developers to see what can be done better with our code quality, before they can submit the code - This nudges our team to fix issues instead of only fixing issues when they become a bigger problem.</p>
-<h3 id="postgresql-in-ci">PostgreSQL in CI</h3>
-<p>After migrating to PostgreSQL, the test job spins up a <code>postgres:16-alpine</code> service container alongside the test runner. The <code>DATABASE_URL</code> environment variable is passed to RSpec so the app connects to this ephemeral database instead of SQLite. Migrations are applied automatically at the start of the test suite, and the database is torn down with the container when the job ends. This means tests always run against a real PostgreSQL instance, catching any SQL incompatibilities that would not appear with an in-memory database.</p>
+<p>Our GitHub Actions setup is split by responsibility. CI validates the Ruby app, CD deploys the production container, documentation deploys the MkDocs site, and RuboCop PR review gives readable feedback directly on pull requests.</p>
+<p>This keeps the pipeline close to our GitHub Flow process: changes go through a PR, CI gives feedback before merge, and a successful merge to <code>main</code> can move into deployment.</p>
+<h2 id="ci">CI</h2>
+<p>The main CI workflow is <code>.github/workflows/CI.yaml</code>, named <code>Ruby CI</code>.</p>
+<p>It runs on:</p>
+<ul>
+<li>pushes to <code>main</code></li>
+<li>pull requests targeting <code>main</code></li>
+<li>manual workflow dispatch</li>
+</ul>
+<p>The workflow is structured as:</p>
+<table>
+<thead>
+<tr>
+<th>Job</th>
+<th>Purpose</th>
+<th>Runs in parallel?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>test</code></td>
+<td>Runs RSpec against a real PostgreSQL service container</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>lint</code></td>
+<td>Runs RuboCop as a blocking quality check</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>docker_build</code></td>
+<td>Builds the Docker image and starts it with Docker Compose for a health check</td>
+<td>No, waits for <code>test</code> and <code>lint</code></td>
+</tr>
+<tr>
+<td><code>docker_push</code></td>
+<td>Pushes the image to GitHub Container Registry</td>
+<td>No, waits for <code>docker_build</code> and skips PRs</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>test</code> job starts <code>postgres:16-alpine</code> as a service container and sets <code>DATABASE_URL</code> to <code>postgres://whoknows:secret@localhost/whoknows_test</code>. This matches the PostgreSQL migration work described in <a href="../../database/postgres-migration/">Postgres Migrations</a>, and means tests catch database behavior that SQLite would hide.</p>
+<p>The <code>lint</code> job runs in parallel with the tests because it does not need the database. This gives faster feedback without weakening the gate: Docker build only starts after both tests and lint pass.</p>
+<p>The <code>docker_build</code> job builds the app image from <code>ruby-app/Dockerfile</code>, starts the Compose stack from <code>ruby-app/compose.yaml</code>, and checks <code>http://localhost:8080/</code>. That health check is our CI smoke test, which is why we have not added a separate browser smoke test in <a href="../../testing/testing/">Testing Overview</a>.</p>
+<p>The <code>docker_push</code> job only runs outside pull requests. It logs into GHCR using <code>GITHUB_TOKEN</code>, builds the image from the <code>ruby-app</code> context, and publishes it under <code>ghcr.io/&lt;repository-owner&gt;/whoknows_ripmarkus</code>.</p>
+<h2 id="rubocop-pr-review">RuboCop PR Review</h2>
+<p><code>.github/workflows/rubocop.yaml</code> is separate from the blocking CI lint job.</p>
+<p>Its job is not to decide whether the PR can merge. Its job is to generate a Markdown RuboCop report and keep a single PR comment updated with the latest result. This makes code quality feedback visible during review without duplicating comments on every run.</p>
+<p>The workflow runs on pull requests when Ruby app code, the Gemfile, the lockfile, or <code>.rubocop.yml</code> changes.</p>
 <h2 id="cd">CD</h2>
-<p>The deployment job connects to the production server via SSH and runs Docker Compose to pull the latest image and restart the app. Migrations are applied automatically when the container starts, since the <code>command</code> in <code>docker-compose.yml</code> runs <code>ruby db/migrate.rb</code> before launching the app. Sequel tracks which migrations have already been applied, so this step is always safe to run and has no effect if the schema is already up to date.</p>
-<p>Before taking the app down, the pipeline dumps the current PostgreSQL database to <code>/opt/backups/whoknows/</code> using <code>pg_dump</code>. This gives a restore point in case a deploy introduces a regression. Only the ten most recent dumps are kept to prevent unbounded disk growth. To restore from a backup, run <code>pg_restore</code> against the relevant <code>.dump</code> file.</p>
+<p>The deployment workflow is <code>.github/workflows/CD.yaml</code>, named <code>Deployment</code>.</p>
+<p>It runs when:</p>
+<ul>
+<li>a team member starts it manually with <code>workflow_dispatch</code></li>
+<li><code>Ruby CI</code> completes successfully on <code>main</code></li>
+</ul>
+<p>CD is intentionally kept in a separate workflow because it needs production secrets and should only run after the app has passed CI. It also has deployment concurrency enabled, so only one production deployment runs at a time.</p>
+<h3 id="required-secrets">Required Secrets</h3>
+<p>The deployment workflow expects these GitHub secrets:</p>
+<table>
+<thead>
+<tr>
+<th>Secret</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SSH_KEY</code></td>
+<td>Private key used to SSH into the production server</td>
+</tr>
+<tr>
+<td><code>SERVER_USER</code></td>
+<td>SSH username</td>
+</tr>
+<tr>
+<td><code>SERVER_IP</code></td>
+<td>SSH host/IP</td>
+</tr>
+<tr>
+<td><code>GHCR_USERNAME</code></td>
+<td>Username used for GHCR login on the server</td>
+</tr>
+<tr>
+<td><code>GHCR_TOKEN</code></td>
+<td>Token used for GHCR image pulls on the server</td>
+</tr>
+</tbody>
+</table>
+<h3 id="deployment-steps">Deployment Steps</h3>
+<p>The workflow connects to the server over SSH and runs the deployment from:</p>
+<pre><code class="language-bash">/opt/docker/devops/whoknows_ripmarkus/ruby-app
+</code></pre>
+<p>On the server, it:</p>
+<ol>
+<li>Logs into GitHub Container Registry.</li>
+<li>Checks whether the <code>db</code> container is running.</li>
+<li>Creates a pre-deploy PostgreSQL backup if the database is available.</li>
+<li>Keeps only the 10 newest backup dumps in <code>/opt/backups/whoknows/</code>.</li>
+<li>Pulls the newest <code>web</code> image with <code>docker compose pull web</code>.</li>
+<li>Restarts only the app container with <code>docker compose up -d --no-deps web</code>.</li>
+<li>Runs a post-deploy smoke check against <code>http://127.0.0.1:8080/</code>.</li>
+<li>Prints <code>docker compose logs web</code> and fails the deployment if the smoke check does not pass.</li>
+</ol>
+<p>The backup step is warning-only. If a backup cannot be created, the deploy continues, because blocking every deployment on backup availability could leave us unable to ship an urgent fix. If the database container is running, the dump is created with <code>pg_dump --format=custom</code>, so it can later be restored with <code>pg_restore</code>.</p>
+<p>Migrations are still handled by the app startup flow, as described in <a href="../../database/postgres-migration/">Postgres Migrations</a>. Sequel tracks applied migrations, so running migrations during startup is safe when the schema is already up to date.</p>
+<p>The local <code>ruby-app/compose.yaml</code> is useful for local development and CI health checks. Production deployment assumes a Compose setup already exists on the server at the SSH target path. The image and container model are documented further in <a href="../docker/">Docker</a>.</p>
+<h2 id="documentation-deployment">Documentation Deployment</h2>
+<p>Documentation deployment is handled by <code>.github/workflows/docs.yml</code>, not the app CD workflow.</p>
+<p>It runs on pushes to <code>main</code> when files under <code>documentation/**</code> or <code>mkdocs.yml</code> change. The workflow installs MkDocs Material and publishes the documentation site to GitHub Pages with <code>mkdocs gh-deploy --force</code>.</p>
+<p>Keeping docs deployment separate gives it only the permissions it needs and prevents documentation-only changes from touching production app deployment.</p>
+<h2 id="pipeline-review">Pipeline Review</h2>
+<p>The current split is deliberate:</p>
+<ul>
+<li><code>CI.yaml</code> validates app code and publishes the deployable image.</li>
+<li><code>CD.yaml</code> deploys production and uses production secrets.</li>
+<li><code>docs.yml</code> publishes documentation to GitHub Pages.</li>
+<li><code>rubocop.yaml</code> gives review-friendly lint feedback on PRs.</li>
+</ul>
+<p>The main CI workflow now uses parallel jobs where it makes sense. Tests and RuboCop do not depend on each other, so they run at the same time. Docker build waits for both because we only want to spend build and smoke-test time on code that has passed the basic quality gate. Docker push stays last because CD depends on a valid image in GHCR.</p>
+<p>One possible future improvement is to move the RuboCop PR comment into the main CI workflow. For now, keeping it separate is useful because the blocking lint job can stay simple while the review workflow focuses on comments and permissions.</p>
+<p>Post-deploy confidence is handled in two layers: CD now checks that the app responds immediately after restart, and <a href="../../testing/postman-monitoring/">Postman Monitoring</a> keeps checking deployed endpoints every few hours.</p>
+<h2 id="dependency-maintenance">Dependency Maintenance</h2>
+<p>Dependabot is configured for:</p>
+<ul>
+<li>Bundler dependencies in <code>/ruby-app</code></li>
+<li>GitHub Actions in <code>/</code></li>
+</ul>
+<p>Both run weekly. This keeps Ruby dependencies and workflow actions visible as regular pull requests instead of silent drift.</p>
 
 
 
