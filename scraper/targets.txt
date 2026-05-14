@@ -1,0 +1,15 @@
+# English pages
+https://en.wikipedia.org/wiki/Docker_(software)
+https://en.wikipedia.org/wiki/Kubernetes
+https://en.wikipedia.org/wiki/Linux
+https://en.wikipedia.org/wiki/Python_(programming_language)
+https://en.wikipedia.org/wiki/Ruby_(programming_language)
+https://en.wikipedia.org/wiki/PostgreSQL
+https://en.wikipedia.org/wiki/Git
+https://en.wikipedia.org/wiki/Open_source
+
+# Danish pages
+https://da.wikipedia.org/wiki/Linux
+https://da.wikipedia.org/wiki/Computerprogrammering
+https://da.wikipedia.org/wiki/Kunstig_intelligens
+https://da.wikipedia.org/wiki/Internet
