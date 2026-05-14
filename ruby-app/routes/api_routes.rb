@@ -136,6 +136,31 @@ post '/api/change-password' do
   json message: 'password changed'
 end
 
+post '/api/pages' do
+  secret = ENV['CRAWLER_SECRET'].to_s.strip
+  halt 403, json(error: 'forbidden') if secret.empty? || request.env['HTTP_X_CRAWLER_SECRET'] != secret
+
+  payload = request_payload
+  pages = payload.is_a?(Array) ? payload : payload['pages']
+  halt 422, json(error: 'pages must be an array') unless pages.is_a?(Array)
+
+  inserted = 0
+  pages.each do |page|
+    next unless page['url'] && page['content'] && page['title']
+    lang = %w[en da].include?(page['language']) ? page['language'] : 'en'
+    DB[:pages].insert_conflict(
+      target: :url,
+      update: { title: page['title'], content: page['content'], language: lang, last_updated: Time.now }
+    ).insert(
+      title: page['title'], url: page['url'], content: page['content'],
+      language: lang, last_updated: Time.now
+    )
+    inserted += 1
+  end
+
+  json inserted: inserted
+end
+
 get '/api/weather' do
   city = params['city'].to_s.strip
   country = params['country'].to_s.strip
