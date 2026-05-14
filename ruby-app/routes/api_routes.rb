@@ -141,12 +141,18 @@ post '/api/pages' do
   halt 403, json(error: 'forbidden') if secret.empty? || request.env['HTTP_X_CRAWLER_SECRET'] != secret
 
   payload = request_payload
-  pages = payload.is_a?(Array) ? payload : payload['pages']
-  halt 422, json(error: 'pages must be an array') unless pages.is_a?(Array)
+  pages = if payload.is_a?(Array)
+    payload
+  elsif payload.is_a?(Hash) && payload['pages'].is_a?(Array)
+    payload['pages']
+  else
+    halt 422, json(error: 'invalid request: expected array or object with pages array')
+  end
 
   inserted = 0
   pages.each do |page|
     next unless page['url'] && page['content'] && page['title']
+    next if page['content'].to_s.bytesize > 1_048_576
     lang = %w[en da].include?(page['language']) ? page['language'] : 'en'
     DB[:pages].insert_conflict(
       target: :url,
@@ -158,6 +164,7 @@ post '/api/pages' do
     inserted += 1
   end
 
+  LOGGER.info("[CRAWLER] inserted=#{inserted} total=#{pages.size}")
   json inserted: inserted
 end
 
