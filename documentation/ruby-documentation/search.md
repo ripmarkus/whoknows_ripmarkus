@@ -8,11 +8,12 @@ The search index is populated by a web crawler that scrapes curated pages and in
 
 ## Ingest endpoint
 
-`POST /api/pages` accepts an array of page objects and upserts them into the database.
+`POST /api/pages` accepts a batch of page objects and upserts them into the database.
 
 **Authentication:** `X-Crawler-Secret` header must match the `CRAWLER_SECRET` environment variable.
 
-**Request body:**
+**Accepted payload shapes** - either a top-level array or a wrapped object:
+
 ```json
 [
   {
@@ -24,12 +25,20 @@ The search index is populated by a web crawler that scrapes curated pages and in
 ]
 ```
 
+```json
+{
+  "pages": [
+    { "title": "Docker", "url": "https://...", "content": "...", "language": "en" }
+  ]
+}
+```
+
 **Response:**
 ```json
 { "inserted": 1 }
 ```
 
-Existing rows are updated by URL (upsert). Language must be `en` or `da`; anything else defaults to `en`.
+Existing rows are updated by URL (upsert). Language must be `en` or `da`; anything else defaults to `en`. Entries missing `title`, `url`, or `content` are silently skipped and not counted.
 
 ---
 

@@ -151,7 +151,7 @@ post '/api/pages' do
 
   inserted = 0
   pages.each do |page|
-    next unless page['url'] && page['content'] && page['title']
+    next unless page.is_a?(Hash) && page['url'] && page['content'] && page['title']
     next if page['content'].to_s.bytesize > 1_048_576
     lang = %w[en da].include?(page['language']) ? page['language'] : 'en'
     DB[:pages].insert_conflict(
