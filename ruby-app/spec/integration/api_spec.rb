@@ -73,4 +73,50 @@ RSpec.describe 'API endpoints' do
     body = JSON.parse(last_response.body)
     expect(body['message']).to eq('Login successful')
   end
+
+  describe 'POST /api/pages' do
+    let(:secret) { 'test-secret' }
+    let(:valid_page) { { 'title' => 'New Page', 'url' => 'http://new.com', 'content' => 'hello world', 'language' => 'en' } }
+
+    it 'returns 403 with no secret header' do
+      post '/api/pages', [valid_page].to_json, 'CONTENT_TYPE' => 'application/json'
+      expect(last_response.status).to eq(403)
+    end
+
+    it 'returns 403 with wrong secret' do
+      header 'X-Crawler-Secret', 'wrong'
+      post '/api/pages', [valid_page].to_json, 'CONTENT_TYPE' => 'application/json'
+      expect(last_response.status).to eq(403)
+    end
+
+    it 'returns 422 when body is not an array or pages object' do
+      header 'X-Crawler-Secret', secret
+      post '/api/pages', { 'title' => 'x' }.to_json, 'CONTENT_TYPE' => 'application/json'
+      expect(last_response.status).to eq(422)
+    end
+
+    it 'inserts valid pages and returns count' do
+      header 'X-Crawler-Secret', secret
+      post '/api/pages', [valid_page].to_json, 'CONTENT_TYPE' => 'application/json'
+      expect(last_response.status).to eq(200)
+      body = JSON.parse(last_response.body)
+      expect(body['inserted']).to eq(1)
+    end
+
+    it 'skips pages missing required fields' do
+      header 'X-Crawler-Secret', secret
+      post '/api/pages', [{ 'url' => 'http://x.com' }].to_json, 'CONTENT_TYPE' => 'application/json'
+      body = JSON.parse(last_response.body)
+      expect(body['inserted']).to eq(0)
+    end
+
+    it 'upserts existing pages by url' do
+      header 'X-Crawler-Secret', secret
+      post '/api/pages', [valid_page].to_json, 'CONTENT_TYPE' => 'application/json'
+      updated = valid_page.merge('content' => 'updated content')
+      header 'X-Crawler-Secret', secret
+      post '/api/pages', [updated].to_json, 'CONTENT_TYPE' => 'application/json'
+      expect(last_response.status).to eq(200)
+    end
+  end
 end

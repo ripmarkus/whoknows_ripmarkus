@@ -14,6 +14,7 @@ ENV['RACK_ENV'] = 'test'
 # Use just the filename for relative path from where Sequel.connect is called
 ENV['DATABASE_URL'] = "sqlite://#{TEST_DB_FILE}"
 ENV['MONITORING_IP'] = '127.0.0.1'
+ENV['CRAWLER_SECRET'] = 'test-secret'
 
 def setup_test_db
   # Remove existing database file
