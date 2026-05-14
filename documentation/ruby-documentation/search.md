@@ -42,8 +42,8 @@ Scrapes the URLs listed in `scraper/targets.txt`, extracts title and body text w
 ### Running locally
 
 ```bash
-cd scraper
-CRAWLER_SECRET=your-secret API_URL=http://localhost:4567 ruby scraper.rb
+# from repo root
+CRAWLER_SECRET=your-secret API_URL=http://localhost:4567 ruby scraper/scraper.rb
 ```
 
 ### Adding targets
