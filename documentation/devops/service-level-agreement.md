@@ -2,17 +2,17 @@
 
 ## Introduction
 
-This document describes the Service Level Agreement (SLA) for the WhoKnows project.
+This document describes the Service Level Agreement (SLA) for the WhoKnows-project.
 
 The purpose of this SLA is to define what level of service users can expect from the system, how incidents are handled, and what maintenance and operational procedures are used to keep the application stable and available.
 
-The project is a DevOps school project where an old Python2 application was refactored into Ruby/Sinatra and deployed using Docker, GitHub Actions, PostgreSQL and CI/CD practices.
+The project is a DevOps school project where an old Python 2 application was refactored into Ruby/Sinatra and deployed using Docker, GitHub Actions, PostgreSQL and CI/CD practices.
 
 ---
 
 ## Service Overview
 
-The WhoKnows project is a containerized Ruby/Sinatra web application modernized from an older Python2 codebase.
+The WhoKnows-project is a containerized Ruby/Sinatra web application modernized from an older Python 2 codebase.
 
 The system includes:
 
