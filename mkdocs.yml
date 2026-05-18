@@ -38,6 +38,7 @@ nav:
   - DevOps:
       - CI/CD Pipeline: devops/ci-cd.md
       - Docker: devops/docker.md
+      - Monitoring: devops/monitoring.md
       - DevOps Philosophy: devops/devops-and-us.md
       - Code Review (CodeRabbit): devops/coderabbit-review.md
   - Database:
