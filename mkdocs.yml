@@ -29,7 +29,8 @@ theme:
 nav:
   - Home: README.md
   - Getting Started:
-      - Local Setup: development/init_pages and init_db.md
+      - Setup Linux/MacOS: local/setup-guide-linuxvmacos.md
+      - Setup Linux/MacOS: local/setup-guide-windows.md
       - Branching Strategy: development/branching-strategy.md
       - Contributing: development/contributions.md
   - Architecture:
