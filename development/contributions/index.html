@@ -479,6 +479,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#git-hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Git Hooks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#commits" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1708,6 +1719,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#git-hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Git Hooks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#commits" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1832,6 +1854,27 @@
 (type = chore/refactor/feat/fix/documentation)</p>
 <pre><code class="language-bash">git checkout -b type/&lt;branch-name&gt;
 </code></pre>
+<h2 id="git-hooks">Git Hooks</h2>
+<p>We use Git hooks stored in <code>.githooks/</code> to enforce commit quality locally. Run this once after cloning:</p>
+<pre><code class="language-bash">git config core.hooksPath .githooks
+</code></pre>
+<p>Two hooks are active:</p>
+<ul>
+<li><strong>pre-commit</strong> - scans staged files for secrets using <a href="https://github.com/gitleaks/gitleaks">gitleaks</a>. Install it before committing:
+  ```bash
+  # macOS
+  brew install gitleaks</li>
+</ul>
+<p># Linux
+  sudo apt install gitleaks</p>
+<p># Windows (winget)
+  winget install gitleaks
+  # or download the .exe from https://github.com/gitleaks/gitleaks/releases
+  ```
+  The hook will warn but not block if gitleaks is not installed.</p>
+<ul>
+<li><strong>commit-msg</strong> - rejects commits that do not follow the Conventional Commits format (see below).</li>
+</ul>
 <h2 id="commits">Commits</h2>
 <p>We love commits and we love to commit every time we have added a new:</p>
 <ul>
