@@ -11,6 +11,10 @@
       
       
       
+        <link rel="prev" href="../docker/">
+      
+      
+        <link rel="next" href="../devops-and-us/">
       
       
         
@@ -21,7 +25,7 @@
     
     
       
-        <title>whoknows — Developer Setup Guide - WhoKnows Docs</title>
+        <title>Monitoring - WhoKnows Docs</title>
       
     
     
@@ -70,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#whoknows-developer-setup-guide" class="md-skip">
+        <a href="#monitoring" class="md-skip">
           Skip to content
         </a>
       
@@ -106,7 +110,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              whoknows — Developer Setup Guide
+              Monitoring
             
           </span>
         </div>
@@ -510,8 +514,10 @@
       
   
   
+    
   
   
+  
     
     
     
@@ -522,11 +528,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
         
           
           <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
@@ -547,7 +553,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             
@@ -565,7 +571,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../devops/ci-cd/" class="md-nav__link">
+      <a href="../ci-cd/" class="md-nav__link">
         
   
   
@@ -593,7 +599,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../devops/docker/" class="md-nav__link">
+      <a href="../docker/" class="md-nav__link">
         
   
   
@@ -618,10 +624,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../devops/monitoring/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Monitoring
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -637,6 +670,120 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#stack-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stack Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-we-monitor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What We Monitor
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What We Monitor">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#business-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Business Metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security Metrics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#metrics-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metrics Reference
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#search-keyword-metric" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Search Keyword Metric
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#grafana-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Grafana Access
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deployment
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -649,7 +796,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../devops/devops-and-us/" class="md-nav__link">
+      <a href="../devops-and-us/" class="md-nav__link">
         
   
   
@@ -677,7 +824,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../devops/coderabbit-review/" class="md-nav__link">
+      <a href="../coderabbit-review/" class="md-nav__link">
         
   
   
@@ -1506,10 +1653,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#step-1-install-ruby-dependencies" class="md-nav__link">
+  <a href="#stack-overview" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 1 — Install Ruby Dependencies
+        Stack Overview
       
     </span>
   </a>
@@ -1517,10 +1664,38 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#step-2-install-postgresql-18" class="md-nav__link">
+  <a href="#what-we-monitor" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 2 — Install PostgreSQL 18
+        What We Monitor
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What We Monitor">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#business-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Business Metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security Metrics
       
     </span>
   </a>
@@ -1528,10 +1703,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#step-3-configure-pg_hbaconf" class="md-nav__link">
+  <a href="#metrics-reference" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 3 — Configure pg_hba.conf
+        Metrics Reference
       
     </span>
   </a>
@@ -1539,10 +1714,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#step-4-restart-the-postgresql-service" class="md-nav__link">
+  <a href="#search-keyword-metric" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 4 — Restart the PostgreSQL Service
+        Search Keyword Metric
       
     </span>
   </a>
@@ -1550,10 +1725,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#step-5-create-the-database" class="md-nav__link">
+  <a href="#grafana-access" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 5 — Create the Database
+        Grafana Access
       
     </span>
   </a>
@@ -1561,21 +1736,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#step-6-restore-the-database-dump" class="md-nav__link">
+  <a href="#deployment" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 6 — Restore the Database Dump
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#step-7-configure-environment-variables" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 7 — Configure Environment Variables
+        Deployment
       
     </span>
   </a>
@@ -1599,7 +1763,7 @@
 
 
   
-    <a href="https://github.com/ripmarkus/whoknows_ripmarkus/edit/main/documentation/local/setup-guide-linuxvmacos.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/ripmarkus/whoknows_ripmarkus/edit/main/documentation/devops/monitoring.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -1607,96 +1771,50 @@
   
 
 
-<h1 id="whoknows-developer-setup-guide">whoknows — Developer Setup Guide</h1>
-<blockquote>
-<p>macOS · Linux · PostgreSQL 18 · Ruby</p>
-</blockquote>
-<hr />
-<h2 id="step-1-install-ruby-dependencies">Step 1 — Install Ruby Dependencies</h2>
-<p>Navigate into the project folder and install all gems:</p>
-<pre><code class="language-bash">cd ruby-app
-bundle install
-
-# Install and build Tailwind CSS
-gem install tailwindcss-ruby
-bundle exec tailwindcss -i public/input.css -o public/output.css
-</code></pre>
-<blockquote>
-<p><strong>Note:</strong> This project uses Tailwind CSS v4 syntax in <code>public/input.css</code> (<code>@import "tailwindcss"</code>). If the build fails with <code>Failed to find 'tailwindcss'</code>, your local bundle is still on Tailwind 3.x. Update the gem to <code>tailwindcss-ruby ~&gt; 4.0</code>, run <code>bundle update tailwindcss-ruby</code>, and then rerun the build command above.</p>
-<p><strong>Note:</strong> If the Tailwind commands fail, skip them for now and return to this step later.</p>
-</blockquote>
-<hr />
-<h2 id="step-2-install-postgresql-18">Step 2 — Install PostgreSQL 18</h2>
-<p><strong>macOS (Homebrew):</strong></p>
-<pre><code class="language-bash">brew install postgresql@18
-brew services start postgresql@18
-</code></pre>
-<p>Add PostgreSQL to your PATH by appending this to your <code>~/.zshrc</code> or <code>~/.bash_profile</code>:</p>
-<pre><code class="language-bash">export PATH=&quot;/opt/homebrew/opt/postgresql@18/bin:$PATH&quot;
-</code></pre>
-<p>Then reload your shell:</p>
-<pre><code class="language-bash">source ~/.zshrc   # or source ~/.bash_profile
-</code></pre>
-<p><strong>Linux (Debian/Ubuntu):</strong></p>
-<pre><code class="language-bash">sudo apt install -y postgresql-18
-sudo systemctl enable --now postgresql
-</code></pre>
-<hr />
-<h2 id="step-3-configure-pg_hbaconf">Step 3 — Configure <code>pg_hba.conf</code></h2>
-<p>Open the config file in your editor. The location varies by platform:</p>
+<h1 id="monitoring">Monitoring</h1>
+<p>We run a Prometheus and Grafana stack to track how the application behaves in production. Prometheus scrapes metrics from the app every 15 seconds and stores them. Grafana reads from Prometheus and visualizes the data in dashboards.</p>
+<h2 id="stack-overview">Stack Overview</h2>
+<p>Prometheus runs on the app server and pulls metrics from:</p>
 <ul>
-<li><strong>macOS (Homebrew):</strong> <code>/opt/homebrew/var/postgresql@18/pg_hba.conf</code></li>
-<li><strong>Linux:</strong> <code>/etc/postgresql/18/main/pg_hba.conf</code></li>
+<li>Our Sinatra app at <code>/metrics</code> (exposed on port 8080, restricted to <code>MONITORING_IP</code>)</li>
+<li>node_exporter for host-level CPU, memory, disk, network metrics</li>
 </ul>
-<p>Find every entry where the <code>METHOD</code> column reads <code>scram-sha-256</code> or <code>peer</code> and change it to <code>trust</code>. The finished file should look like this:</p>
-<pre><code class="language-conf"># TYPE  DATABASE        USER            ADDRESS                 METHOD
-local   all             all                                     trust
-host    all             all             127.0.0.1/32            trust
-host    all             all             ::1/128                 trust
-local   replication     all                                     trust
-host    replication     all             127.0.0.1/32            trust
-host    replication     all             ::1/128                 trust
-</code></pre>
-<blockquote>
-<p>⚠️ <strong>Security note:</strong> Setting the method to <code>trust</code> disables password authentication for the local PostgreSQL service. This is intentional for local development — never do this on a publicly accessible server.</p>
-</blockquote>
-<hr />
-<h2 id="step-4-restart-the-postgresql-service">Step 4 — Restart the PostgreSQL Service</h2>
-<p><strong>macOS:</strong></p>
-<pre><code class="language-bash">brew services restart postgresql@18
-</code></pre>
-<p><strong>Linux:</strong></p>
-<pre><code class="language-bash">sudo systemctl restart postgresql
-</code></pre>
-<hr />
-<h2 id="step-5-create-the-database">Step 5 — Create the Database</h2>
-<p>The default superuser on most installations is <code>postgres</code>. Create the application database:</p>
-<pre><code class="language-bash">createdb -U postgres whoknows
-</code></pre>
-<blockquote>
-<p><strong>macOS tip:</strong> Homebrew may set the default user to your macOS username instead of <code>postgres</code>. If the above fails, try <code>createdb whoknows</code> without the <code>-U</code> flag, or run <code>psql postgres</code> to check which user you are.</p>
-</blockquote>
-<hr />
-<h2 id="step-6-restore-the-database-dump">Step 6 — Restore the Database Dump</h2>
-<p>Replace the empty database with the provided SQL dump:</p>
-<pre><code class="language-bash">psql -h 127.0.0.1 -U postgres -d whoknows -f ./full_dump.sql
-</code></pre>
-<p>This connects to your running PostgreSQL instance and imports the full schema and data from the dump file.</p>
-<hr />
-<h2 id="step-7-configure-environment-variables">Step 7 — Configure Environment Variables</h2>
-<p>Look for the <code>.env</code> file in the root of the <code>ruby-app</code> directory. These variables are automatically loaded when the application starts:</p>
-<pre><code class="language-env">OPENWEATHER_API_KEY=&lt;your_key&gt;
-POSTGRES_DB=whoknows
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=
-DATABASE_URL=postgres://postgres@localhost:5432/whoknows
-MONITORING_IP=&lt;your_ip&gt;
-</code></pre>
-<blockquote>
-<p><strong>Tip:</strong> <code>DATABASE_URL</code> is the most important variable. Check the application code if you are unsure which of the others are required.</p>
-</blockquote>
-<hr />
-<p><strong>You're all set!</strong> Start the application and verify everything is working.</p>
+<p>Grafana runs in Docker on a separate monitoring server, accessing Prometheus via internal network.</p>
+<p>Dashboards are provisioned via GitOps: JSON files in the monitoring repo are automatically loaded by Grafana within 30 seconds of a push to main. No UI edits are persisted. All dashboard changes go through git commits.</p>
+<h2 id="what-we-monitor">What We Monitor</h2>
+<h3 id="business-metrics">Business Metrics</h3>
+<p>The Business Observability dashboard shows how users interact with the product.</p>
+<p>Successful logins track user retention. Search hit rate (successful searches over total searches) tells us if the search feature is useful. Registration count shows growth. Total search volume shows engagement.</p>
+<p>The two keyword tables surface product intelligence: top searched terms show what users want, and top keywords with no results highlight content gaps where users look but find nothing.</p>
+<h2 id="security-metrics">Security Metrics</h2>
+<p>The Security Observability dashboard monitors for potential attacks and auth failures.</p>
+<p>Failed logins spike during brute force attacks. HTTP 401 (Unauthorized) and 403 (Forbidden) responses indicate access control issues. Failed registration attempts may signal spam or automated attack scripts.</p>
+<p>The failed login rate panel includes thresholds to highlight unusual patterns. The total request rate baseline helps spot DDoS or scanning activity.</p>
+<h2 id="metrics-reference">Metrics Reference</h2>
+<p>All metrics live in the Prometheus registry exposed by the app at <code>/metrics</code>.</p>
+<p>Counters (cumulative counts):</p>
+<p><code>login_attempts_total</code> with label <code>result</code> (success, failure)
+<code>registrations_total</code> with label <code>result</code> (success, failure)
+<code>password_changes_total</code> with label <code>result</code> (success, failure)
+<code>search_queries_total</code> with labels <code>hit</code> (hit, miss) and <code>language</code> (latin, non_latin, unknown)
+<code>search_keyword_total</code> with labels <code>keyword</code> (the search term, lowercased) and <code>hit</code> (hit, miss)
+<code>http_requests_total</code> with labels <code>method</code>, <code>path</code>, <code>status_code</code>
+<code>http_request_errors_total</code> with labels <code>method</code>, <code>path</code>, <code>error_class</code>
+<code>weather_api_requests_total</code> with labels <code>phase</code>, <code>status_code</code>
+<code>weather_api_errors_total</code> with labels <code>phase</code>, <code>error_class</code></p>
+<p>Histograms (distributions):</p>
+<p><code>http_request_duration_seconds</code> with labels <code>method</code>, <code>path</code>, <code>status_code</code>
+<code>search_duration_seconds</code> with labels <code>language</code>, <code>hit</code>
+<code>weather_api_duration_seconds</code> with labels <code>phase</code>, <code>status_code</code></p>
+<h2 id="search-keyword-metric">Search Keyword Metric</h2>
+<p>The <code>search_keyword_total</code> counter is new and enables the business dashboard keyword tables.</p>
+<p>When a user searches for something, we increment this counter with the query term (lowercased and stripped) and whether results were found. Blank searches (homepage load with no query) are skipped.</p>
+<p>At this scale, cardinality is acceptable. If users conduct hundreds of unique searches daily, the metric label values stay manageable for Prometheus. If this changes, we can aggregate keywords or apply a top-k filter at scrape time.</p>
+<h2 id="grafana-access">Grafana Access</h2>
+<p>Grafana runs at the monitoring endpoint with admin credentials in <code>.env</code>. All dashboards are read-only in the UI since they are file-provisioned. To modify a dashboard, edit the JSON in git and push to main.</p>
+<p>Dashboard UIDs are unique identifiers used in URLs: <code>business-observability</code> and <code>security-observability</code>.</p>
+<h2 id="deployment">Deployment</h2>
+<p>Push changes to the monitoring repo main branch. The GitHub Actions workflow SSHes into the monitoring server, runs <code>git pull</code>, and restarts docker-compose. Grafana detects new JSON files within its 30-second poll interval and loads them automatically.</p>
 
 
 
