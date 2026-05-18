@@ -11,8 +11,10 @@
       
       
       
-        <link rel="prev" href="../../reports/mandatory-2/mandatory-2/">
+        <link rel="prev" href="../security-docs/">
       
+      
+        <link rel="next" href="../../reports/KPI-report/">
       
       
         
@@ -23,7 +25,7 @@
     
     
       
-        <title>Useful Links - WhoKnows Docs</title>
+        <title>Search Indexing - WhoKnows Docs</title>
       
     
     
@@ -72,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#the-ruby-language" class="md-skip">
+        <a href="#search-indexing" class="md-skip">
           Skip to content
         </a>
       
@@ -108,7 +110,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Useful Links
+              Search Indexing
             
           </span>
         </div>
@@ -1056,8 +1058,10 @@
       
   
   
+    
   
   
+  
     
     
     
@@ -1068,11 +1072,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" checked>
         
           
           <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
@@ -1093,7 +1097,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_8">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1111,7 +1115,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ruby-documentation/api-docs/" class="md-nav__link">
+      <a href="../api-docs/" class="md-nav__link">
         
   
   
@@ -1139,7 +1143,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ruby-documentation/db-config/" class="md-nav__link">
+      <a href="../db-config/" class="md-nav__link">
         
   
   
@@ -1167,7 +1171,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ruby-documentation/security-docs/" class="md-nav__link">
+      <a href="../security-docs/" class="md-nav__link">
         
   
   
@@ -1192,10 +1196,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../ruby-documentation/search/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Search Indexing
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1211,6 +1242,148 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ingest-endpoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ingest endpoint
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#crawler-script" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Crawler script
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Crawler script">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#running-locally" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running locally
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adding-targets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adding targets
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-env-vars" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required env vars
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scheduling-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scheduling strategy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Scheduling strategy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#decision-github-actions-cron-schedule" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decision: GitHub Actions cron schedule
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tradeoffs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tradeoffs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-github-secrets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required GitHub secrets
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1370,8 +1543,6 @@
       
   
   
-    
-  
   
   
     
@@ -1384,11 +1555,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
         
           
           <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="">
@@ -1409,7 +1580,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_10">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1424,37 +1595,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Useful Links
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../reference/useful-links/" class="md-nav__link">
         
   
   
@@ -1470,59 +1614,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#20-min-tutorial" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        20 min tutorial
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#from-python-to-ruby" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        From Python to Ruby
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#style-guides" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Style guides
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1562,10 +1653,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#20-min-tutorial" class="md-nav__link">
+  <a href="#overview" class="md-nav__link">
     <span class="md-ellipsis">
       
-        20 min tutorial
+        Overview
       
     </span>
   </a>
@@ -1573,10 +1664,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#from-python-to-ruby" class="md-nav__link">
+  <a href="#ingest-endpoint" class="md-nav__link">
     <span class="md-ellipsis">
       
-        From Python to Ruby
+        Ingest endpoint
       
     </span>
   </a>
@@ -1584,13 +1675,102 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#style-guides" class="md-nav__link">
+  <a href="#crawler-script" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Style guides
+        Crawler script
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Crawler script">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#running-locally" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running locally
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adding-targets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adding targets
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-env-vars" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required env vars
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scheduling-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scheduling strategy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Scheduling strategy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#decision-github-actions-cron-schedule" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decision: GitHub Actions cron schedule
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tradeoffs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tradeoffs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-github-secrets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required GitHub secrets
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1611,7 +1791,7 @@
 
 
   
-    <a href="https://github.com/ripmarkus/whoknows_ripmarkus/edit/main/documentation/reference/useful-links.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/ripmarkus/whoknows_ripmarkus/edit/main/documentation/ruby-documentation/search.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -1619,22 +1799,113 @@
   
 
 
-<h1 id="the-ruby-language">The Ruby Language</h1>
-<h2 id="20-min-tutorial">20 min tutorial</h2>
-<p>https://www.ruby-lang.org/en/documentation/quickstart/</p>
-<h2 id="from-python-to-ruby">From Python to Ruby</h2>
-<p>https://www.ruby-lang.org/en/documentation/ruby-from-other-languages/to-ruby-from-python/</p>
-<h2 id="style-guides">Style guides</h2>
-<p>https://rubystyle.guide/</p>
-<p>https://github.com/airbnb/ruby</p>
-<h1 id="ruby-with-sinatra">Ruby with Sinatra</h1>
-<h2 id="basic-webapp">Basic Webapp</h2>
-<p>https://roberteshleman.com/blog/2014/06/26/creating-a-basic-web-app-with-ruby-and-sinatra/</p>
-<h2 id="official-sinatra-documentation">Official Sinatra documentation</h2>
-<p>https://sinatrarb.com/intro.html</p>
-<h1 id="ruby-and-sqlite">Ruby and SQLite</h1>
-<h2 id="queries">Queries</h2>
-<p>https://zetcode.com/db/sqliteruby/queries/</p>
+<h1 id="search-indexing">Search Indexing</h1>
+<h2 id="overview">Overview</h2>
+<p>The search index is populated by a web crawler that scrapes curated pages and inserts them into the <code>pages</code> table via a protected API endpoint. The existing full-text search infrastructure (PostgreSQL FTS, <code>tsvector</code> column, GIN index) handles query execution.</p>
+<hr />
+<h2 id="ingest-endpoint">Ingest endpoint</h2>
+<p><code>POST /api/pages</code> accepts a batch of page objects and upserts them into the database.</p>
+<p><strong>Authentication:</strong> <code>X-Crawler-Secret</code> header must match the <code>CRAWLER_SECRET</code> environment variable.</p>
+<p><strong>Accepted payload shapes</strong> - either a top-level array or a wrapped object:</p>
+<pre><code class="language-json">[
+  {
+    &quot;title&quot;: &quot;Docker&quot;,
+    &quot;url&quot;: &quot;https://en.wikipedia.org/wiki/Docker_(software)&quot;,
+    &quot;content&quot;: &quot;Docker is a set of platform as a service...&quot;,
+    &quot;language&quot;: &quot;en&quot;
+  }
+]
+</code></pre>
+<pre><code class="language-json">{
+  &quot;pages&quot;: [
+    { &quot;title&quot;: &quot;Docker&quot;, &quot;url&quot;: &quot;https://...&quot;, &quot;content&quot;: &quot;...&quot;, &quot;language&quot;: &quot;en&quot; }
+  ]
+}
+</code></pre>
+<p><strong>Response:</strong></p>
+<pre><code class="language-json">{ &quot;inserted&quot;: 1 }
+</code></pre>
+<p>Existing rows are updated by URL (upsert). Language must be <code>en</code> or <code>da</code>; anything else defaults to <code>en</code>. Entries missing <code>title</code>, <code>url</code>, or <code>content</code> are silently skipped and not counted.</p>
+<hr />
+<h2 id="crawler-script">Crawler script</h2>
+<p>Location: <code>scraper/scraper.rb</code></p>
+<p>Scrapes the URLs listed in <code>scraper/targets.txt</code>, extracts title and body text with Nokogiri, and POSTs the results to <code>/api/pages</code>.</p>
+<h3 id="running-locally">Running locally</h3>
+<pre><code class="language-bash"># from repo root
+CRAWLER_SECRET=your-secret API_URL=http://localhost:4567 ruby scraper/scraper.rb
+</code></pre>
+<h3 id="adding-targets">Adding targets</h3>
+<p>Edit <code>scraper/targets.txt</code> - one URL per line. Lines starting with <code>#</code> are comments.</p>
+<h3 id="required-env-vars">Required env vars</h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CRAWLER_SECRET</code></td>
+<td>Shared secret matching the app's <code>CRAWLER_SECRET</code> env var</td>
+</tr>
+<tr>
+<td><code>API_URL</code></td>
+<td>Base URL of the app (default: <code>http://localhost:4567</code>)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="scheduling-strategy">Scheduling strategy</h2>
+<h3 id="decision-github-actions-cron-schedule">Decision: GitHub Actions cron schedule</h3>
+<p>The crawler runs weekly via a GitHub Actions scheduled workflow (<code>.github/workflows/crawler.yaml</code>), every Sunday at 03:00 UTC. It can also be triggered manually via <code>workflow_dispatch</code>.</p>
+<h3 id="tradeoffs">Tradeoffs</h3>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Manual script</td>
+<td>Zero setup, full control</td>
+<td>Requires human to run it</td>
+</tr>
+<tr>
+<td>GitHub Actions cron</td>
+<td>Free, repo-integrated, no extra infra, auditable run history</td>
+<td>Scheduled workflows are <strong>automatically disabled after 60 days of repo inactivity</strong> in public repos; jobs may be dropped under high load - schedule at odd hours to mitigate</td>
+</tr>
+<tr>
+<td>Serverless (Lambda/Cloud Run)</td>
+<td>Always-on, scales infinitely, event-driven</td>
+<td>Requires cloud account, extra infra to maintain, cost at scale</td>
+</tr>
+</tbody>
+</table>
+<p>GitHub Actions was chosen because it requires no external infrastructure, runs are logged and auditable in the repo, and the crawl volume is small enough that weekly scheduling is sufficient. Serverless would be the right upgrade path if the crawler needed to run hourly or respond to events.</p>
+<h3 id="required-github-secrets">Required GitHub secrets</h3>
+<table>
+<thead>
+<tr>
+<th>Secret</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CRAWLER_SECRET</code></td>
+<td>Must match the app's <code>CRAWLER_SECRET</code> env var</td>
+</tr>
+<tr>
+<td><code>API_URL</code></td>
+<td>Production URL of the app</td>
+</tr>
+</tbody>
+</table>
 
 
 
