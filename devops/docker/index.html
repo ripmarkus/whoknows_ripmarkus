@@ -608,6 +608,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -624,6 +642,36 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#dev-vs-production-compose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dev vs Production Compose
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1515,6 +1563,25 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#dev-vs-production-compose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dev vs Production Compose
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1590,6 +1657,32 @@ EXPOSE 4567
 
 CMD [&quot;ruby&quot;, &quot;app.rb&quot;, &quot;-o&quot;, &quot;0.0.0.0&quot;, &quot;-p&quot;, &quot;8080&quot;]
 </code></pre>
+<h2 id="dev-vs-production-compose">Dev vs Production Compose</h2>
+<p>There are two Compose files in <code>ruby-app/</code>:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>compose.yaml</code></td>
+<td>Production - no bind mounts, uses the built image</td>
+</tr>
+<tr>
+<td><code>compose.dev.yml</code></td>
+<td>Development - bind mounts source code, uses <code>rerun</code> for hot-reloading</td>
+</tr>
+</tbody>
+</table>
+<p>To run locally with hot-reloading:</p>
+<pre><code class="language-bash">cd ruby-app
+docker compose -f compose.dev.yml up --build
+</code></pre>
+<p>Any change to a <code>.rb</code> file will automatically restart the app inside the container. The production <code>compose.yaml</code> is never used for local development - it exists for CI and the deployment pipeline.</p>
+<hr />
 <p>For production, we don't want to use CDN for serving the tailwind styling. Instead we want to build it with the app.</p>
 <p>The following has been added to the Dockerfile:</p>
 <pre><code class="language-docker"># Download Tailwind CLI and compile CSS
