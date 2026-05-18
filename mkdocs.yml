@@ -54,6 +54,7 @@ nav:
       - API Docs: ruby-documentation/api-docs.md
       - Database Config: ruby-documentation/db-config.md
       - Security: ruby-documentation/security-docs.md
+      - Search Indexing: ruby-documentation/search.md
   - Reports:
       - KPI Report: reports/KPI-report.md
       - Mandatory 1: reports/mandatory-1/mandatory-1.md
