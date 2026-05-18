@@ -1,0 +1,16 @@
+#!/bin/sh
+# Enforce Conventional Commits format
+
+commit_msg=$(cat "$1")
+pattern="^(feat|fix|chore|docs|ci|refactor|test|style|perf|revert)(\(.+\))?: .+"
+
+if ! echo "$commit_msg" | grep -qE "$pattern"; then
+  echo "Invalid commit message: '$commit_msg'"
+  echo ""
+  echo "Must match Conventional Commits format:"
+  echo "  <type>: <description>"
+  echo ""
+  echo "Allowed types: feat, fix, chore, docs, ci, refactor, test, style, perf, revert"
+  echo "Example: feat: add search endpoint"
+  exit 1
+fi

@@ -31,6 +31,32 @@ To create a new branch, use the follow command in the cloned repo:
 git checkout -b type/<branch-name>
 ```
 
+## Git Hooks
+
+We use Git hooks stored in `.githooks/` to enforce commit quality locally. Run this once after cloning:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+Two hooks are active:
+
+- **pre-commit** - scans staged files for secrets using [gitleaks](https://github.com/gitleaks/gitleaks). Install it before committing:
+  ```bash
+  # macOS
+  brew install gitleaks
+
+  # Linux
+  sudo apt install gitleaks
+
+  # Windows (winget)
+  winget install gitleaks
+  # or download the .exe from https://github.com/gitleaks/gitleaks/releases
+  ```
+  The hook will warn but not block if gitleaks is not installed.
+
+- **commit-msg** - rejects commits that do not follow the Conventional Commits format (see below).
+
 ## Commits
 
 We love commits and we love to commit every time we have added a new:
