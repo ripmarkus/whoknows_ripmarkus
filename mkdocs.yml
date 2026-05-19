@@ -42,6 +42,7 @@ nav:
       - Monitoring: devops/monitoring.md
       - DevOps Philosophy: devops/devops-and-us.md
       - Code Review (CodeRabbit): devops/coderabbit-review.md
+      - Service Level Agreement: devops/service-level-agreement.md
   - Database:
       - Postgres Migrations: database/postgres-migration.md
   - Testing:
