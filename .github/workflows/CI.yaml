@@ -57,7 +57,7 @@ jobs:
 
   docker_build:
     name: Docker Build
-    needs: [test, lint]
+    needs: [test]
     runs-on: ubuntu-latest
     permissions:
       contents: read
