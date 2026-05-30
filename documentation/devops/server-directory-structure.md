@@ -5,6 +5,7 @@ This document describes the directory structure and locations of active configur
 ## Architecture Philosophy
 
 All Docker and deployment structures are strictly isolated inside the `/opt/` system directory using the following conventions:
+
 *   **System Decoupling:** Keeping configurations entirely out of individual `/home/` directories ensures that files remain accessible and persistent regardless of which team member is logged in.
 *   **Centralized Backup Scope:** Consolidating all infrastructure configurations inside a single root directory (`/opt/docker/devops/`) allows for simple, unified snapshotting and disaster recovery.
 *   **FHS Compliance:** Adhering to the standard Linux Filesystem Hierarchy Standard by placing self-contained, optional third-party stacks into the global `/opt/` space.
@@ -13,6 +14,7 @@ All Docker and deployment structures are strictly isolated inside the `/opt/` sy
 ## Global Paths
 
 All active production files related to Docker and server management are located in the main system directory under opt:
+
 *   Path: `/opt/docker/devops/`
 
 ---
