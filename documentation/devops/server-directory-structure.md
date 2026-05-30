@@ -1,16 +1,14 @@
 # Server Documentation: tivieserver (Application Server)
 
-This document describes the directory structure, user profiles, and locations of active configuration files on the main server.
+This document describes the directory structure and locations of active configuration files on the main server.
 
-## User Profiles
+## Architecture Philosophy
 
-The server is configured with the following active user profiles under `/home/`:
-*   `kristian`
-*   `mathias`
-*   `niko`
-*   `valdemar`
+All Docker and deployment structures are strictly isolated inside the `/opt/` system directory using the following conventions:
+*   **System Decoupling:** Keeping configurations entirely out of individual `/home/` directories ensures that files remain accessible and persistent regardless of which team member is logged in.
+*   **Centralized Backup Scope:** Consolidating all infrastructure configurations inside a single root directory (`/opt/docker/devops/`) allows for simple, unified snapshotting and disaster recovery.
+*   **FHS Compliance:** Adhering to the standard Linux Filesystem Hierarchy Standard by placing self-contained, optional third-party stacks into the global `/opt/` space.
 
-All Docker projects are located centrally in the shared system directory under `/opt/`, making production files accessible across all user profiles.
 
 ## Global Paths
 
