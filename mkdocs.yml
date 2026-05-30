@@ -43,6 +43,7 @@ nav:
       - DevOps Philosophy: devops/devops-and-us.md
       - Code Review (CodeRabbit): devops/coderabbit-review.md
       - Service Level Agreement: devops/service-level-agreement.md
+      - Server Directory Structure: devops/server-directory-structure.md
   - Database:
       - Postgres Migrations: database/postgres-migration.md
   - Testing:
