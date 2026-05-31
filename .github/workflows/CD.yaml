@@ -32,8 +32,8 @@ jobs:
 
           # Backup før deploy
           mkdir -p /opt/backups/whoknows
-          BACKUP="/opt/backups/whoknows/pre_deploy_\$(date +%Y%m%d_%H%M%S).dump"
-          docker compose exec -T db pg_dump -U \$POSTGRES_USER -d \$POSTGRES_DB > "\$BACKUP"
+          BACKUP="/opt/backups/whoknows/pre_deploy_$(date +%Y%m%d_%H%M%S).dump"
+          docker compose exec -T db pg_dump -U $POSTGRES_USER -d $POSTGRES_DB > "$BACKUP"
           ls -t /opt/backups/whoknows/*.dump | tail -n +11 | xargs -r rm -f
 
           docker compose pull web
