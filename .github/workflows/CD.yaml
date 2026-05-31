@@ -5,7 +5,6 @@ on:
     workflows: ["Ruby CI"]
     types: [completed]
     branches: [main]
-
 jobs:
   deploy:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
@@ -17,46 +16,26 @@ jobs:
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/homeserver
           chmod 600 ~/.ssh/homeserver
 
-      - name: Deploy app
-        env:
-          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
-          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+      - name: Deploy
         run: |
-          ssh -i ~/.ssh/homeserver -o StrictHostKeyChecking=no "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}" 'bash -s' << EOF
-          set -uo pipefail
+          ssh -i ~/.ssh/homeserver -o StrictHostKeyChecking=no \
+            "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}" << "DEPLOY"
+          set -eo pipefail
 
-          echo "Logging in to GHCR..."
-          echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
-
-          echo "Changing to app directory..."
           cd /opt/docker/devops/whoknows_ripmarkus/ruby-app
 
-          echo "Checking if database container is running..."
-          DB_RUNNING=\$(docker compose ps --services --status running | grep -c '^db$' || true)
+          set -a && source .env && set +a
 
-          if [ "\$DB_RUNNING" -gt 0 ]; then
-            echo "Database is running. Creating pre-deploy backup..."
-            BACKUP_DIR="/opt/backups/whoknows"
-            BACKUP_FILE="\$BACKUP_DIR/pre_deploy_\$(date +%Y%m%d_%H%M%S).dump"
-            mkdir -p "\$BACKUP_DIR"
+          echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
 
-            if docker compose exec -T db pg_dump -U whoknows --format=custom whoknows > "\$BACKUP_FILE" < /dev/null; then
-              echo "Backup created: \$BACKUP_FILE"
-              echo "Cleaning old backups (keeping last 10)..."
-              ls -t "\$BACKUP_DIR"/*.dump 2>/dev/null | tail -n +11 | xargs -r rm -f || true
-            else
-              rm -f "\$BACKUP_FILE"
-              echo "WARNING: Backup failed. Continuing deployment anyway."
-            fi
-          else
-            echo "WARNING: Database container is not running. Skipping backup."
-          fi
+          wget -O compose.yaml https://raw.githubusercontent.com/ripmarkus/whoknows_ripmarkus/refs/heads/main/ruby-app/docker_compose.yaml
 
-          echo "Pulling latest web image..."
-          docker compose pull web || exit 1
+          # Backup før deploy
+          mkdir -p /opt/backups/whoknows
+          BACKUP="/opt/backups/whoknows/pre_deploy_\$(date +%Y%m%d_%H%M%S).dump"
+          docker compose exec -T db pg_dump -U \$POSTGRES_USER -d \$POSTGRES_DB > "\$BACKUP"
+          ls -t /opt/backups/whoknows/*.dump | tail -n +11 | xargs -r rm -f
 
-          echo "Restarting web container..."
-          docker compose up -d --no-deps web || exit 1
-
-          echo "Deployment complete."
-          EOF
+          docker compose pull web
+          docker compose up -d
+          DEPLOY
