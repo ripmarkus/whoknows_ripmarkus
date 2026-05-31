@@ -26,7 +26,7 @@ jobs:
 
           echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
 
-          wget -O compose.yaml https://raw.githubusercontent.com/ripmarkus/whoknows_ripmarkus/refs/heads/main/ruby-app/compose.yaml
+          wget -O compose.yaml https://raw.githubusercontent.com/ripmarkus/whoknows_ripmarkus/refs/heads/main/ruby-app/docker_compose.yaml
 
           # Backup før deploy
           mkdir -p /opt/backups/whoknows
