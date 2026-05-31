@@ -19,10 +19,12 @@ jobs:
       - name: Deploy
         run: |
           ssh -i ~/.ssh/homeserver -o StrictHostKeyChecking=no \
-            "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}" << 'DEPLOY'
+            "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}" << "DEPLOY"
           set -eo pipefail
 
           cd /opt/docker/devops/whoknows_ripmarkus/ruby-app
+
+          set -a && source .env && set +a
 
           echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
 
@@ -30,8 +32,8 @@ jobs:
 
           # Backup før deploy
           mkdir -p /opt/backups/whoknows
-          BACKUP="/opt/backups/whoknows/pre_deploy_$(date +%Y%m%d_%H%M%S).dump"
-          docker compose exec -T db pg_dump -U whoknows -d whoknows > "$BACKUP"
+          BACKUP="/opt/backups/whoknows/pre_deploy_\$(date +%Y%m%d_%H%M%S).dump"
+          docker compose exec -T db pg_dump -U \$POSTGRES_USER -d \$POSTGRES_DB > "\$BACKUP"
           ls -t /opt/backups/whoknows/*.dump | tail -n +11 | xargs -r rm -f
 
           docker compose pull web
