@@ -19,7 +19,7 @@ jobs:
       - name: Deploy
         run: |
           ssh -i ~/.ssh/homeserver -o StrictHostKeyChecking=no \
-            "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}" << DEPLOY
+            "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}" << 'DEPLOY'
           set -eo pipefail
 
           cd /opt/docker/devops/whoknows_ripmarkus/ruby-app
