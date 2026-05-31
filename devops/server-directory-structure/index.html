@@ -1809,12 +1809,10 @@
 <p>This directory is the central hub of the server. It contains the source code, database, web server, and the monitoring agent (Node Exporter). Everything runs within a closed, internal Docker network under this shared configuration.</p>
 <ul>
 <li>Path: <code>/opt/docker/devops/whoknows_ripmarkus/ruby-app/</code></li>
-<li>Key Files:<ul>
+<li>Key Files:</li>
 <li><code>compose.yaml</code> — The active Docker Compose file managing the database, Ruby app, Nginx, and the active Node Exporter.</li>
 <li><code>nginx.conf</code> — The web server configuration file handling the domain, SSL certificates, and secure endpoints (<code>/metrics/ruby</code> and <code>/metrics/node</code>) for external monitoring.</li>
 <li><code>Dockerfile</code> — The recipe file used to build the internal Ruby application environment.</li>
-</ul>
-</li>
 </ul>
 <hr />
 <h2 id="navigation-shortcuts">Navigation Shortcuts</h2>
