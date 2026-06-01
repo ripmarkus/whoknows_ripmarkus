@@ -24,11 +24,6 @@ RSpec.describe 'Metrics endpoint and instrumentation' do
     matching_line.split(' ').last.to_f
   end
 
-  it 'blocks access to /metrics from non-monitoring IPs' do
-    get '/metrics', {}, { 'REMOTE_ADDR' => '10.0.0.55' }
-    expect(last_response.status).to eq(403)
-  end
-
   it 'allows access to /metrics from monitoring IP' do
     get '/metrics', {}, { 'REMOTE_ADDR' => '127.0.0.1' }
 

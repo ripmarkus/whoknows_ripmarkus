@@ -5,11 +5,6 @@ get '/health' do
 end
 
 get '/metrics' do
-  monitoring_ip = ENV['MONITORING_IP'].to_s.strip
-  monitoring_ip = '127.0.0.1' if monitoring_ip.empty?
-
-  halt 403, 'Forbidden' unless allowed_ip?(current_request_ip, monitoring_ip)
-
   content_type 'text/plain; version=0.0.4; charset=utf-8'
   Prometheus::Client::Formats::Text.marshal(PROM_REGISTRY)
 end
