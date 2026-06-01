@@ -18,7 +18,7 @@ jobs:
 
       - name: Start application
         working-directory: ruby-app
-        run: docker compose -f compose.owasp.yaml up -d --build
+        run: docker compose -f compose.actions.yaml up -d --build
 
       - name: Wait for application to be healthy
         run: |
@@ -31,7 +31,7 @@ jobs:
             sleep 5
             if [ $i -eq 15 ]; then
               echo "App failed to start, printing logs..."
-              docker compose -f compose.owasp.yaml logs web
+              docker compose -f compose.actions.yaml logs web
               exit 1
             fi
           done
@@ -57,4 +57,4 @@ jobs:
       - name: Tear down application
         if: always()
         working-directory: ruby-app
-        run: docker compose -f compose.owasp.yaml down
+        run: docker compose -f compose.actions.yaml down
