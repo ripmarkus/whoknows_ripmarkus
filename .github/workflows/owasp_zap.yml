@@ -18,7 +18,7 @@ jobs:
 
       - name: Start application
         working-directory: ruby-app
-        run: docker compose up -d --build
+        run: docker compose -f ./compose.owasp.yaml up -d --build
 
       - name: Wait for application to be healthy
         run: |
