@@ -54,7 +54,7 @@ jobs:
       - name: Run Docker container for health check
         working-directory: ruby-app
         run: |
-          docker compose up -d
+          docker compose -f compose.actions.yaml up -d
           for i in $(seq 1 10); do
             if curl -sf http://localhost:8080/; then
               echo "App is up!"
@@ -68,7 +68,7 @@ jobs:
               exit 1
             fi
           done
-          docker compose down
+          docker compose -f compose.actions.yaml down
 
   docker_push:
     name: Docker Push
